@@ -39,6 +39,16 @@ export default function WorkbookEditor() {
   const [noticeType, setNoticeType] = useState('success')
 
   useEffect(() => {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem('gridnova:activity:' + workbookId) || '[]')
+      setActivity(Array.isArray(stored) ? stored : [])
+    } catch {
+      setActivity([])
+    }
+    setReviewPanelMode(null)
+  }, [workbookId])
+
+  useEffect(() => {
     let mounted = true
     getWorkbook(workbookId)
       .then((record) => {
@@ -234,18 +244,6 @@ export default function WorkbookEditor() {
     }
     setRibbonMode(nextMode)
     try { window.localStorage.setItem('gridnova:ribbon-mode:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
-  }
-
-  async function handleTopBarCommand(commandId, successMessage) {
-    try {
-      const result = await editorApi?.executeCommand(commandId)
-      if (result === false) throw new Error('This command is not available in the current workbook state.')
-      setNoticeType('success')
-      setNotice(successMessage)
-    } catch (error) {
-      setNoticeType('error')
-      setNotice(error instanceof Error ? error.message : 'The command could not be completed.')
-    }
   }
 
   async function handleShareWorkbook() {
