@@ -106,15 +106,18 @@ export default function WorkbookEditor() {
     setNotice('')
     try {
       const importedSnapshot = await importExcelFile(file)
-      importedSnapshot.id = workbookId
+      importedSnapshot.id = 'gridnova-import-' + (globalThis.crypto?.randomUUID?.() || Date.now())
       editorApi.replaceSnapshot(importedSnapshot)
       const importedTitle = importedSnapshot.name || file.name.replace(/\\.(xlsx|xls|csv|tsv)$/i, '')
       setTitle(importedTitle)
-      lastSavedRef.current = ''
+      const importedCurrentSnapshot = editorApi.getSnapshot()
+      importedCurrentSnapshot.name = importedTitle
+      await saveWorkbook({ id: workbookId, name: importedTitle, snapshot: importedCurrentSnapshot })
+      lastSavedRef.current = JSON.stringify(importedCurrentSnapshot)
+      setSavedAt(Date.now())
       setNoticeType('success')
-      setNotice('Imported ' + file.name + '. Changes will autosave in this browser.')
-      setSaveState('Imported — saving')
-      window.setTimeout(() => saveNow({ force: true }), 250)
+      setNotice('Imported ' + file.name + ' and saved the workbook in this browser.')
+      setSaveState('Saved in this browser')
     } catch (error) {
       console.error('GridNova import failed:', error)
       setNoticeType('error')
@@ -179,7 +182,7 @@ export default function WorkbookEditor() {
           {savedAt ? ' · ' + new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
         </span>
         <div className="editor-action-group">
-          <input ref={fileInputRef} className="visually-hidden" type="file" accept=".xlsx,.xls,.csv,.tsv" onChange={handleImport} />
+          <input ref={fileInputRef} className="visually-hidden" type="file" accept=".xlsx,.csv,.tsv" onChange={handleImport} />
           <button className="editor-action-button" type="button" onClick={() => fileInputRef.current?.click()}>Import</button>
           <button className="editor-action-button" type="button" onClick={handleExportCsv}>CSV</button>
           <button className="editor-action-button" type="button" onClick={handleExportExcel}>Export XLSX</button>
