@@ -118,6 +118,24 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
   return root
 }
 
+function toggleGridlines(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet) return
+  sheet.setHiddenGridlines(!sheet.hasHiddenGridLines())
+}
+
+function freezeFirstRow(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet) return
+  sheet.setFrozenRows(1)
+}
+
+function freezeFirstColumn(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet) return
+  sheet.setFrozenColumns(1)
+}
+
 function removeDuplicatesFromSelection(univerAPI) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
@@ -229,9 +247,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
           { id: 'print', title: 'Print', icon: 'print', action: 'print' },
         ] },
         { id: 'sheet-options', title: 'Sheet Options', items: [
-          { id: 'gridlines', title: 'Toggle Gridlines', command: 'sheet.command.toggle-gridlines' },
-          { id: 'freeze-row', title: 'Freeze First Row', command: 'sheet.command.set-first-row-frozen' },
-          { id: 'freeze-column', title: 'Freeze First Column', command: 'sheet.command.set-first-column-frozen' },
+          { id: 'gridlines', title: 'Toggle Gridlines', icon: 'layout', run: toggleGridlines },
+          { id: 'freeze-row', title: 'Freeze First Row', run: freezeFirstRow },
+          { id: 'freeze-column', title: 'Freeze First Column', run: freezeFirstColumn },
         ] },
       ],
     },
@@ -394,7 +412,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.view', id: 'show', title: 'Show', order: 0, items: [
-        { id: 'toggle-gridlines', title: 'Gridlines', command: 'sheet.command.toggle-gridlines' },
+        { id: 'toggle-gridlines', title: 'Gridlines', icon: 'layout', run: toggleGridlines },
       ],
     },
     {
@@ -461,7 +479,6 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'sheet.operation.insert-hyper-link-toolbar': { icon: 'gridnova-icon-share' },
     'ui.operation.open-find-dialog': { icon: 'gridnova-icon-help' },
     'sheet.toolbar.sheet-frozen': { icon: 'gridnova-icon-layout' },
-    'sheet.command.toggle-gridlines': { icon: 'gridnova-icon-layout' },
     'sheet.menu.image': { icon: 'gridnova-icon-table' },
     'sheet.operation.print-open': { icon: 'gridnova-icon-print' },
     'sheet.operation.open-print-grid-sidebar': { icon: 'gridnova-icon-print' },
