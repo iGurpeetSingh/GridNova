@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { deleteWorkbook, listWorkbooks } from '../services/workbookStorage.js'
+import { deleteWorkbook, listWorkbooks, saveWorkbook } from '../services/workbookStorage.js'
 
 const templates = [
   { icon: '▦', title: 'Blank workbook', detail: 'Start with an empty spreadsheet', tone: 'green', ready: true },
@@ -117,15 +117,19 @@ export default function Dashboard() {
     refreshWorkbooks()
   }, [])
 
-  function openWorkbook(title = 'Untitled workbook', snapshot = null) {
+  async function openWorkbook(title = 'Untitled workbook', snapshot = null) {
     const id = makeId()
     if (snapshot) {
       snapshot.id = id
       snapshot.name = title
+      try {
+        await saveWorkbook({ id, name: title, snapshot })
+      } catch (error) {
+        window.alert(error instanceof Error ? error.message : 'Could not create the template workbook.')
+        return
+      }
     }
-    navigate('/workbook/' + id + '?title=' + encodeURIComponent(title), {
-      state: snapshot ? { initialSnapshot: snapshot } : undefined,
-    })
+    navigate('/workbook/' + id + '?title=' + encodeURIComponent(title))
   }
 
   function openExisting(record) {
