@@ -235,6 +235,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   const clipboardGroup = univerAPI.createSubmenu({
     id: 'gridnova.ribbon.home.clipboard',
     title: 'Clipboard',
+    order: 1,
   })
   ;[
     { id: 'paste', title: 'Paste', icon: 'table', command: 'sheet.command.paste' },
@@ -254,7 +255,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
 
   const homeGroups = [
     {
-      id: 'number', title: 'Number', items: [
+      id: 'number', title: 'Number', order: 4, items: [
         { id: 'number-format', title: 'Number Format', icon: 'table', command: 'sheet.operation.open.numfmt.panel' },
         { id: 'currency', title: 'Currency', command: 'sheet.command.numfmt.set.currency' },
         { id: 'percent', title: 'Percentage', command: 'sheet.command.numfmt.set.percent' },
@@ -263,14 +264,14 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       ],
     },
     {
-      id: 'styles', title: 'Styles', items: [
+      id: 'styles', title: 'Styles', order: 5, items: [
         { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', command: 'sheet.operation.open.conditional.formatting.panel' },
         { id: 'data-bars', title: 'Data Bars', command: 'sheet.command.add-data-bar-conditional-rule' },
         { id: 'icon-sets', title: 'Icon Sets', command: 'sheet.command.add-icon-set-conditional-rule' },
       ],
     },
     {
-      id: 'cells', title: 'Cells', items: [
+      id: 'cells', title: 'Cells', order: 6, items: [
         { id: 'insert-row', title: 'Insert Row', command: 'sheet.command.insert-row-before' },
         { id: 'insert-column', title: 'Insert Column', command: 'sheet.command.insert-col-before' },
         { id: 'delete-row', title: 'Delete Row', command: 'sheet.command.remove-row-confirm' },
@@ -278,7 +279,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       ],
     },
     {
-      id: 'editing', title: 'Editing', items: [
+      id: 'editing', title: 'Editing', order: 7, items: [
         { id: 'sort-ascending', title: 'Sort A to Z', command: 'sheet.command.sort-range-asc' },
         { id: 'sort-descending', title: 'Sort Z to A', command: 'sheet.command.sort-range-desc' },
         { id: 'filter', title: 'Filter', icon: 'table', command: 'sheet.command.smart-toggle-filter' },
@@ -368,6 +369,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     const groupMenu = univerAPI.createSubmenu({
       id: 'gridnova.ribbon.' + group.path.replaceAll('.', '-') + '.' + group.id,
       title: group.title,
+      order: group.order,
     })
     group.items.forEach((item) => {
       groupMenu.addSubmenu(univerAPI.createMenu({
@@ -386,6 +388,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     const groupMenu = univerAPI.createSubmenu({
       id: 'gridnova.ribbon.home.' + group.id,
       title: group.title,
+      order: group.order,
     })
     group.items.forEach((item) => {
       groupMenu.addSubmenu(univerAPI.createMenu({
@@ -401,10 +404,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   })
 
   univerAPI.updateMenuConfig({
-    'ribbon.start.history': { title: 'Clipboard', order: 0 },
-    'ribbon.start.format': { title: 'Font', order: 1 },
-    'ribbon.start.layout': { title: 'Alignment', order: 2 },
-    'ribbon.start.others': { title: 'Editing', order: 6 },
+    'ribbon.start.history': { title: 'History', order: 0 },
+    'ribbon.start.format': { title: 'Font', order: 2 },
+    'ribbon.start.layout': { title: 'Alignment', order: 3 },
+    'ribbon.start.others': { title: 'More Editing', order: 8 },
     'univer.command.undo': { icon: 'gridnova-icon-home' },
     'univer.command.redo': { icon: 'gridnova-icon-home' },
     'ui.operation.activate-format-painter': { icon: 'gridnova-icon-layout' },
