@@ -501,10 +501,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     order: 1,
   })
   ;[
-    { id: 'paste', title: 'Paste', icon: 'table', command: 'sheet.command.paste' },
-    { id: 'cut', title: 'Cut', command: 'sheet.command.cut' },
-    { id: 'copy', title: 'Copy', command: 'sheet.command.copy' },
-    { id: 'format-painter', title: 'Format Painter', icon: 'layout', command: 'ui.operation.activate-format-painter' },
+    { id: 'paste', title: 'Paste', icon: 'paste', command: 'sheet.command.paste' },
+    { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut' },
+    { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy' },
+    { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: 'sheet.command.set-once-format-painter' },
   ].forEach((item) => {
     clipboardGroup.addSubmenu(univerAPI.createMenu({
       id: 'gridnova.ribbon.home.clipboard.' + item.id,
@@ -519,9 +519,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   const homeGroups = [
     {
       id: 'number', title: 'Number', order: 4, items: [
-        { id: 'number-format', title: 'Number Format', icon: 'table', command: 'sheet.operation.open.numfmt.panel' },
-        { id: 'currency', title: 'Currency', command: 'sheet.command.numfmt.set.currency' },
-        { id: 'percent', title: 'Percentage', command: 'sheet.command.numfmt.set.percent' },
+        { id: 'number-format', title: 'Number Format', icon: 'calculator', command: 'sheet.operation.open.numfmt.panel' },
+        { id: 'currency', title: 'Currency', icon: 'currency', command: 'sheet.command.numfmt.set.currency' },
+        { id: 'percent', title: 'Percentage', icon: 'percent', command: 'sheet.command.numfmt.set.percent' },
         { id: 'increase-decimal', title: 'Increase Decimal', command: 'sheet.command.numfmt.add.decimal.command' },
         { id: 'decrease-decimal', title: 'Decrease Decimal', command: 'sheet.command.numfmt.subtract.decimal.command' },
       ],
@@ -543,11 +543,11 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       id: 'editing', title: 'Editing', order: 7, items: [
-        { id: 'sort-ascending', title: 'Sort A to Z', command: 'sheet.command.sort-range-asc' },
+        { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', command: 'sheet.command.sort-range-asc' },
         { id: 'sort-descending', title: 'Sort Z to A', command: 'sheet.command.sort-range-desc' },
-        { id: 'filter', title: 'Filter', icon: 'table', command: 'sheet.command.smart-toggle-filter' },
+        { id: 'filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
         { id: 'clear-contents', title: 'Clear Contents', command: 'sheet.command.clear-selection-content' },
-        { id: 'find', title: 'Find & Replace', icon: 'help', command: 'ui.operation.open-find-dialog' },
+        { id: 'find', title: 'Find & Replace', icon: 'search', command: 'ui.operation.open-find-dialog' },
       ],
     },
   ]
@@ -561,7 +561,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
-        { id: 'insert-picture', title: 'Pictures', command: 'sheet.command.insert-float-image' },
+        { id: 'insert-picture', title: 'Pictures', icon: 'image', command: 'sheet.command.insert-float-image' },
         { id: 'insert-shape', title: 'Rectangle', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
       ],
     },
@@ -574,7 +574,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.insert', id: 'links', title: 'Links', order: 3, items: [
-        { id: 'insert-link', title: 'Hyperlink', icon: 'share', command: 'sheet.operation.insert-hyper-link-toolbar' },
+        { id: 'insert-link', title: 'Hyperlink', icon: 'link', command: 'sheet.operation.insert-hyper-link-toolbar' },
       ],
     },
     {
@@ -590,10 +590,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.data', id: 'sort-filter', title: 'Sort & Filter', order: 0, items: [
-        { id: 'sort-ascending', title: 'Sort A to Z', command: 'sheet.command.sort-range-asc' },
+        { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', command: 'sheet.command.sort-range-asc' },
         { id: 'sort-descending', title: 'Sort Z to A', command: 'sheet.command.sort-range-desc' },
         { id: 'custom-sort', title: 'Custom Sort', command: 'sheet.command.sort-range-custom' },
-        { id: 'toggle-filter', title: 'Filter', icon: 'table', command: 'sheet.command.smart-toggle-filter' },
+        { id: 'toggle-filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
         { id: 'clear-filter', title: 'Clear Filter', command: 'sheet.command.clear-filter-criteria' },
       ],
     },
