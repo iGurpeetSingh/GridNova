@@ -162,7 +162,7 @@ function insertDrawingShape(univerAPI, shapeType) {
   const shape = sheet.addFloatDomToRange(
     range,
     { componentKey },
-    { width: 180, height: 100, marginX: '15%', marginY: '15%' },
+    { width: 180, height: 100 },
     id,
   )
   if (!shape) {
@@ -345,7 +345,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'page-layout', title: 'Page Layout', order: 5, groups: [
         { id: 'page-setup', title: 'Page Setup', items: [
-          { id: 'print-layout', title: 'Print Layout', icon: 'layout', command: 'sheet.operation.open-print-grid-sidebar' },
+          { id: 'print-layout', title: 'Print Layout', icon: 'layout', action: 'print' },
           { id: 'print', title: 'Print', icon: 'print', action: 'print' },
         ] },
         { id: 'sheet-options', title: 'Sheet Options', items: [
@@ -373,8 +373,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'help', title: 'Help', order: 10, groups: [
         { id: 'support', title: 'Help & Support', items: [
-          { id: 'feature-search', title: 'Search Tools', icon: 'help', command: 'ui.operation.open-feature-search' },
-          { id: 'shortcuts', title: 'Keyboard Shortcuts', command: 'base-ui.operation.toggle-shortcut-panel' },
+          { id: 'feature-search', title: 'Search Help', icon: 'help', action: 'open-help' },
+          { id: 'shortcuts', title: 'Keyboard Shortcuts Guide', action: 'open-help' },
           { id: 'docs', title: 'GridNova Guide', icon: 'guide', action: 'open-help' },
         ] },
       ],
@@ -382,8 +382,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'draw', title: 'Draw', order: 11, groups: [
         { id: 'drawing', title: 'Drawing', items: [
-          { id: 'insert-shape', title: 'Insert Shape', icon: 'draw', command: 'sheet.command.menu-insert-shape' },
-          { id: 'layers', title: 'Selection Pane', command: 'sheet.operation.open-shape-object-list-panel' },
+          { id: 'rectangle', title: 'Rectangle', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
+          { id: 'ellipse', title: 'Ellipse', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
+          { id: 'line', title: 'Line', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
         ] },
       ],
     },
@@ -451,20 +452,19 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   const nativeTabGroups = [
     {
       path: 'ribbon.insert', id: 'tables', title: 'Tables', order: 0, items: [
-        { id: 'insert-table', title: 'Table', icon: 'table', command: 'sheet.operation.open-table-selector' },
-        { id: 'insert-pivot-table', title: 'PivotTable', command: 'sheet.operation.open-pivot-table-range-selector-panel' },
+        { id: 'insert-table', title: 'Format as Table', icon: 'table', run: formatSelectionAsTable },
+        { id: 'insert-pivot-table', title: 'Pivot Summary Tools', action: 'insert-tools' },
       ],
     },
     {
       path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
         { id: 'insert-picture', title: 'Pictures', command: 'sheet.command.insert-float-image' },
-        { id: 'insert-shape', title: 'Shapes', icon: 'draw', command: 'sheet.command.menu-insert-shape' },
+        { id: 'insert-shape', title: 'Rectangle', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
       ],
     },
     {
       path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
-        { id: 'insert-chart', title: 'Recommended Charts', icon: 'table', command: 'sheet.command.menu-insert-chart' },
-        { id: 'insert-sparkline', title: 'Sparkline', command: 'sheet.operation.open-sparkline-selector' },
+        { id: 'insert-chart', title: 'Chart & Pivot Tools', icon: 'table', action: 'insert-tools' },
         { id: 'chart-pivot-tools', title: 'Chart & Pivot Tools', icon: 'table', action: 'insert-tools' },
       ],
     },
@@ -475,20 +475,13 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.formulas', id: 'function-library', title: 'Function Library', order: 0, items: [
-        { id: 'insert-function', title: 'Insert Function', command: 'formula-ui.operation.insert-function.common' },
+        { id: 'insert-function', title: 'Insert Function', command: 'formula-ui.operation.insert-function' },
         { id: 'more-functions', title: 'More Functions', command: 'formula-ui.operation.more-functions' },
-        { id: 'financial-functions', title: 'Financial', command: 'formula-ui.operation.insert-function.financial' },
-        { id: 'logical-functions', title: 'Logical', command: 'formula-ui.operation.insert-function.logical' },
-        { id: 'text-functions', title: 'Text', command: 'formula-ui.operation.insert-function.text' },
-        { id: 'date-functions', title: 'Date & Time', command: 'formula-ui.operation.insert-function.date' },
-        { id: 'lookup-functions', title: 'Lookup & Reference', command: 'formula-ui.operation.insert-function.lookup' },
-        { id: 'math-functions', title: 'Math & Trig', command: 'formula-ui.operation.insert-function.math' },
-        { id: 'statistical-functions', title: 'Statistical', command: 'formula-ui.operation.insert-function.statistical' },
       ],
     },
     {
       path: 'ribbon.formulas', id: 'calculation', title: 'Calculation', order: 1, items: [
-        { id: 'calculation-options', title: 'Calculation Options', command: 'sheets-formula-ui.operation.calculation-options' },
+        { id: 'recalculate', title: 'Recalculate Now', icon: 'table', run: recalculateFormulas },
       ],
     },
     {
@@ -520,9 +513,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.view', id: 'window', title: 'Window', order: 1, items: [
-        { id: 'freeze-panes', title: 'Freeze Panes', command: 'sheet.toolbar.sheet-frozen' },
-        { id: 'zoom', title: 'Zoom', command: 'sheet.menu.zoom-ratio' },
-        { id: 'fullscreen', title: 'Full Screen', command: 'base-ui.operation.toggle-fullscreen' },
+        { id: 'freeze-first-row', title: 'Freeze First Row', run: freezeFirstRow },
+        { id: 'freeze-first-column', title: 'Freeze First Column', run: freezeFirstColumn },
+        { id: 'unfreeze-panes', title: 'Unfreeze Panes', run: unfreezePanes },
+        { id: 'zoom', title: 'Zoom', run: (api) => { const sheet = api.getActiveWorkbook()?.getActiveSheet(); if (!sheet) return; const value = window.prompt('Enter zoom percentage (50–200)', String(Math.round(sheet.getZoom() * 100))); if (value === null) return; const percentage = Number(value); if (Number.isFinite(percentage) && percentage >= 50 && percentage <= 200) sheet.zoom(percentage / 100); else api.showMessage({ content: 'Enter a zoom value between 50 and 200.', type: 'warning' }); } },
       ],
     },
   ]
@@ -577,18 +571,12 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'sheet.operation.open.conditional.formatting.panel': { icon: 'gridnova-icon-layout' },
     'sheet.command.smart-toggle-filter': { icon: 'gridnova-icon-table' },
     'sheet.operation.open.numfmt.panel': { icon: 'gridnova-icon-table' },
-    'sheet.operation.open-pivot-table-range-selector-panel': { icon: 'gridnova-icon-table' },
-    'sheet.operation.open-sparkline-selector': { icon: 'gridnova-icon-table' },
-    'sheet.operation.insert-hyper-link-toolbar': { icon: 'gridnova-icon-share' },
+        'sheet.operation.insert-hyper-link-toolbar': { icon: 'gridnova-icon-share' },
     'ui.operation.open-find-dialog': { icon: 'gridnova-icon-help' },
     'sheet.toolbar.sheet-frozen': { icon: 'gridnova-icon-layout' },
     'sheet.menu.image': { icon: 'gridnova-icon-table' },
     'sheet.operation.print-open': { icon: 'gridnova-icon-print' },
-    'sheet.operation.open-print-grid-sidebar': { icon: 'gridnova-icon-print' },
-    'sheet.operation.toggle-comment-panel': { icon: 'gridnova-icon-review' },
-    'sheet.operation.show-comment-modal': { icon: 'gridnova-icon-review' },
-    'sheet.command.add-range-protection-from-toolbar': { icon: 'gridnova-icon-review' },
-    'sheet.command.menu-insert-shape': { icon: 'gridnova-icon-draw' },
+        'sheet.command.add-range-protection-from-toolbar': { icon: 'gridnova-icon-review' },
   })
 
   return [...icons, ...drawingComponents, ...menus, clipboardGroup, ...homeGroupMenus, ...nativeTabGroupMenus]
