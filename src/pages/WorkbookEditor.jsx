@@ -320,7 +320,7 @@ export default function WorkbookEditor() {
       return
     }
     if (action === 'open-note') {
-      setReviewPanelMode('comments')
+      await handleTopBarCommand('sheet.operation.add-note-popup', 'comments')
       return
     }
     if (action === 'open-catch-up') {
