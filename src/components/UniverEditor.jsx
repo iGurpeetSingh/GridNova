@@ -159,6 +159,45 @@ function removeDuplicatesFromSelection(univerAPI) {
   univerAPI.showMessage({ content: removedCount + ' duplicate row(s) cleared from the selected range.', type: 'success' })
 }
 
+function splitTextToColumns(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) {
+    univerAPI.showMessage({ content: 'Select one source column before using Text to Columns.', type: 'warning' })
+    return
+  }
+
+  if (range.getColumn() !== range.getLastColumn()) {
+    univerAPI.showMessage({ content: 'Text to Columns currently requires a single selected source column.', type: 'warning' })
+    return
+  }
+
+  const delimiterInput = window.prompt('Choose a delimiter: comma, semicolon, pipe, tab, or enter a custom character.', 'comma')
+  if (delimiterInput === null) return
+  const delimiterNames = { comma: ',', semicolon: ';', pipe: '|', tab: '\\t' }
+  const delimiter = delimiterNames[delimiterInput.trim().toLowerCase()] || delimiterInput
+  if (!delimiter) {
+    univerAPI.showMessage({ content: 'Enter a delimiter to continue.', type: 'warning' })
+    return
+  }
+
+  const values = range.getValues()
+  const splitRows = values.map((row) => String(row?.[0] ?? '').split(delimiter))
+  const outputColumnCount = Math.max(1, ...splitRows.map((row) => row.length))
+  if (outputColumnCount > 1) {
+    sheet.insertColumnsAfter(range.getColumn(), outputColumnCount - 1)
+  }
+
+  const output = splitRows.map((row) => {
+    const normalized = row.slice(0, outputColumnCount)
+    while (normalized.length < outputColumnCount) normalized.push('')
+    return normalized
+  })
+  sheet.getRange(range.getRow(), range.getColumn(), output.length, outputColumnCount).setValues(output)
+  sheet.autoResizeColumns(range.getColumn(), outputColumnCount)
+  univerAPI.showMessage({ content: 'Split ' + output.length + ' row(s) into ' + outputColumnCount + ' column(s).', type: 'success' })
+}
+
 function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   const icons = registerRibbonIcons(univerAPI)
   const tabs = [
@@ -345,6 +384,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       path: 'ribbon.data', id: 'data-tools', title: 'Data Tools', order: 1, items: [
         { id: 'data-validation', title: 'Data Validation', command: 'data-validation.operation.open-validation-panel' },
         { id: 'remove-duplicates', title: 'Remove Duplicates', icon: 'table', run: removeDuplicatesFromSelection },
+        { id: 'text-to-columns', title: 'Text to Columns', icon: 'table', run: splitTextToColumns },
       ],
     },
     {
