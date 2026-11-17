@@ -473,15 +473,15 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'review', title: 'Review', order: 8, groups: [
         { id: 'comments', title: 'Comments & Notes', items: [
-          { id: 'new-comment', title: 'New Comment', icon: 'review', action: 'open-comments' },
+          { id: 'new-comment', title: 'New Comment', icon: 'review', command: 'sheet.operation.show-comment-modal' },
           { id: 'new-note', title: 'New Note', action: 'open-note' },
-          { id: 'comment-panel', title: 'Comment Management', action: 'open-comments' },
+          { id: 'comment-panel', title: 'Comment Management', command: 'sheet.operation.toggle-comment-panel' },
         ] },
         { id: 'protection', title: 'Protection', items: [
           { id: 'protect-range', title: 'Protect Selected Range', command: 'sheet.command.add-range-protection-from-toolbar' },
         ] },
         { id: 'history', title: 'History', items: [
-          { id: 'edit-history', title: 'Edit History', action: 'open-catch-up' },
+          { id: 'edit-history', title: 'Edit History', command: 'univer.operation.toggle-edit-history' },
         ] },
       ],
     },
