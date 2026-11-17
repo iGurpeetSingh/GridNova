@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { GridRegular, TableRegular } from '@fluentui/react-icons'
+import { BookOpenRegular, CommentRegular, GridRegular, ShareRegular, TableRegular } from '@fluentui/react-icons'
 import UniverEditor from '../components/UniverEditor.jsx'
 import InsertToolsPanel from '../components/InsertToolsPanel.jsx'
 import { exportCsvFile, exportExcelFile, importExcelFile } from '../services/excelFileService.js'
@@ -206,6 +206,41 @@ export default function WorkbookEditor() {
     try { window.localStorage.setItem('gridnova:ribbon-mode:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
+  async function handleTopBarCommand(commandId, successMessage) {
+    try {
+      const result = await editorApi?.executeCommand(commandId)
+      if (result === false) throw new Error('This command is not available in the current workbook state.')
+      setNoticeType('success')
+      setNotice(successMessage)
+    } catch (error) {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'The command could not be completed.')
+    }
+  }
+
+  async function handleShareWorkbook() {
+    try {
+      const snapshot = editorApi?.getSnapshot()
+      if (!snapshot) throw new Error('The workbook is not ready yet.')
+      snapshot.name = title
+      const fileName = safeFileName(title) + '.xlsx'
+      const file = await exportExcelFile(snapshot, fileName, { download: false })
+      if (typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title, text: 'GridNova workbook' })
+        setNoticeType('success')
+        setNotice('Workbook shared.')
+      } else {
+        await exportExcelFile(snapshot, fileName)
+        setNoticeType('success')
+        setNotice('File sharing is not supported here. A shareable Excel copy was downloaded.')
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') return
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'Could not prepare the workbook for sharing.')
+    }
+  }
+
   async function handleRibbonAction(action) {
     if (action === 'save') {
       await saveNow({ force: true })
@@ -272,6 +307,12 @@ export default function WorkbookEditor() {
           <span>Workbook · {String(workbookId).slice(0, 8)}</span>
         </div>
         <div className="editor-appbar-spacer" />
+        <div className="editor-cloud-actions">
+          <button type="button" onClick={() => handleTopBarCommand('sheet.operation.toggle-comment-panel', 'Comments panel opened.')}><CommentRegular /> <span>Comments</span></button>
+          <button type="button" onClick={() => handleTopBarCommand('univer.operation.toggle-edit-history', 'Edit history opened.')}><BookOpenRegular /> <span>Catch up</span></button>
+          <span className="editor-mode-indicator">Editing</span>
+          <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
+        </div>
         <div className="ribbon-mode-switch" role="group" aria-label="Ribbon display mode">
           <button type="button" className={ribbonMode === 'collapsed' ? 'active' : ''} aria-pressed={ribbonMode === 'collapsed'} onClick={() => handleRibbonModeChange('collapsed')} title="Single Line Ribbon">
             <TableRegular /> <span>Single Line</span>
