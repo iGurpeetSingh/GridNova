@@ -118,6 +118,20 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
   return root
 }
 
+function hideSelectedRows(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return
+  sheet.hideRows(range.getRow(), range.getLastRow() - range.getRow() + 1)
+}
+
+function showSelectedRows(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return
+  sheet.showRows(range.getRow(), range.getLastRow() - range.getRow() + 1)
+}
+
 function toggleGridlines(univerAPI) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   if (!sheet) return
@@ -406,8 +420,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       ],
     },
     {
-      path: 'ribbon.data', id: 'outline', title: 'Outline', order: 2, items: [
-        { id: 'group-rows-columns', title: 'Group', command: 'sheet.toolbar.dimension-outline.group' },
+      path: 'ribbon.data', id: 'outline', title: 'Row Visibility', order: 2, items: [
+        { id: 'hide-selected-rows', title: 'Hide Selected Rows', run: hideSelectedRows },
+        { id: 'show-selected-rows', title: 'Unhide Selected Rows', run: showSelectedRows },
       ],
     },
     {
