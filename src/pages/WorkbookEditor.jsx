@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { BookOpenRegular, CommentRegular, GridRegular, ShareRegular, TableRegular } from '@fluentui/react-icons'
+import { ArrowRedoRegular, ArrowUndoRegular, BookOpenRegular, CommentRegular, GridRegular, ShareRegular, TableRegular } from '@fluentui/react-icons'
 import UniverEditor from '../components/UniverEditor.jsx'
 import InsertToolsPanel from '../components/InsertToolsPanel.jsx'
 import ReviewPanel from '../components/ReviewPanel.jsx'
@@ -394,6 +394,10 @@ export default function WorkbookEditor() {
             maxLength={120}
           />
           <span>Workbook · {String(workbookId).slice(0, 8)}</span>
+        </div>
+        <div className="editor-quick-access" aria-label="Quick Access Toolbar">
+          <button type="button" onClick={() => handleTopBarCommand('univer.command.undo', 'activity')} title="Undo" aria-label="Undo"><ArrowUndoRegular /></button>
+          <button type="button" onClick={() => handleTopBarCommand('univer.command.redo', 'activity')} title="Redo" aria-label="Redo"><ArrowRedoRegular /></button>
         </div>
         <div className="editor-appbar-spacer" />
         <div className="editor-cloud-actions">
