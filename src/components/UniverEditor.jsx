@@ -263,6 +263,22 @@ function recalculateFormulas(univerAPI) {
   univerAPI.showMessage({ content: 'Formula recalculation started.', type: 'success' })
 }
 
+function setSheetZoom(univerAPI, requestedPercentage) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet) return
+  let percentage = requestedPercentage
+  if (percentage == null) {
+    const input = window.prompt('Enter zoom percentage (50–200)', String(Math.round(sheet.getZoom() * 100)))
+    if (input === null) return
+    percentage = Number(input)
+  }
+  if (!Number.isFinite(percentage) || percentage < 50 || percentage > 200) {
+    univerAPI.showMessage({ content: 'Enter a zoom value between 50 and 200.', type: 'warning' })
+    return
+  }
+  sheet.zoom(percentage / 100)
+}
+
 function unfreezePanes(univerAPI) {
   univerAPI.getActiveWorkbook()?.getActiveSheet()?.cancelFreeze()
 }
@@ -579,7 +595,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'freeze-first-row', title: 'Freeze First Row', run: freezeFirstRow },
         { id: 'freeze-first-column', title: 'Freeze First Column', run: freezeFirstColumn },
         { id: 'unfreeze-panes', title: 'Unfreeze Panes', run: unfreezePanes },
-        { id: 'zoom', title: 'Zoom', run: (api) => { const sheet = api.getActiveWorkbook()?.getActiveSheet(); if (!sheet) return; const value = window.prompt('Enter zoom percentage (50–200)', String(Math.round(sheet.getZoom() * 100))); if (value === null) return; const percentage = Number(value); if (Number.isFinite(percentage) && percentage >= 50 && percentage <= 200) sheet.zoom(percentage / 100); else api.showMessage({ content: 'Enter a zoom value between 50 and 200.', type: 'warning' }); } },
+        { id: 'zoom', title: 'Zoom', run: (api) => setSheetZoom(api) },
+        { id: 'zoom-100', title: '100% Zoom', run: (api) => setSheetZoom(api, 100) },
       ],
     },
   ]
