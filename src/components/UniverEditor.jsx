@@ -691,7 +691,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   })
 
   univerAPI.updateMenuConfig({
-    'ribbon.start.history': { title: 'History', order: 0 },
+    'ribbon.start.history': { hidden: true },
     'ribbon.start.format': { title: 'Font', order: 2 },
     'ribbon.start.layout': { title: 'Alignment', order: 3 },
     'ribbon.start.others': { title: 'More Editing', order: 8 },
