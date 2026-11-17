@@ -81,7 +81,7 @@ function addColumnHeaderDeleteAction(univerAPI) {
   })
 
   // COL_HEADER is the dedicated right-click menu target for column letters.
-  deleteMenu.appendTo('contextMenu.colHeader')
+  deleteMenu.appendTo(['contextMenu.colHeader', 'contextMenu.others'])
   return deleteMenu
 }
 
