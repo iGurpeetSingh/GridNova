@@ -15,6 +15,7 @@ export default function WorkbookEditor() {
   const [searchParams] = useSearchParams()
   const fileInputRef = useRef(null)
   const lastSavedRef = useRef('')
+  const saveInFlightRef = useRef(null)
   const [title, setTitle] = useState(searchParams.get('title')?.trim() || 'Untitled workbook')
   const [initialSnapshot, setInitialSnapshot] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -52,30 +53,41 @@ export default function WorkbookEditor() {
 
   const saveNow = useCallback(async (options = {}) => {
     if (!editorApi) return false
-    const snapshot = editorApi.getSnapshot()
-    if (!snapshot) return false
-    snapshot.name = title
-    const serialized = JSON.stringify(snapshot)
-    if (!options.force && serialized === lastSavedRef.current) return true
+    if (saveInFlightRef.current) return saveInFlightRef.current
 
-    setSaveState('Saving…')
+    const task = (async () => {
+      const snapshot = editorApi.getSnapshot()
+      if (!snapshot) return false
+      snapshot.name = title
+      const serialized = JSON.stringify(snapshot)
+      if (!options.force && serialized === lastSavedRef.current) return true
+
+      setSaveState('Saving…')
+      try {
+        await saveWorkbook({
+          id: workbookId,
+          name: title,
+          snapshot,
+          updatedAt: Date.now(),
+        })
+        lastSavedRef.current = serialized
+        setSavedAt(Date.now())
+        setSaveState('Saved in this browser')
+        return true
+      } catch (error) {
+        console.error('GridNova autosave failed:', error)
+        setSaveState('Save failed')
+        setNoticeType('error')
+        setNotice(error instanceof Error ? error.message : 'Could not save this workbook in browser storage.')
+        return false
+      }
+    })()
+
+    saveInFlightRef.current = task
     try {
-      await saveWorkbook({
-        id: workbookId,
-        name: title,
-        snapshot,
-        updatedAt: Date.now(),
-      })
-      lastSavedRef.current = serialized
-      setSavedAt(Date.now())
-      setSaveState('Saved in this browser')
-      return true
-    } catch (error) {
-      console.error('GridNova autosave failed:', error)
-      setSaveState('Save failed')
-      setNoticeType('error')
-      setNotice(error instanceof Error ? error.message : 'Could not save this workbook in browser storage.')
-      return false
+      return await task
+    } finally {
+      if (saveInFlightRef.current === task) saveInFlightRef.current = null
     }
   }, [editorApi, title, workbookId])
 
