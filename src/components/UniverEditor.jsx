@@ -115,10 +115,18 @@ const RIBBON_ICONS = {
   paint: PaintBrushRegular,
 }
 
+const RIBBON_ICON_COLORS = {
+  save: '#217346', share: '#107C41', review: '#7B2CBF', help: '#0078D4',
+  draw: '#C65911', image: '#0078D4', table: '#217346', filter: '#0078D4',
+  sort: '#0078D4', currency: '#217346', percent: '#0078D4', paint: '#C65911',
+  fillColor: '#D6A400', textColor: '#D13438',
+}
+
 function registerRibbonIcons(univerAPI) {
   const disposables = []
   Object.entries(RIBBON_ICONS).forEach(([name, Icon]) => {
-    disposables.push(univerAPI.registerComponent('gridnova-icon-' + name, Icon))
+    const ColorIcon = (props) => <Icon {...props} style={{ ...props.style, color: RIBBON_ICON_COLORS[name] || '#475569' }} />
+    disposables.push(univerAPI.registerComponent('gridnova-icon-' + name, ColorIcon))
   })
   return disposables
 }
