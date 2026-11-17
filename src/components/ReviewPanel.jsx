@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CommentRegular, HistoryRegular, NoteRegular } from '@fluentui/react-icons'
+import { BookOpenRegular, CommentRegular } from '@fluentui/react-icons'
 
 function readStoredComments(workbookId) {
   try {
@@ -69,7 +69,7 @@ export default function ReviewPanel({ workbookId, api, mode = 'comments', activi
             <CommentRegular /> Comments
           </button>
           <button type="button" className={tab === 'activity' ? 'selected' : ''} onClick={() => setTab('activity')}>
-            <HistoryRegular /> Catch up
+            <BookOpenRegular /> Catch up
           </button>
         </nav>
 
@@ -77,7 +77,7 @@ export default function ReviewPanel({ workbookId, api, mode = 'comments', activi
           <>
             <form className="review-comment-form" onSubmit={addComment}>
               <div className="review-comment-context">
-                <span>{kind === 'Note' ? <NoteRegular /> : <CommentRegular />}</span>
+                <span>{kind === 'Note' ? <CommentRegular /> : <CommentRegular />}</span>
                 <strong>{kind} on {activeCell}</strong>
                 <select value={kind} onChange={(event) => setKind(event.target.value)} aria-label="Comment type">
                   <option>Comment</option>
