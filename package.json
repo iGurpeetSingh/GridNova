@@ -17,7 +17,8 @@
     "react-router-dom": "^6.30.1",
     "exceljs": "^4.4.0",
     "@univerjs/preset-sheets-drawing": "^1.1.0",
-    "@univerjs/preset-sheets-table": "^1.0.2"
+    "@univerjs/preset-sheets-table": "^1.0.2",
+    "@univerjs/preset-sheets-thread-comment": "^1.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
