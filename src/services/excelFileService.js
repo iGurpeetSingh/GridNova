@@ -131,7 +131,7 @@ export async function importExcelFile(file) {
 
   if (lowerName.endsWith('.csv') || lowerName.endsWith('.tsv')) {
     const delimiter = lowerName.endsWith('.tsv') ? '\\t' : ','
-    const rows = parseDelimitedText(new TextDecoder().decode(buffer), delimiter)
+    const rows = parseDelimitedText(new TextDecoder().decode(buffer).replace(/^\\uFEFF/, ''), delimiter)
     const sheetId = 'sheet_1_imported'
     const cellData = {}
     rows.forEach((row, rowIndex) => {
@@ -310,7 +310,7 @@ export function exportCsvFile(snapshot, fileName = 'GridNova Sheet.csv', sheetId
   const rows = []
   for (let row = 0; row <= maxRow; row += 1) {
     const values = []
-    for (let column = 0; column <= maxColumn; column += 1) values.push(cellData[row]?.[column]?.v ?? '')
+    for (let column = 0; column <= maxColumn; column += 1) {\n      const cell = cellData[row]?.[column]\n      values.push(cell?.v ?? (cell?.f ? '=' + cell.f : ''))\n    }
     rows.push(values.map(escapeCsvValue).join(','))
   }
   downloadBlob(new Blob(['\\uFEFF' + rows.join('\\r\\n')], { type: 'text/csv;charset=utf-8' }), fileName, 'text/csv;charset=utf-8')
