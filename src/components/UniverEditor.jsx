@@ -413,7 +413,7 @@ function splitTextToColumns(univerAPI) {
 
   const delimiterInput = window.prompt('Choose a delimiter: comma, semicolon, pipe, tab, or enter a custom character.', 'comma')
   if (delimiterInput === null) return
-  const delimiterNames = { comma: ',', semicolon: ';', pipe: '|', tab: '\\t' }
+  const delimiterNames = { comma: ',', semicolon: ';', pipe: '|', tab: '\t' }
   const delimiter = delimiterNames[delimiterInput.trim().toLowerCase()] || delimiterInput
   if (!delimiter) {
     univerAPI.showMessage({ content: 'Enter a delimiter to continue.', type: 'warning' })
