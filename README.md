@@ -8,6 +8,7 @@ GridNova is a desktop-first spreadsheet workspace built with React, Vite, and Un
 - Recent workbook list
 - Workbook editor with the Univer Sheets Core interface
 - Responsive grid-style ribbon and built-in context menus
+- Google Sheets-style column workflow: new sheets start with columns A–Z, inserted columns continue as AA, AB, AC…, and column-header right-click includes Insert Before/After, Delete selected columns, Hide/Show, Resize, and Fit to data
 - Formula calculation, cell formatting, sheet tabs, row/column operations, and core spreadsheet editing through Univer
 - Browser IndexedDB draft saving and reopen flow
 - XLSX and CSV/TSV import, XLSX and active-sheet CSV export
@@ -36,7 +37,7 @@ npm run preview
 - XLSX conversion currently targets ordinary worksheets, values, formulas, basic formatting, row/column dimensions, and merged cells. It is not a lossless round-trip for every Excel object, macro, external link, embedded object, or advanced chart.
 - Chart support currently provides a range-based preview panel, not an embedded editable chart object inside the grid.
 - Pivot support currently creates a grouped summary worksheet. It is not a native, refreshable drag-and-drop PivotTable with slicers.
-- Manual browser QA is required for touch behavior, browser-specific IndexedDB quotas, large workbooks, and complex XLSX files.
+- Manual browser QA is still required for column-header context-menu behavior, formula/reference preservation after insert/delete, touch behavior, browser-specific IndexedDB quotas, large workbooks, and complex XLSX files.
 
 ## Architecture notes
 
