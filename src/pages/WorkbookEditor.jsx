@@ -264,6 +264,16 @@ export default function WorkbookEditor() {
     try { window.localStorage.setItem('gridnova:ribbon-mode:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
+  async function handleQuickAccessCommand(commandId) {
+    try {
+      const result = await editorApi?.executeCommand(commandId)
+      if (result === false) throw new Error('This command is not available right now.')
+    } catch (error) {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'The command could not be completed.')
+    }
+  }
+
   async function handleTopBarCommand(commandId, fallbackMode) {
     try {
       const result = await editorApi?.executeCommand(commandId)
@@ -396,8 +406,8 @@ export default function WorkbookEditor() {
           <span>Workbook · {String(workbookId).slice(0, 8)}</span>
         </div>
         <div className="editor-quick-access" aria-label="Quick Access Toolbar">
-          <button type="button" onClick={() => handleTopBarCommand('univer.command.undo', 'activity')} title="Undo" aria-label="Undo"><ArrowUndoRegular /></button>
-          <button type="button" onClick={() => handleTopBarCommand('univer.command.redo', 'activity')} title="Redo" aria-label="Redo"><ArrowRedoRegular /></button>
+          <button type="button" onClick={() => handleQuickAccessCommand('univer.command.undo')} title="Undo" aria-label="Undo"><ArrowUndoRegular /></button>
+          <button type="button" onClick={() => handleQuickAccessCommand('univer.command.redo')} title="Redo" aria-label="Redo"><ArrowRedoRegular /></button>
         </div>
         <div className="editor-appbar-spacer" />
         <div className="editor-cloud-actions">
