@@ -19,7 +19,8 @@
     "@univerjs/preset-sheets-drawing": "^1.1.0",
     "@univerjs/preset-sheets-table": "^1.0.2",
     "@univerjs/preset-sheets-thread-comment": "^1.0.2",
-    "@univerjs/preset-sheets-note": "^1.2.0"
+    "@univerjs/preset-sheets-note": "^1.2.0",
+    "@univerjs/preset-sheets-data-validation": "^1.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
