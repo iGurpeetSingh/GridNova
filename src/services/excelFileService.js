@@ -3,6 +3,7 @@ import ExcelJS from 'exceljs'
 const DEFAULT_ROWS = 1000
 const DEFAULT_COLUMNS = 26
 
+function createUniqueId() {\n  return 'gridnova-' + (globalThis.crypto?.randomUUID?.() || Date.now() + '-' + Math.random().toString(36).slice(2))\n}\n
 function colorToHex(color) {
   const raw = color?.argb || color?.rgb
   if (!raw) return undefined
@@ -142,7 +143,7 @@ export async function importExcelFile(file) {
       if (Object.keys(cells).length) cellData[rowIndex] = cells
     })
     return {
-      id: 'gridnova-' + crypto.randomUUID(),
+      id: createUniqueId(),
       name: fileName.replace(/\\.(csv|tsv)$/i, ''),
       appVersion: '1.0.0',
       locale: 'enUS',
