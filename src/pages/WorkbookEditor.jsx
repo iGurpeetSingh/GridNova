@@ -128,12 +128,12 @@ export default function WorkbookEditor() {
 
   useEffect(() => {
     if (!editorApi || !isReadOnly) return
-    const permission = editorApi.getActiveSheet()?.getWorksheetPermission?.()
-    if (!permission) return
-    permission.setReadOnly().catch((error) => {
-      setNoticeType('error')
-      setNotice(error instanceof Error ? error.message : 'Could not restore viewing mode.')
-    })
+    const sheets = editorApi.getWorkbook(workbookId)?.getSheets?.() || [editorApi.getActiveSheet()].filter(Boolean)
+    Promise.all(sheets.map((sheet) => sheet.getWorksheetPermission?.()?.setReadOnly?.()))
+      .catch((error) => {
+        setNoticeType('error')
+        setNotice(error instanceof Error ? error.message : 'Could not restore viewing mode.')
+      })
   }, [editorApi, isReadOnly, workbookId])
 
   useEffect(() => {
@@ -304,12 +304,14 @@ export default function WorkbookEditor() {
   }
 
   async function handleToggleEditingMode() {
-    const permission = editorApi?.getActiveSheet()?.getWorksheetPermission?.()
-    if (!permission) return
+    const sheets = editorApi?.getWorkbook(workbookId)?.getSheets?.() || [editorApi?.getActiveSheet()].filter(Boolean)
+    if (!sheets.length) return
     const nextReadOnly = !isReadOnly
     try {
-      if (nextReadOnly) await permission.setReadOnly()
-      else await permission.setEditable()
+      await Promise.all(sheets.map((sheet) => {
+        const permission = sheet.getWorksheetPermission?.()
+        return nextReadOnly ? permission?.setReadOnly?.() : permission?.setEditable?.()
+      }))
       setIsReadOnly(nextReadOnly)
     } catch (error) {
       setNoticeType('error')
