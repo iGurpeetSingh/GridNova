@@ -7,8 +7,11 @@ import '@univerjs/sheets/facade'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
 import { UniverSheetsDrawingPreset } from '@univerjs/preset-sheets-drawing'
 import UniverPresetSheetsDrawingEnUS from '@univerjs/preset-sheets-drawing/locales/en-US'
+import { UniverSheetsTablePreset } from '@univerjs/preset-sheets-table'
+import UniverPresetSheetsTableEnUS from '@univerjs/preset-sheets-table/locales/en-US'
 import '@univerjs/preset-sheets-core/lib/index.css'
 import '@univerjs/preset-sheets-drawing/lib/index.css'
+import '@univerjs/preset-sheets-table/lib/index.css'
 
 const DEFAULT_ROW_COUNT = 1000
 const DEFAULT_COLUMN_COUNT = 26
@@ -751,7 +754,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
-          [LocaleType.EN_US]: mergeLocales(UniverPresetSheetsCoreEnUS, UniverPresetSheetsDrawingEnUS),
+          [LocaleType.EN_US]: mergeLocales(UniverPresetSheetsCoreEnUS, UniverPresetSheetsDrawingEnUS, UniverPresetSheetsTableEnUS),
         },
         presets: [
           UniverSheetsCorePreset({
@@ -776,6 +779,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             },
           }),
           UniverSheetsDrawingPreset(),
+          UniverSheetsTablePreset(),
         ],
       })
 
