@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { GridRegular, TableRegular } from '@fluentui/react-icons'
 import UniverEditor from '../components/UniverEditor.jsx'
 import InsertToolsPanel from '../components/InsertToolsPanel.jsx'
 import { exportCsvFile, exportExcelFile, importExcelFile } from '../services/excelFileService.js'
@@ -17,6 +18,9 @@ export default function WorkbookEditor() {
   const lastSavedRef = useRef('')
   const saveInFlightRef = useRef(null)
   const [title, setTitle] = useState(searchParams.get('title')?.trim() || 'Untitled workbook')
+  const [ribbonMode, setRibbonMode] = useState(() => {
+    try { return window.localStorage.getItem('gridnova:ribbon-mode:' + workbookId) || 'classic' } catch { return 'classic' }
+  })
   const [initialSnapshot, setInitialSnapshot] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editorApi, setEditorApi] = useState(null)
@@ -180,6 +184,28 @@ export default function WorkbookEditor() {
     }
   }
 
+  async function handleRibbonModeChange(nextMode) {
+    if (nextMode === ribbonMode || !['classic', 'collapsed'].includes(nextMode)) return
+    const snapshot = editorApi?.getSnapshot()
+    if (snapshot) {
+      snapshot.name = title
+      setSaveState('Saving before changing ribbon…')
+      try {
+        await saveWorkbook({ id: workbookId, name: title, snapshot, updatedAt: Date.now() })
+        lastSavedRef.current = JSON.stringify(snapshot)
+        setInitialSnapshot(snapshot)
+        setSavedAt(Date.now())
+        setSaveState('Saved in this browser')
+      } catch (error) {
+        setNoticeType('error')
+        setNotice(error instanceof Error ? error.message : 'Could not save before changing the ribbon.')
+        return
+      }
+    }
+    setRibbonMode(nextMode)
+    try { window.localStorage.setItem('gridnova:ribbon-mode:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
+  }
+
   async function handleBackToDashboard() {
     await saveNow({ force: true })
     navigate('/')
@@ -204,6 +230,14 @@ export default function WorkbookEditor() {
           <span>Workbook · {String(workbookId).slice(0, 8)}</span>
         </div>
         <div className="editor-appbar-spacer" />
+        <div className="ribbon-mode-switch" role="group" aria-label="Ribbon display mode">
+          <button type="button" className={ribbonMode === 'collapsed' ? 'active' : ''} aria-pressed={ribbonMode === 'collapsed'} onClick={() => handleRibbonModeChange('collapsed')} title="Single Line Ribbon">
+            <TableRegular /> <span>Single Line</span>
+          </button>
+          <button type="button" className={ribbonMode === 'classic' ? 'active' : ''} aria-pressed={ribbonMode === 'classic'} onClick={() => handleRibbonModeChange('classic')} title="Classic Ribbon">
+            <GridRegular /> <span>Classic</span>
+          </button>
+        </div>
         <span className={'storage-notice ' + (saveState === 'Save failed' ? 'storage-error' : '')}>
           <span className="notice-dot" /> {saveState}
           {savedAt ? ' · ' + new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
@@ -229,6 +263,7 @@ export default function WorkbookEditor() {
             workbookId={workbookId}
             title={title}
             initialSnapshot={initialSnapshot}
+            ribbonType={ribbonMode}
             onReady={setEditorApi}
           />
         )}
