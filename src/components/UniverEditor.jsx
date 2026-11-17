@@ -261,7 +261,7 @@ function insertDrawingShape(univerAPI, shapeType) {
   univerAPI.showMessage({ content: shapeType[0].toUpperCase() + shapeType.slice(1) + ' added over the selected range.', type: 'success' })
 }
 
-function formatSelectionAsTable(univerAPI) {
+async function formatSelectionAsTable(univerAPI) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
   if (!sheet || !range) {
@@ -274,15 +274,21 @@ function formatSelectionAsTable(univerAPI) {
     univerAPI.showMessage({ content: 'Select a header row and at least one data row.', type: 'warning' })
     return
   }
-  sheet.getRange(range.getRow(), range.getColumn(), 1, columnCount)
-    .setFontWeight('bold')
-    .setBackgroundColor('#DCEAF7')
-  for (let row = 1; row < rowCount; row += 2) {
-    sheet.getRange(range.getRow() + row, range.getColumn(), 1, columnCount)
-      .setBackgroundColor('#F4F8FC')
+  if (typeof sheet.addTable !== 'function') {
+    univerAPI.showMessage({ content: 'Structured tables are unavailable in this editor build.', type: 'warning' })
+    return
   }
-  univerAPI.executeCommand('sheet.command.smart-toggle-filter')
-  univerAPI.showMessage({ content: 'Table formatting and filter controls applied to the selected range.', type: 'success' })
+
+  const tableId = 'gridnova-table-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+  const tableName = 'GridNovaTable' + Date.now()
+  const success = await sheet.addTable(tableName, range.getRange(), tableId, {
+    tableStyleId: 'table-default-4',
+  })
+  if (!success) {
+    univerAPI.showMessage({ content: 'The selected range could not be converted to a structured table. Check that it does not overlap another table.', type: 'error' })
+    return
+  }
+  univerAPI.showMessage({ content: 'Structured table created with filter controls.', type: 'success' })
 }
 
 function recalculateFormulas(univerAPI) {
