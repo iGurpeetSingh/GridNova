@@ -98,9 +98,11 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
     })
 
     group.items.forEach((item) => {
-      const action = item.command
-        ? () => univerAPI.executeCommand(item.command, item.params)
-        : () => onRibbonAction?.(item.action)
+      const action = item.run
+        ? () => item.run(univerAPI)
+        : item.command
+          ? () => univerAPI.executeCommand(item.command, item.params)
+          : () => onRibbonAction?.(item.action)
       const menu = univerAPI.createMenu({
         id: 'gridnova.ribbon.' + tab.id + '.' + item.id,
         title: item.title,
@@ -116,6 +118,88 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
 
   root.appendTo('ribbon')
   return root
+}
+
+
+function GridNovaRectangleShape() {
+  return <svg viewBox="0 0 180 100" width="100%" height="100%" aria-label="Rectangle shape">
+    <rect x="8" y="8" width="164" height="84" rx="5" fill="#dbeafe" fillOpacity=".55" stroke="#2563eb" strokeWidth="3" />
+  </svg>
+}
+
+function GridNovaEllipseShape() {
+  return <svg viewBox="0 0 180 100" width="100%" height="100%" aria-label="Ellipse shape">
+    <ellipse cx="90" cy="50" rx="78" ry="38" fill="#dcfce7" fillOpacity=".55" stroke="#16834b" strokeWidth="3" />
+  </svg>
+}
+
+function GridNovaLineShape() {
+  return <svg viewBox="0 0 180 100" width="100%" height="100%" aria-label="Line shape">
+    <line x1="8" y1="88" x2="172" y2="12" stroke="#d97706" strokeWidth="4" strokeLinecap="round" />
+  </svg>
+}
+
+function registerDrawingComponents(univerAPI) {
+  return [
+    univerAPI.registerComponent('gridnova-draw-rectangle', GridNovaRectangleShape),
+    univerAPI.registerComponent('gridnova-draw-ellipse', GridNovaEllipseShape),
+    univerAPI.registerComponent('gridnova-draw-line', GridNovaLineShape),
+  ]
+}
+
+function insertDrawingShape(univerAPI, shapeType) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet || typeof sheet.addFloatDomToRange !== 'function') {
+    univerAPI.showMessage({ content: 'Drawing overlays are not available in this editor build.', type: 'warning' })
+    return
+  }
+  const range = sheet.getActiveRange() || sheet.getRange('A1')
+  const componentKey = 'gridnova-draw-' + shapeType
+  const id = 'gridnova-shape-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+  const shape = sheet.addFloatDomToRange(
+    range,
+    { componentKey },
+    { width: 180, height: 100, marginX: '15%', marginY: '15%' },
+    id,
+  )
+  if (!shape) {
+    univerAPI.showMessage({ content: 'The shape could not be inserted.', type: 'error' })
+    return
+  }
+  univerAPI.showMessage({ content: shapeType[0].toUpperCase() + shapeType.slice(1) + ' added over the selected range.', type: 'success' })
+}
+
+function formatSelectionAsTable(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) {
+    univerAPI.showMessage({ content: 'Select a data range first.', type: 'warning' })
+    return
+  }
+  const rowCount = range.getLastRow() - range.getRow() + 1
+  const columnCount = range.getLastColumn() - range.getColumn() + 1
+  if (rowCount < 2 || columnCount < 1) {
+    univerAPI.showMessage({ content: 'Select a header row and at least one data row.', type: 'warning' })
+    return
+  }
+  sheet.getRange(range.getRow(), range.getColumn(), 1, columnCount)
+    .setFontWeight('bold')
+    .setBackgroundColor('#DCEAF7')
+  for (let row = 1; row < rowCount; row += 2) {
+    sheet.getRange(range.getRow() + row, range.getColumn(), 1, columnCount)
+      .setBackgroundColor('#F4F8FC')
+  }
+  univerAPI.executeCommand('sheet.command.smart-toggle-filter')
+  univerAPI.showMessage({ content: 'Table formatting and filter controls applied to the selected range.', type: 'success' })
+}
+
+function recalculateFormulas(univerAPI) {
+  univerAPI.getFormula()?.executeCalculation()
+  univerAPI.showMessage({ content: 'Formula recalculation started.', type: 'success' })
+}
+
+function unfreezePanes(univerAPI) {
+  univerAPI.getActiveWorkbook()?.getActiveSheet()?.cancelFreeze()
 }
 
 function hideSelectedRows(univerAPI) {
@@ -232,6 +316,7 @@ function splitTextToColumns(univerAPI) {
 
 function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   const icons = registerRibbonIcons(univerAPI)
+  const drawingComponents = registerDrawingComponents(univerAPI)
   const tabs = [
     {
       id: 'file', title: 'File', order: 0, groups: [
@@ -503,7 +588,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'sheet.command.menu-insert-shape': { icon: 'gridnova-icon-draw' },
   })
 
-  return [...icons, ...menus, clipboardGroup, ...homeGroupMenus, ...nativeTabGroupMenus]
+  return [...icons, ...drawingComponents, ...menus, clipboardGroup, ...homeGroupMenus, ...nativeTabGroupMenus]
 }
 
 function addColumnHeaderDeleteAction(univerAPI) {
