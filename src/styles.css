@@ -364,3 +364,55 @@ a { color: inherit; text-decoration: none; }
   .ribbon-mode-switch button { padding: 0 6px; }
   .ribbon-mode-switch button span { display: none; }
 }
+
+
+/* Excel-style workbook collaboration controls */
+.editor-cloud-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+}
+.editor-cloud-actions button {
+  display: inline-flex;
+  min-height: 29px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 9px;
+  border: 1px solid #dfe3e8;
+  border-radius: 5px;
+  color: #354152;
+  background: #fff;
+  font-size: 10px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+.editor-cloud-actions button:hover { background: #f6f8fa; border-color: #cbd2da; }
+.editor-cloud-actions button svg { width: 14px; height: 14px; }
+.editor-cloud-actions button.share-action {
+  color: #fff;
+  border-color: #16834b;
+  background: #16834b;
+}
+.editor-cloud-actions button.share-action:hover { background: #116b3d; }
+.editor-mode-indicator {
+  display: inline-flex;
+  min-height: 29px;
+  align-items: center;
+  padding: 0 9px;
+  border: 1px solid #dfe3e8;
+  border-radius: 5px;
+  color: #465466;
+  background: #fff;
+  font-size: 10px;
+  white-space: nowrap;
+}
+@media (max-width: 1250px) {
+  .editor-cloud-actions button span { display: none; }
+  .editor-cloud-actions button { width: 30px; padding: 0; }
+  .editor-mode-indicator { display: none; }
+}
+@media (max-width: 760px) {
+  .editor-cloud-actions { display: none; }
+}
