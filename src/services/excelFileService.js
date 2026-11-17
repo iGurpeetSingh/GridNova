@@ -3,7 +3,10 @@ import ExcelJS from 'exceljs'
 const DEFAULT_ROWS = 1000
 const DEFAULT_COLUMNS = 26
 
-function createUniqueId() {\n  return 'gridnova-' + (globalThis.crypto?.randomUUID?.() || Date.now() + '-' + Math.random().toString(36).slice(2))\n}\n
+function createUniqueId() {
+  return 'gridnova-' + (globalThis.crypto?.randomUUID?.() || Date.now() + '-' + Math.random().toString(36).slice(2))
+}
+
 function colorToHex(color) {
   const raw = color?.argb || color?.rgb
   if (!raw) return undefined
