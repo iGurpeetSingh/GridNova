@@ -206,6 +206,43 @@ export default function WorkbookEditor() {
     try { window.localStorage.setItem('gridnova:ribbon-mode:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
+  async function handleRibbonAction(action) {
+    if (action === 'save') {
+      await saveNow({ force: true })
+      return
+    }
+    if (action === 'import') {
+      fileInputRef.current?.click()
+      return
+    }
+    if (action === 'export-xlsx') {
+      await handleExportExcel()
+      return
+    }
+    if (action === 'export-csv') {
+      handleExportCsv()
+      return
+    }
+    if (action === 'print') {
+      window.print()
+      return
+    }
+    if (action === 'copy-workbook-id') {
+      try {
+        await navigator.clipboard.writeText(workbookId)
+        setNoticeType('success')
+        setNotice('Workbook ID copied.')
+      } catch {
+        setNoticeType('error')
+        setNotice('Clipboard access is unavailable in this browser.')
+      }
+      return
+    }
+    if (action === 'open-help') {
+      window.open('https://docs.univer.ai/guides/sheets', '_blank', 'noopener,noreferrer')
+    }
+  }
+
   async function handleBackToDashboard() {
     await saveNow({ force: true })
     navigate('/')
@@ -265,6 +302,7 @@ export default function WorkbookEditor() {
             initialSnapshot={initialSnapshot}
             ribbonType={ribbonMode}
             onReady={setEditorApi}
+            onRibbonAction={handleRibbonAction}
           />
         )}
       </section>
