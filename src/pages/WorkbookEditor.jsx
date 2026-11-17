@@ -264,6 +264,15 @@ export default function WorkbookEditor() {
     try { window.localStorage.setItem('gridnova:ribbon-mode:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
+  async function handleTopBarCommand(commandId, fallbackMode) {
+    try {
+      const result = await editorApi?.executeCommand(commandId)
+      if (result === false) setReviewPanelMode(fallbackMode)
+    } catch {
+      setReviewPanelMode(fallbackMode)
+    }
+  }
+
   async function handleToggleEditingMode() {
     const permission = editorApi?.getActiveSheet()?.getWorksheetPermission?.()
     if (!permission) return
@@ -306,12 +315,16 @@ export default function WorkbookEditor() {
       setToolsOpen(true)
       return
     }
-    if (action === 'open-comments' || action === 'open-note') {
+    if (action === 'open-comments') {
+      await handleTopBarCommand('sheet.operation.toggle-comment-panel', 'comments')
+      return
+    }
+    if (action === 'open-note') {
       setReviewPanelMode('comments')
       return
     }
     if (action === 'open-catch-up') {
-      setReviewPanelMode('activity')
+      await handleTopBarCommand('univer.operation.toggle-edit-history', 'activity')
       return
     }
     if (action === 'share-workbook') {
@@ -384,8 +397,8 @@ export default function WorkbookEditor() {
         </div>
         <div className="editor-appbar-spacer" />
         <div className="editor-cloud-actions">
-          <button type="button" onClick={() => setReviewPanelMode('comments')}><CommentRegular /> <span>Comments</span></button>
-          <button type="button" onClick={() => setReviewPanelMode('activity')}><BookOpenRegular /> <span>Catch up</span></button>
+          <button type="button" onClick={() => handleTopBarCommand('sheet.operation.toggle-comment-panel', 'comments')}><CommentRegular /> <span>Comments</span></button>
+          <button type="button" onClick={() => handleTopBarCommand('univer.operation.toggle-edit-history', 'activity')}><BookOpenRegular /> <span>Catch up</span></button>
           <button type="button" className="editor-mode-indicator" onClick={handleToggleEditingMode} aria-pressed={isReadOnly} title="Switch between editing and viewing">{isReadOnly ? 'Viewing' : 'Editing'} ▾</button>
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
