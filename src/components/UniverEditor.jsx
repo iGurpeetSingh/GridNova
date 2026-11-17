@@ -190,7 +190,89 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   ]
 
   const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction))
-  return [...icons, ...menus]
+
+  const homeGroups = [
+    {
+      id: 'number', title: 'Number', items: [
+        { id: 'number-format', title: 'Number Format', icon: 'table', command: 'sheet.operation.open.numfmt.panel' },
+        { id: 'currency', title: 'Currency', command: 'sheet.command.numfmt.set.currency' },
+        { id: 'percent', title: 'Percentage', command: 'sheet.command.numfmt.set.percent' },
+        { id: 'increase-decimal', title: 'Increase Decimal', command: 'sheet.command.numfmt.add.decimal.command' },
+        { id: 'decrease-decimal', title: 'Decrease Decimal', command: 'sheet.command.numfmt.subtract.decimal.command' },
+      ],
+    },
+    {
+      id: 'styles', title: 'Styles', items: [
+        { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', command: 'sheet.operation.open.conditional.formatting.panel' },
+        { id: 'data-bars', title: 'Data Bars', command: 'sheet.command.add-data-bar-conditional-rule' },
+        { id: 'icon-sets', title: 'Icon Sets', command: 'sheet.command.add-icon-set-conditional-rule' },
+      ],
+    },
+    {
+      id: 'cells', title: 'Cells', items: [
+        { id: 'insert-row', title: 'Insert Row', command: 'sheet.command.insert-row-before' },
+        { id: 'insert-column', title: 'Insert Column', command: 'sheet.command.insert-col-before' },
+        { id: 'delete-row', title: 'Delete Row', command: 'sheet.command.remove-row-confirm' },
+        { id: 'delete-column', title: 'Delete Column', command: 'sheet.command.remove-col-confirm' },
+      ],
+    },
+    {
+      id: 'editing', title: 'Editing', items: [
+        { id: 'sort-ascending', title: 'Sort A to Z', command: 'sheet.command.sort-range-asc' },
+        { id: 'sort-descending', title: 'Sort Z to A', command: 'sheet.command.sort-range-desc' },
+        { id: 'filter', title: 'Filter', icon: 'table', command: 'sheet.command.smart-toggle-filter' },
+        { id: 'clear-contents', title: 'Clear Contents', command: 'sheet.command.clear-selection-content' },
+        { id: 'find', title: 'Find & Replace', icon: 'help', command: 'ui.operation.open-find-dialog' },
+      ],
+    },
+  ]
+
+  const homeGroupMenus = homeGroups.map((group) => {
+    const groupMenu = univerAPI.createSubmenu({
+      id: 'gridnova.ribbon.home.' + group.id,
+      title: group.title,
+    })
+    group.items.forEach((item) => {
+      groupMenu.addSubmenu(univerAPI.createMenu({
+        id: 'gridnova.ribbon.home.' + item.id,
+        title: item.title,
+        tooltip: item.title,
+        icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
+        action: () => univerAPI.executeCommand(item.command),
+      }))
+    })
+    groupMenu.appendTo('ribbon.start')
+    return groupMenu
+  })
+
+  univerAPI.updateMenuConfig({
+    'ribbon.start.history': { title: 'Clipboard', order: 0 },
+    'ribbon.start.format': { title: 'Font', order: 1 },
+    'ribbon.start.layout': { title: 'Alignment', order: 2 },
+    'ribbon.start.others': { title: 'Editing', order: 6 },
+    'univer.command.undo': { icon: 'gridnova-icon-home' },
+    'univer.command.redo': { icon: 'gridnova-icon-home' },
+    'ui.operation.activate-format-painter': { icon: 'gridnova-icon-layout' },
+    'sheet.command.menu-insert-chart': { icon: 'gridnova-icon-table' },
+    'sheet.operation.open.conditional.formatting.panel': { icon: 'gridnova-icon-layout' },
+    'sheet.command.smart-toggle-filter': { icon: 'gridnova-icon-table' },
+    'sheet.operation.open.numfmt.panel': { icon: 'gridnova-icon-table' },
+    'sheet.operation.open-pivot-table-range-selector-panel': { icon: 'gridnova-icon-table' },
+    'sheet.operation.open-sparkline-selector': { icon: 'gridnova-icon-table' },
+    'sheet.operation.insert-hyper-link-toolbar': { icon: 'gridnova-icon-share' },
+    'ui.operation.open-find-dialog': { icon: 'gridnova-icon-help' },
+    'sheet.toolbar.sheet-frozen': { icon: 'gridnova-icon-layout' },
+    'sheet.command.toggle-gridlines': { icon: 'gridnova-icon-layout' },
+    'sheet.menu.image': { icon: 'gridnova-icon-table' },
+    'sheet.operation.print-open': { icon: 'gridnova-icon-print' },
+    'sheet.operation.open-print-grid-sidebar': { icon: 'gridnova-icon-print' },
+    'sheet.operation.toggle-comment-panel': { icon: 'gridnova-icon-review' },
+    'sheet.operation.show-comment-modal': { icon: 'gridnova-icon-review' },
+    'sheet.command.add-range-protection-from-toolbar': { icon: 'gridnova-icon-review' },
+    'sheet.command.menu-insert-shape': { icon: 'gridnova-icon-draw' },
+  })
+
+  return [...icons, ...menus, ...homeGroupMenus]
 }
 
 function addColumnHeaderDeleteAction(univerAPI) {
