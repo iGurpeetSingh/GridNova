@@ -17,6 +17,7 @@ export default function WorkbookEditor() {
   const [searchParams] = useSearchParams()
   const fileInputRef = useRef(null)
   const lastSavedRef = useRef('')
+  const pendingSelectionRef = useRef(null)
   const saveInFlightRef = useRef(null)
   const [title, setTitle] = useState(searchParams.get('title')?.trim() || 'Untitled workbook')
   const [isReadOnly, setIsReadOnly] = useState(() => {
@@ -242,8 +243,27 @@ export default function WorkbookEditor() {
     }
   }
 
+  function handleEditorReady(api) {
+    setEditorApi(api)
+    const pending = pendingSelectionRef.current
+    if (!api || !pending) return
+    try {
+      const targetSheet = api.getWorkbook(workbookId)?.getSheetByName(pending.sheetName) || api.getActiveSheet()
+      if (targetSheet && pending.range) targetSheet.getRange(pending.range).activate()
+    } catch { /* selection restoration is best-effort */ }
+    pendingSelectionRef.current = null
+  }
+
   async function handleRibbonModeChange(nextMode) {
     if (nextMode === ribbonMode || !['classic', 'collapsed'].includes(nextMode)) return
+    const activeSheet = editorApi?.getActiveSheet()
+    const activeRange = activeSheet?.getActiveRange?.()
+    if (activeSheet && activeRange) {
+      pendingSelectionRef.current = {
+        sheetName: activeSheet.getSheetName(),
+        range: activeRange.getA1Notation(),
+      }
+    }
     const snapshot = editorApi?.getSnapshot()
     if (snapshot) {
       snapshot.name = title
@@ -450,7 +470,7 @@ export default function WorkbookEditor() {
             title={title}
             initialSnapshot={initialSnapshot}
             ribbonType={ribbonMode}
-            onReady={setEditorApi}
+            onReady={handleEditorReady}
             onRibbonAction={handleRibbonAction}
           />
         )}
