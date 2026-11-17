@@ -33,14 +33,14 @@ async function withStore(mode, callback) {
   const database = await openDatabase()
   try {
     const transaction = database.transaction(STORE_NAME, mode)
-    const store = transaction.objectStore(STORE_NAME)
-    const request = callback(store)
-    const result = await requestResult(request)
-    await new Promise((resolve, reject) => {
+    const completed = new Promise((resolve, reject) => {
       transaction.oncomplete = resolve
       transaction.onerror = () => reject(transaction.error || new Error('Workbook storage transaction failed.'))
       transaction.onabort = () => reject(transaction.error || new Error('Workbook storage transaction was aborted.'))
     })
+    const request = callback(transaction.objectStore(STORE_NAME))
+    const result = await requestResult(request)
+    await completed
     return result
   } finally {
     database.close()
