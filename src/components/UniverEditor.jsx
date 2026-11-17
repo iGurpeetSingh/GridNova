@@ -103,6 +103,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
     let disposed = false
 
     try {
+      const config = initialConfigRef.current
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
@@ -127,7 +128,6 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
       })
 
       univerInstance = univer
-      const config = initialConfigRef.current
       const workbookData = config.initialSnapshot
         ? ensureMinimumColumnCount(config.initialSnapshot)
         : createBlankWorkbookSnapshot(config.workbookId, config.title)
