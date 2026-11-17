@@ -314,6 +314,10 @@ export default function WorkbookEditor() {
       setReviewPanelMode('activity')
       return
     }
+    if (action === 'share-workbook') {
+      await handleShareWorkbook()
+      return
+    }
     if (action === 'save') {
       await saveNow({ force: true })
       return
