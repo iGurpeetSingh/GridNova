@@ -126,19 +126,13 @@ export default function WorkbookEditor() {
   }, [editorApi, saveNow])
 
   useEffect(() => {
-    if (!editorApi) return
+    if (!editorApi || !isReadOnly) return
     const permission = editorApi.getActiveSheet()?.getWorksheetPermission?.()
     if (!permission) return
-    const applyMode = async () => {
-      try {
-        if (isReadOnly) await permission.setReadOnly()
-        else await permission.setEditable()
-      } catch (error) {
-        setNoticeType('error')
-        setNotice(error instanceof Error ? error.message : 'Could not change workbook editing mode.')
-      }
-    }
-    applyMode()
+    permission.setReadOnly().catch((error) => {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'Could not restore viewing mode.')
+    })
   }, [editorApi, isReadOnly, workbookId])
 
   useEffect(() => {
@@ -270,6 +264,20 @@ export default function WorkbookEditor() {
     try { window.localStorage.setItem('gridnova:ribbon-mode:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
+  async function handleToggleEditingMode() {
+    const permission = editorApi?.getActiveSheet()?.getWorksheetPermission?.()
+    if (!permission) return
+    const nextReadOnly = !isReadOnly
+    try {
+      if (nextReadOnly) await permission.setReadOnly()
+      else await permission.setEditable()
+      setIsReadOnly(nextReadOnly)
+    } catch (error) {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'Could not change workbook editing mode.')
+    }
+  }
+
   async function handleShareWorkbook() {
     try {
       const snapshot = editorApi?.getSnapshot()
@@ -374,7 +382,7 @@ export default function WorkbookEditor() {
         <div className="editor-cloud-actions">
           <button type="button" onClick={() => setReviewPanelMode('comments')}><CommentRegular /> <span>Comments</span></button>
           <button type="button" onClick={() => setReviewPanelMode('activity')}><BookOpenRegular /> <span>Catch up</span></button>
-          <button type="button" className="editor-mode-indicator" onClick={() => setIsReadOnly((current) => !current)} aria-pressed={isReadOnly} title="Switch between editing and viewing">{isReadOnly ? 'Viewing' : 'Editing'} ▾</button>
+          <button type="button" className="editor-mode-indicator" onClick={handleToggleEditingMode} aria-pressed={isReadOnly} title="Switch between editing and viewing">{isReadOnly ? 'Viewing' : 'Editing'} ▾</button>
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
         <div className="ribbon-mode-switch" role="group" aria-label="Ribbon display mode">
