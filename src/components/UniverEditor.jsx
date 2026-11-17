@@ -124,6 +124,67 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
 }
 
 
+
+function GridNovaBarChart({ data }) {
+  const labels = Array.isArray(data?.labels) ? data.labels : []
+  const values = Array.isArray(data?.values) ? data.values : []
+  const maxValue = Math.max(1, ...values.map((value) => Math.max(0, Number(value) || 0)))
+  const chartWidth = 330
+  const chartHeight = 150
+  const barGap = 10
+  const barWidth = Math.max(8, (chartWidth - Math.max(0, values.length - 1) * barGap) / Math.max(1, values.length))
+  return (
+    <div style={{ width: '100%', height: '100%', padding: 8, boxSizing: 'border-box', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8 }}>
+      <svg viewBox="0 0 360 205" width="100%" height="100%" role="img" aria-label="GridNova bar chart">
+        <line x1="20" y1="165" x2="348" y2="165" stroke="#94a3b8" strokeWidth="1" />
+        {values.map((value, index) => {
+          const numeric = Math.max(0, Number(value) || 0)
+          const height = numeric / maxValue * chartHeight
+          const x = 22 + index * (barWidth + barGap)
+          const y = 165 - height
+          return (
+            <g key={index}>
+              <rect x={x} y={y} width={barWidth} height={height} rx="3" fill="#217346" />
+              <text x={x + barWidth / 2} y="181" textAnchor="middle" fontSize="9" fill="#475569">{String(labels[index] || '').slice(0, 9)}</text>
+              <text x={x + barWidth / 2} y={Math.max(12, y - 5)} textAnchor="middle" fontSize="9" fill="#334155">{numeric}</text>
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
+}
+
+function insertBasicChart(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range || typeof sheet.addFloatDomToRange !== 'function') {
+    univerAPI.showMessage({ content: 'Select a two-column data range to insert a chart.', type: 'warning' })
+    return
+  }
+  const rows = range.getValues()
+  const dataRows = rows.map((row, index) => ({
+    label: String(row?.[0] ?? index + 1),
+    value: Number(row?.[1]),
+  })).filter((row) => Number.isFinite(row.value))
+  if (!dataRows.length) {
+    univerAPI.showMessage({ content: 'The selected range needs labels in the first column and numbers in the second column.', type: 'warning' })
+    return
+  }
+  const id = 'gridnova-chart-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+  const chart = sheet.addFloatDomToRange(
+    range,
+    { componentKey: 'gridnova-bar-chart', data: { labels: dataRows.map((row) => row.label), values: dataRows.map((row) => row.value) } },
+    { width: 360, height: 220 },
+    id,
+  )
+  if (!chart) {
+    univerAPI.showMessage({ content: 'The chart could not be inserted.', type: 'error' })
+    return
+  }
+  univerAPI.showMessage({ content: 'Bar chart inserted over the selected data range.', type: 'success' })
+}
+
 function GridNovaRectangleShape() {
   return <svg viewBox="0 0 180 100" width="100%" height="100%" aria-label="Rectangle shape">
     <rect x="8" y="8" width="164" height="84" rx="5" fill="#dbeafe" fillOpacity=".55" stroke="#2563eb" strokeWidth="3" />
@@ -147,6 +208,7 @@ function registerDrawingComponents(univerAPI) {
     univerAPI.registerComponent('gridnova-draw-rectangle', GridNovaRectangleShape),
     univerAPI.registerComponent('gridnova-draw-ellipse', GridNovaEllipseShape),
     univerAPI.registerComponent('gridnova-draw-line', GridNovaLineShape),
+    univerAPI.registerComponent('gridnova-bar-chart', GridNovaBarChart),
   ]
 }
 
@@ -464,7 +526,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
-        { id: 'insert-chart', title: 'Chart & Pivot Tools', icon: 'table', action: 'insert-tools' },
+        { id: 'insert-chart', title: 'Insert Bar Chart', icon: 'table', run: insertBasicChart },
+        { id: 'chart-pivot-tools', title: 'Chart & Pivot Tools', icon: 'table', action: 'insert-tools' },
         { id: 'chart-pivot-tools', title: 'Chart & Pivot Tools', icon: 'table', action: 'insert-tools' },
       ],
     },
