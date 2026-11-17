@@ -85,10 +85,11 @@ function addColumnHeaderDeleteAction(univerAPI) {
   return deleteMenu
 }
 
-export default function UniverEditor({ workbookId, title, initialSnapshot, onReady }) {
+export default function UniverEditor({ workbookId, title, initialSnapshot, ribbonType = 'classic', onReady }) {
   const containerRef = useRef(null)
   const onReadyRef = useRef(onReady)
-  const initialConfigRef = useRef({ workbookId, title, initialSnapshot })
+  const initialConfigRef = useRef({ workbookId, title, initialSnapshot, ribbonType })
+  initialConfigRef.current = { workbookId, title, initialSnapshot, ribbonType }
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -113,7 +114,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, onRea
             header: true,
             toolbar: true,
             contextMenu: true,
-            ribbonType: 'grid',
+            ribbonType: config.ribbonType,
             footer: {
               addSheetButtonConfig: {
                 show: true,
@@ -173,7 +174,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, onRea
         console.error('GridNova editor cleanup failed:', disposeError)
       }
     }
-  }, [workbookId, initialSnapshot])
+  }, [workbookId, initialSnapshot, ribbonType])
 
   return (
     <div className="univer-shell">
