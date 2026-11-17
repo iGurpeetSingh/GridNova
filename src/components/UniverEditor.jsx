@@ -291,30 +291,30 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
 
   const nativeTabGroups = [
     {
-      path: 'ribbon.insert', id: 'tables', title: 'Tables', items: [
+      path: 'ribbon.insert', id: 'tables', title: 'Tables', order: 0, items: [
         { id: 'insert-table', title: 'Table', icon: 'table', command: 'sheet.operation.open-table-selector' },
         { id: 'insert-pivot-table', title: 'PivotTable', command: 'sheet.operation.open-pivot-table-range-selector-panel' },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', items: [
+      path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
         { id: 'insert-picture', title: 'Pictures', command: 'sheet.command.insert-float-image' },
         { id: 'insert-shape', title: 'Shapes', icon: 'draw', command: 'sheet.command.menu-insert-shape' },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'charts', title: 'Charts', items: [
+      path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
         { id: 'insert-chart', title: 'Recommended Charts', icon: 'table', command: 'sheet.command.menu-insert-chart' },
         { id: 'insert-sparkline', title: 'Sparkline', command: 'sheet.operation.open-sparkline-selector' },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'links', title: 'Links', items: [
+      path: 'ribbon.insert', id: 'links', title: 'Links', order: 3, items: [
         { id: 'insert-link', title: 'Hyperlink', icon: 'share', command: 'sheet.operation.insert-hyper-link-toolbar' },
       ],
     },
     {
-      path: 'ribbon.formulas', id: 'function-library', title: 'Function Library', items: [
+      path: 'ribbon.formulas', id: 'function-library', title: 'Function Library', order: 0, items: [
         { id: 'insert-function', title: 'Insert Function', command: 'formula-ui.operation.insert-function.common' },
         { id: 'more-functions', title: 'More Functions', command: 'formula-ui.operation.more-functions' },
         { id: 'financial-functions', title: 'Financial', command: 'formula-ui.operation.insert-function.financial' },
@@ -327,12 +327,12 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       ],
     },
     {
-      path: 'ribbon.formulas', id: 'calculation', title: 'Calculation', items: [
+      path: 'ribbon.formulas', id: 'calculation', title: 'Calculation', order: 1, items: [
         { id: 'calculation-options', title: 'Calculation Options', command: 'sheets-formula-ui.operation.calculation-options' },
       ],
     },
     {
-      path: 'ribbon.data', id: 'sort-filter', title: 'Sort & Filter', items: [
+      path: 'ribbon.data', id: 'sort-filter', title: 'Sort & Filter', order: 0, items: [
         { id: 'sort-ascending', title: 'Sort A to Z', command: 'sheet.command.sort-range-asc' },
         { id: 'sort-descending', title: 'Sort Z to A', command: 'sheet.command.sort-range-desc' },
         { id: 'custom-sort', title: 'Custom Sort', command: 'sheet.command.sort-range-custom' },
@@ -341,23 +341,23 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       ],
     },
     {
-      path: 'ribbon.data', id: 'data-tools', title: 'Data Tools', items: [
+      path: 'ribbon.data', id: 'data-tools', title: 'Data Tools', order: 1, items: [
         { id: 'data-validation', title: 'Data Validation', command: 'data-validation.operation.open-validation-panel' },
         { id: 'remove-duplicates', title: 'Remove Duplicates', icon: 'table', run: removeDuplicatesFromSelection },
       ],
     },
     {
-      path: 'ribbon.data', id: 'outline', title: 'Outline', items: [
+      path: 'ribbon.data', id: 'outline', title: 'Outline', order: 2, items: [
         { id: 'group-rows-columns', title: 'Group', command: 'sheet.toolbar.dimension-outline.group' },
       ],
     },
     {
-      path: 'ribbon.view', id: 'show', title: 'Show', items: [
+      path: 'ribbon.view', id: 'show', title: 'Show', order: 0, items: [
         { id: 'toggle-gridlines', title: 'Gridlines', command: 'sheet.command.toggle-gridlines' },
       ],
     },
     {
-      path: 'ribbon.view', id: 'window', title: 'Window', items: [
+      path: 'ribbon.view', id: 'window', title: 'Window', order: 1, items: [
         { id: 'freeze-panes', title: 'Freeze Panes', command: 'sheet.toolbar.sheet-frozen' },
         { id: 'zoom', title: 'Zoom', command: 'sheet.menu.zoom-ratio' },
         { id: 'fullscreen', title: 'Full Screen', command: 'base-ui.operation.toggle-fullscreen' },
