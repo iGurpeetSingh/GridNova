@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { BookOpenRegular, CommentRegular, GridRegular, ShareRegular, TableRegular } from '@fluentui/react-icons'
 import UniverEditor from '../components/UniverEditor.jsx'
 import InsertToolsPanel from '../components/InsertToolsPanel.jsx'
+import ReviewPanel from '../components/ReviewPanel.jsx'
 import { exportCsvFile, exportExcelFile, importExcelFile } from '../services/excelFileService.js'
 import { getWorkbook, saveWorkbook } from '../services/workbookStorage.js'
 
@@ -27,6 +28,13 @@ export default function WorkbookEditor() {
   const [saveState, setSaveState] = useState('Loading workbook')
   const [savedAt, setSavedAt] = useState(null)
   const [toolsOpen, setToolsOpen] = useState(false)
+  const [reviewPanelMode, setReviewPanelMode] = useState(null)
+  const [activity, setActivity] = useState(() => {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem('gridnova:activity:' + workbookId) || '[]')
+      return Array.isArray(stored) ? stored : []
+    } catch { return [] }
+  })
   const [notice, setNotice] = useState('')
   const [noticeType, setNoticeType] = useState('success')
 
@@ -102,6 +110,28 @@ export default function WorkbookEditor() {
     }, 1800)
     return () => window.clearInterval(timer)
   }, [editorApi, saveNow])
+
+  useEffect(() => {
+    if (!editorApi?.onCommandExecuted) return undefined
+    const subscription = editorApi.onCommandExecuted((event) => {
+      const activeRange = editorApi.getActiveSheet()?.getActiveRange?.()
+      const command = String(event?.id || 'Workbook action')
+      const entry = {
+        id: globalThis.crypto?.randomUUID?.() || String(Date.now()),
+        command,
+        label: command.split('.').pop().replace(/[-_]/g, ' '),
+        type: event?.type || 'COMMAND',
+        cell: activeRange?.getA1Notation?.() || '',
+        createdAt: Date.now(),
+      }
+      setActivity((previous) => {
+        const next = [entry, ...previous].slice(0, 100)
+        try { window.localStorage.setItem('gridnova:activity:' + workbookId, JSON.stringify(next)) } catch { /* activity history is best-effort */ }
+        return next
+      })
+    })
+    return () => subscription?.dispose?.()
+  }, [editorApi, workbookId])
 
   useEffect(() => {
     if (!editorApi) return undefined
@@ -246,6 +276,14 @@ export default function WorkbookEditor() {
       setToolsOpen(true)
       return
     }
+    if (action === 'open-comments' || action === 'open-note') {
+      setReviewPanelMode('comments')
+      return
+    }
+    if (action === 'open-catch-up') {
+      setReviewPanelMode('activity')
+      return
+    }
     if (action === 'save') {
       await saveNow({ force: true })
       return
@@ -312,8 +350,8 @@ export default function WorkbookEditor() {
         </div>
         <div className="editor-appbar-spacer" />
         <div className="editor-cloud-actions">
-          <button type="button" onClick={() => handleTopBarCommand('sheet.operation.toggle-comment-panel', 'Comments panel opened.')}><CommentRegular /> <span>Comments</span></button>
-          <button type="button" onClick={() => handleTopBarCommand('univer.operation.toggle-edit-history', 'Edit history opened.')}><BookOpenRegular /> <span>Catch up</span></button>
+          <button type="button" onClick={() => setReviewPanelMode('comments')}><CommentRegular /> <span>Comments</span></button>
+          <button type="button" onClick={() => setReviewPanelMode('activity')}><BookOpenRegular /> <span>Catch up</span></button>
           <span className="editor-mode-indicator">Editing</span>
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
@@ -365,6 +403,7 @@ export default function WorkbookEditor() {
       </div>
 
       {toolsOpen && <InsertToolsPanel api={editorApi} onClose={() => setToolsOpen(false)} />}
+      {reviewPanelMode && <ReviewPanel workbookId={workbookId} api={editorApi} mode={reviewPanelMode} activity={activity} onClose={() => setReviewPanelMode(null)} />}
     </main>
   )
 }
