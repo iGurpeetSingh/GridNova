@@ -439,7 +439,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'share', title: 'Share', order: 4, groups: [
         { id: 'share-copy', title: 'Share a Copy', items: [
-          { id: 'share-export', title: 'Export Workbook Copy', icon: 'share', action: 'export-xlsx' },
+          { id: 'share-file', title: 'Share Workbook File', icon: 'share', action: 'share-workbook' },
+          { id: 'share-export', title: 'Export Workbook Copy', icon: 'export', action: 'export-xlsx' },
           { id: 'copy-id', title: 'Copy Workbook ID', action: 'copy-workbook-id' },
         ] },
       ],
