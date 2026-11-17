@@ -242,6 +242,10 @@ export default function WorkbookEditor() {
   }
 
   async function handleRibbonAction(action) {
+    if (action === 'insert-tools') {
+      setToolsOpen(true)
+      return
+    }
     if (action === 'save') {
       await saveNow({ force: true })
       return
