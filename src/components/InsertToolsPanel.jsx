@@ -134,18 +134,28 @@ export default function InsertToolsPanel({ api, onClose }) {
         const key = String(row?.[groupIndex] ?? '(blank)')
         const raw = row?.[valueIndex]
         const numeric = Number(raw)
-        const current = grouped.get(key) || { sum: 0, count: 0 }
+        const current = grouped.get(key) || { sum: 0, count: 0, numericCount: 0 }
         current.count += 1
-        if (raw !== '' && raw !== null && raw !== undefined && Number.isFinite(numeric)) current.sum += numeric
+        if (raw !== '' && raw !== null && raw !== undefined && Number.isFinite(numeric)) {
+          current.sum += numeric
+          current.numericCount += 1
+        }
         grouped.set(key, current)
       })
 
-      const resultRows = Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([key, value]) => {
+      const groupedValues = Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+      const resultRows = groupedValues.map(([key, value]) => {
         const result = aggregation === 'COUNT' ? value.count : aggregation === 'AVERAGE'
-          ? (value.count ? value.sum / value.count : 0)
+          ? (value.numericCount ? value.sum / value.numericCount : 0)
           : value.sum
         return [key, result]
       })
+      const grandCount = groupedValues.reduce((sum, [, value]) => sum + value.count, 0)
+      const grandNumericCount = groupedValues.reduce((sum, [, value]) => sum + value.numericCount, 0)
+      const grandSum = groupedValues.reduce((sum, [, value]) => sum + value.sum, 0)
+      const grandTotal = aggregation === 'COUNT' ? grandCount
+        : aggregation === 'AVERAGE' ? (grandNumericCount ? grandSum / grandNumericCount : 0)
+          : grandSum
       const workbook = api.getActiveWorkbook()
       const sheetNameBase = 'Pivot Summary'
       const existingNames = new Set(workbook.getSheets().map((sheet) => sheet.getName()))
@@ -162,11 +172,7 @@ export default function InsertToolsPanel({ api, onClose }) {
       if (resultRows.length) {
         summarySheet.getRange(1, 0, resultRows.length, 2).setValues(resultRows)
       }
-      summarySheet.getRange(1 + resultRows.length, 0, 1, 2).setValues([['Grand Total', aggregation === 'COUNT'
-        ? matrix.length - 1
-        : aggregation === 'AVERAGE'
-          ? (resultRows.length ? resultRows.reduce((sum, row) => sum + Number(row[1] || 0), 0) / resultRows.length : 0)
-          : resultRows.reduce((sum, row) => sum + Number(row[1] || 0), 0)]])
+      summarySheet.getRange(1 + resultRows.length, 0, 1, 2).setValues([['Grand Total', grandTotal]])
       summarySheet.activate()
       setMessage('Created ' + sheetName + ' as a new worksheet.')
     } catch (reason) {
