@@ -665,7 +665,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   })
 
   univerAPI.updateMenuConfig({
-
+    'ribbon.start.history': { title: 'History', order: 0 },
+    'ribbon.start.format': { title: 'Font', order: 2 },
+    'ribbon.start.layout': { title: 'Alignment', order: 3 },
+    'ribbon.start.others': { title: 'More Editing', order: 8 },
     'univer.command.undo': { icon: 'gridnova-icon-undo' },
     'univer.command.redo': { icon: 'gridnova-icon-redo' },
     'sheet.command.set-once-format-painter': { icon: 'gridnova-icon-paint' },
@@ -687,26 +690,11 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'ui.operation.open-find-dialog': { icon: 'gridnova-icon-search' },
     'sheet.command.numfmt.set.currency': { icon: 'gridnova-icon-currency' },
     'sheet.command.numfmt.set.percent': { icon: 'gridnova-icon-percent' },
-    'sheet.command.menu-insert-chart': { icon: 'gridnova-icon-calculator' },
+    'sheet.operation.open.numfmt.panel': { icon: 'gridnova-icon-calculator' },
     'sheet.command.insert-float-image': { icon: 'gridnova-icon-image' },
     'sheet.operation.insert-hyper-link-toolbar': { icon: 'gridnova-icon-link' },
-    'ribbon.start.history': { title: 'History', order: 0 },
-    'ribbon.start.format': { title: 'Font', order: 2 },
-    'ribbon.start.layout': { title: 'Alignment', order: 3 },
-    'ribbon.start.others': { title: 'More Editing', order: 8 },
-    'univer.command.undo': { icon: 'gridnova-icon-home' },
-    'univer.command.redo': { icon: 'gridnova-icon-home' },
-    'ui.operation.activate-format-painter': { icon: 'gridnova-icon-layout' },
-    'sheet.command.menu-insert-chart': { icon: 'gridnova-icon-table' },
-    'sheet.operation.open.conditional.formatting.panel': { icon: 'gridnova-icon-layout' },
-    'sheet.command.smart-toggle-filter': { icon: 'gridnova-icon-table' },
-    'sheet.operation.open.numfmt.panel': { icon: 'gridnova-icon-table' },
-        'sheet.operation.insert-hyper-link-toolbar': { icon: 'gridnova-icon-share' },
-    'ui.operation.open-find-dialog': { icon: 'gridnova-icon-help' },
-    'sheet.toolbar.sheet-frozen': { icon: 'gridnova-icon-layout' },
-    'sheet.menu.image': { icon: 'gridnova-icon-table' },
     'sheet.operation.print-open': { icon: 'gridnova-icon-print' },
-        'sheet.command.add-range-protection-from-toolbar': { icon: 'gridnova-icon-review' },
+    'sheet.command.add-range-protection-from-toolbar': { icon: 'gridnova-icon-review' },
   })
 
   return [...icons, ...drawingComponents, ...menus, clipboardGroup, ...homeGroupMenus, ...nativeTabGroupMenus]
