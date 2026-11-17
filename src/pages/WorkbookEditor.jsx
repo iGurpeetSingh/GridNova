@@ -49,6 +49,7 @@ export default function WorkbookEditor() {
       setActivity([])
     }
     setReviewPanelMode(null)
+    try { setIsReadOnly(window.localStorage.getItem('gridnova:editing-mode:' + workbookId) === 'view') } catch { setIsReadOnly(false) }
   }, [workbookId])
 
   useEffect(() => {
