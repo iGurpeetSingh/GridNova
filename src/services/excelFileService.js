@@ -131,7 +131,7 @@ export async function importExcelFile(file) {
 
   if (lowerName.endsWith('.csv') || lowerName.endsWith('.tsv')) {
     const delimiter = lowerName.endsWith('.tsv') ? '\\t' : ','
-    const rows = parseDelimitedText(new TextDecoder().decode(buffer).replace(/^\\uFEFF/, ''), delimiter)
+    const rows = parseDelimitedText(new TextDecoder().decode(buffer).replace(/^\uFEFF/, ''), delimiter)
     const sheetId = 'sheet_1_imported'
     const cellData = {}
     rows.forEach((row, rowIndex) => {
