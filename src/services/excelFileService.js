@@ -310,7 +310,10 @@ export function exportCsvFile(snapshot, fileName = 'GridNova Sheet.csv', sheetId
   const rows = []
   for (let row = 0; row <= maxRow; row += 1) {
     const values = []
-    for (let column = 0; column <= maxColumn; column += 1) {\n      const cell = cellData[row]?.[column]\n      values.push(cell?.v ?? (cell?.f ? '=' + cell.f : ''))\n    }
+    for (let column = 0; column <= maxColumn; column += 1) {
+      const cell = cellData[row]?.[column]
+      values.push(cell?.v ?? (cell?.f ? '=' + cell.f : ''))
+    }
     rows.push(values.map(escapeCsvValue).join(','))
   }
   downloadBlob(new Blob(['\\uFEFF' + rows.join('\\r\\n')], { type: 'text/csv;charset=utf-8' }), fileName, 'text/csv;charset=utf-8')
