@@ -270,15 +270,15 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'review', title: 'Review', order: 8, groups: [
         { id: 'comments', title: 'Comments & Notes', items: [
-          { id: 'new-comment', title: 'New Comment', icon: 'review', command: 'sheet.operation.show-comment-modal' },
-          { id: 'new-note', title: 'New Note', command: 'sheet.operation.add-note-popup' },
-          { id: 'comment-panel', title: 'Comment Management', command: 'sheet.operation.toggle-comment-panel' },
+          { id: 'new-comment', title: 'New Comment', icon: 'review', action: 'open-comments' },
+          { id: 'new-note', title: 'New Note', action: 'open-note' },
+          { id: 'comment-panel', title: 'Comment Management', action: 'open-comments' },
         ] },
         { id: 'protection', title: 'Protection', items: [
           { id: 'protect-range', title: 'Protect Selected Range', command: 'sheet.command.add-range-protection-from-toolbar' },
         ] },
         { id: 'history', title: 'History', items: [
-          { id: 'edit-history', title: 'Edit History', command: 'univer.operation.toggle-edit-history' },
+          { id: 'edit-history', title: 'Edit History', action: 'open-catch-up' },
         ] },
       ],
     },
@@ -604,6 +604,9 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
         },
         executeCommand(commandId, params) {
           return univerAPI.executeCommand(commandId, params)
+        },
+        onCommandExecuted(callback) {
+          return univerAPI.addEvent(univerAPI.Event.CommandExecuted, callback)
         },
         replaceSnapshot(snapshot) {
           if (!snapshot || !snapshot.sheetOrder?.length) {
