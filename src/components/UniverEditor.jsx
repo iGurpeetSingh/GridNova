@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { ArrowDownloadRegular, ArrowUploadRegular, BookOpenRegular, CommentRegular, DrawShapeRegular, GridRegular, LayoutRegular, PrintRegular, QuestionCircleRegular, SaveRegular, ShareRegular, TableRegular } from '@fluentui/react-icons'
 import { createUniver, LocaleType, mergeLocales } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import '@univerjs/ui/facade'
@@ -59,6 +60,139 @@ function ensureMinimumColumnCount(snapshot) {
   return normalized
 }
 
+
+const RIBBON_ICONS = {
+  save: SaveRegular,
+  import: ArrowUploadRegular,
+  export: ArrowDownloadRegular,
+  print: PrintRegular,
+  share: ShareRegular,
+  review: CommentRegular,
+  help: QuestionCircleRegular,
+  draw: DrawShapeRegular,
+  layout: LayoutRegular,
+  home: GridRegular,
+  table: TableRegular,
+  guide: BookOpenRegular,
+}
+
+function registerRibbonIcons(univerAPI) {
+  const disposables = []
+  Object.entries(RIBBON_ICONS).forEach(([name, Icon]) => {
+    disposables.push(univerAPI.registerComponent('gridnova-icon-' + name, Icon))
+  })
+  return disposables
+}
+
+function addRibbonTab(univerAPI, tab, onRibbonAction) {
+  const root = univerAPI.createSubmenu({
+    id: 'gridnova.ribbon.' + tab.id,
+    title: tab.title,
+    order: tab.order,
+  })
+
+  tab.groups.forEach((group) => {
+    const groupMenu = univerAPI.createSubmenu({
+      id: 'gridnova.ribbon.' + tab.id + '.' + group.id,
+      title: group.title,
+    })
+
+    group.items.forEach((item) => {
+      const action = item.command
+        ? () => univerAPI.executeCommand(item.command, item.params)
+        : () => onRibbonAction?.(item.action)
+      const menu = univerAPI.createMenu({
+        id: 'gridnova.ribbon.' + tab.id + '.' + item.id,
+        title: item.title,
+        tooltip: item.tooltip || item.title,
+        icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
+        action,
+      })
+      groupMenu.addSubmenu(menu)
+    })
+
+    root.addSubmenu(groupMenu)
+  })
+
+  root.appendTo('ribbon')
+  return root
+}
+
+function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
+  const icons = registerRibbonIcons(univerAPI)
+  const tabs = [
+    {
+      id: 'file', title: 'File', order: 0, groups: [
+        { id: 'workbook', title: 'Workbook', items: [
+          { id: 'save', title: 'Save', icon: 'save', action: 'save' },
+          { id: 'import', title: 'Import Excel', icon: 'import', action: 'import' },
+          { id: 'export-xlsx', title: 'Export Excel', icon: 'export', action: 'export-xlsx' },
+          { id: 'export-csv', title: 'Export CSV', action: 'export-csv' },
+        ] },
+        { id: 'print', title: 'Print', items: [
+          { id: 'print-workbook', title: 'Print', icon: 'print', action: 'print' },
+        ] },
+      ],
+    },
+    {
+      id: 'share', title: 'Share', order: 4, groups: [
+        { id: 'share-copy', title: 'Share a Copy', items: [
+          { id: 'share-export', title: 'Export Workbook Copy', icon: 'share', action: 'export-xlsx' },
+          { id: 'copy-id', title: 'Copy Workbook ID', action: 'copy-workbook-id' },
+        ] },
+      ],
+    },
+    {
+      id: 'page-layout', title: 'Page Layout', order: 5, groups: [
+        { id: 'page-setup', title: 'Page Setup', items: [
+          { id: 'print-layout', title: 'Print Layout', icon: 'layout', command: 'sheet.operation.open-print-grid-sidebar' },
+          { id: 'print', title: 'Print', icon: 'print', action: 'print' },
+        ] },
+        { id: 'sheet-options', title: 'Sheet Options', items: [
+          { id: 'gridlines', title: 'Toggle Gridlines', command: 'sheet.command.toggle-gridlines' },
+          { id: 'freeze-row', title: 'Freeze First Row', command: 'sheet.command.set-first-row-frozen' },
+          { id: 'freeze-column', title: 'Freeze First Column', command: 'sheet.command.set-first-column-frozen' },
+        ] },
+      ],
+    },
+    {
+      id: 'review', title: 'Review', order: 8, groups: [
+        { id: 'comments', title: 'Comments & Notes', items: [
+          { id: 'new-comment', title: 'New Comment', icon: 'review', command: 'sheet.operation.show-comment-modal' },
+          { id: 'new-note', title: 'New Note', command: 'sheet.operation.add-note-popup' },
+          { id: 'comment-panel', title: 'Comment Management', command: 'sheet.operation.toggle-comment-panel' },
+        ] },
+        { id: 'protection', title: 'Protection', items: [
+          { id: 'protect-range', title: 'Protect Selected Range', command: 'sheet.command.add-range-protection-from-toolbar' },
+        ] },
+        { id: 'history', title: 'History', items: [
+          { id: 'edit-history', title: 'Edit History', command: 'univer.operation.toggle-edit-history' },
+        ] },
+      ],
+    },
+    {
+      id: 'help', title: 'Help', order: 10, groups: [
+        { id: 'support', title: 'Help & Support', items: [
+          { id: 'feature-search', title: 'Search Tools', icon: 'help', command: 'ui.operation.open-feature-search' },
+          { id: 'shortcuts', title: 'Keyboard Shortcuts', command: 'base-ui.operation.toggle-shortcut-panel' },
+          { id: 'docs', title: 'GridNova Guide', icon: 'guide', action: 'open-help' },
+        ] },
+      ],
+    },
+    {
+      id: 'draw', title: 'Draw', order: 11, groups: [
+        { id: 'drawing', title: 'Drawing', items: [
+          { id: 'insert-shape', title: 'Insert Shape', icon: 'draw', command: 'sheet.command.menu-insert-shape' },
+          { id: 'layers', title: 'Selection Pane', command: 'sheet.operation.open-shape-object-list-panel' },
+        ] },
+      ],
+    },
+  ]
+
+  const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction))
+  return [...icons, ...menus]
+}
+
 function addColumnHeaderDeleteAction(univerAPI) {
   // The core preset already provides Insert Before/After, Hide/Show, Width
   // and Autofit on the column-header context menu. Its public menu list does
@@ -85,16 +219,18 @@ function addColumnHeaderDeleteAction(univerAPI) {
   return deleteMenu
 }
 
-export default function UniverEditor({ workbookId, title, initialSnapshot, ribbonType = 'classic', onReady }) {
+export default function UniverEditor({ workbookId, title, initialSnapshot, ribbonType = 'classic', onReady, onRibbonAction }) {
   const containerRef = useRef(null)
   const onReadyRef = useRef(onReady)
+  const onRibbonActionRef = useRef(onRibbonAction)
   const initialConfigRef = useRef({ workbookId, title, initialSnapshot, ribbonType })
   initialConfigRef.current = { workbookId, title, initialSnapshot, ribbonType }
   const [error, setError] = useState('')
 
   useEffect(() => {
     onReadyRef.current = onReady
-  }, [onReady])
+    onRibbonActionRef.current = onRibbonAction
+  }, [onReady, onRibbonAction])
 
   useEffect(() => {
     if (!containerRef.current) return undefined
@@ -116,6 +252,13 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             toolbar: true,
             contextMenu: true,
             ribbonType: config.ribbonType,
+            menu: {
+              'ribbon.start': { title: 'Home', order: 1 },
+              'ribbon.insert': { title: 'Insert', order: 2 },
+              'ribbon.formulas': { title: 'Formulas', order: 6 },
+              'ribbon.data': { title: 'Data', order: 7 },
+              'ribbon.view': { title: 'View', order: 9 },
+            },
             footer: {
               addSheetButtonConfig: {
                 show: true,
@@ -134,6 +277,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
 
       univerAPI.createWorkbook(workbookData)
       addColumnHeaderDeleteAction(univerAPI)
+      const ribbonDisposables = addMicrosoftInspiredRibbonTabs(univerAPI, (action) => onRibbonActionRef.current?.(action))
 
       const editorApi = {
         getSnapshot() {
@@ -169,6 +313,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
       disposed = true
       onReadyRef.current?.(null)
       try {
+        ribbonDisposables?.forEach((item) => item?.dispose?.())
         univerInstance?.dispose()
       } catch (disposeError) {
         console.error('GridNova editor cleanup failed:', disposeError)
