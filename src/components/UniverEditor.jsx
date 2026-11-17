@@ -830,6 +830,9 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
         getActiveSheet() {
           return univerAPI.getActiveWorkbook()?.getActiveSheet()
         },
+        getWorkbook(id) {
+          return univerAPI.getWorkbook(id)
+        },
         executeCommand(commandId, params) {
           return univerAPI.executeCommand(commandId, params)
         },
