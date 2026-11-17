@@ -13,11 +13,14 @@ import { UniverSheetsThreadCommentPreset } from '@univerjs/preset-sheets-thread-
 import UniverPresetSheetsThreadCommentEnUS from '@univerjs/preset-sheets-thread-comment/locales/en-US'
 import { UniverSheetsNotePreset } from '@univerjs/preset-sheets-note'
 import UniverPresetSheetsNoteEnUS from '@univerjs/preset-sheets-note/locales/en-US'
+import { UniverSheetsDataValidationPreset } from '@univerjs/preset-sheets-data-validation'
+import UniverPresetSheetsDataValidationEnUS from '@univerjs/preset-sheets-data-validation/locales/en-US'
 import '@univerjs/preset-sheets-core/lib/index.css'
 import '@univerjs/preset-sheets-drawing/lib/index.css'
 import '@univerjs/preset-sheets-table/lib/index.css'
 import '@univerjs/preset-sheets-thread-comment/lib/index.css'
 import '@univerjs/preset-sheets-note/lib/index.css'
+import '@univerjs/preset-sheets-data-validation/lib/index.css'
 
 const DEFAULT_ROW_COUNT = 1000
 const DEFAULT_COLUMN_COUNT = 26
@@ -766,7 +769,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
-          [LocaleType.EN_US]: mergeLocales(UniverPresetSheetsCoreEnUS, UniverPresetSheetsDrawingEnUS, UniverPresetSheetsTableEnUS, UniverPresetSheetsThreadCommentEnUS, UniverPresetSheetsNoteEnUS),
+          [LocaleType.EN_US]: mergeLocales(UniverPresetSheetsCoreEnUS, UniverPresetSheetsDrawingEnUS, UniverPresetSheetsTableEnUS, UniverPresetSheetsThreadCommentEnUS, UniverPresetSheetsNoteEnUS, UniverPresetSheetsDataValidationEnUS),
         },
         presets: [
           UniverSheetsCorePreset({
@@ -794,6 +797,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
           UniverSheetsTablePreset(),
           UniverSheetsThreadCommentPreset(),
           UniverSheetsNotePreset(),
+          UniverSheetsDataValidationPreset(),
         ],
       })
 
