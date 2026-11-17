@@ -218,7 +218,7 @@ function insertBasicChart(univerAPI) {
   const id = 'gridnova-chart-' + (globalThis.crypto?.randomUUID?.() || Date.now())
   const chart = sheet.addFloatDomToRange(
     range,
-    { componentKey: 'gridnova-bar-chart', data: { labels: dataRows.map((row) => row.label), values: dataRows.map((row) => row.value) } },
+    { componentKey: 'gridnova-bar-chart', data: { labels: dataRows.map((row) => row.label), values: dataRows.map((row) => row.value) }, allowTransform: true },
     { width: 360, height: 220 },
     id,
   )
@@ -267,7 +267,7 @@ function insertDrawingShape(univerAPI, shapeType) {
   const id = 'gridnova-shape-' + (globalThis.crypto?.randomUUID?.() || Date.now())
   const shape = sheet.addFloatDomToRange(
     range,
-    { componentKey },
+    { componentKey, allowTransform: true },
     { width: 180, height: 100 },
     id,
   )
