@@ -464,6 +464,9 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
         getActiveSheet() {
           return univerAPI.getActiveWorkbook()?.getActiveSheet()
         },
+        executeCommand(commandId, params) {
+          return univerAPI.executeCommand(commandId, params)
+        },
         replaceSnapshot(snapshot) {
           if (!snapshot || !snapshot.sheetOrder?.length) {
             throw new Error('The imported workbook does not contain any worksheets.')
