@@ -227,6 +227,99 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
   ]
 
+  const nativeTabGroups = [
+    {
+      path: 'ribbon.insert', id: 'tables', title: 'Tables', items: [
+        { id: 'insert-table', title: 'Table', icon: 'table', command: 'sheet.operation.open-table-selector' },
+        { id: 'insert-pivot-table', title: 'PivotTable', command: 'sheet.operation.open-pivot-table-range-selector-panel' },
+      ],
+    },
+    {
+      path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', items: [
+        { id: 'insert-picture', title: 'Pictures', command: 'sheet.command.insert-float-image' },
+        { id: 'insert-shape', title: 'Shapes', icon: 'draw', command: 'sheet.command.menu-insert-shape' },
+      ],
+    },
+    {
+      path: 'ribbon.insert', id: 'charts', title: 'Charts', items: [
+        { id: 'insert-chart', title: 'Recommended Charts', icon: 'table', command: 'sheet.command.menu-insert-chart' },
+        { id: 'insert-sparkline', title: 'Sparkline', command: 'sheet.operation.open-sparkline-selector' },
+      ],
+    },
+    {
+      path: 'ribbon.insert', id: 'links', title: 'Links', items: [
+        { id: 'insert-link', title: 'Hyperlink', icon: 'share', command: 'sheet.operation.insert-hyper-link-toolbar' },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'function-library', title: 'Function Library', items: [
+        { id: 'insert-function', title: 'Insert Function', command: 'formula-ui.operation.insert-function.common' },
+        { id: 'more-functions', title: 'More Functions', command: 'formula-ui.operation.more-functions' },
+        { id: 'financial-functions', title: 'Financial', command: 'formula-ui.operation.insert-function.financial' },
+        { id: 'logical-functions', title: 'Logical', command: 'formula-ui.operation.insert-function.logical' },
+        { id: 'text-functions', title: 'Text', command: 'formula-ui.operation.insert-function.text' },
+        { id: 'date-functions', title: 'Date & Time', command: 'formula-ui.operation.insert-function.date' },
+        { id: 'lookup-functions', title: 'Lookup & Reference', command: 'formula-ui.operation.insert-function.lookup' },
+        { id: 'math-functions', title: 'Math & Trig', command: 'formula-ui.operation.insert-function.math' },
+        { id: 'statistical-functions', title: 'Statistical', command: 'formula-ui.operation.insert-function.statistical' },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'calculation', title: 'Calculation', items: [
+        { id: 'calculation-options', title: 'Calculation Options', command: 'sheets-formula-ui.operation.calculation-options' },
+      ],
+    },
+    {
+      path: 'ribbon.data', id: 'sort-filter', title: 'Sort & Filter', items: [
+        { id: 'sort-ascending', title: 'Sort A to Z', command: 'sheet.command.sort-range-asc' },
+        { id: 'sort-descending', title: 'Sort Z to A', command: 'sheet.command.sort-range-desc' },
+        { id: 'custom-sort', title: 'Custom Sort', command: 'sheet.command.sort-range-custom' },
+        { id: 'toggle-filter', title: 'Filter', icon: 'table', command: 'sheet.command.smart-toggle-filter' },
+        { id: 'clear-filter', title: 'Clear Filter', command: 'sheet.command.clear-filter-criteria' },
+      ],
+    },
+    {
+      path: 'ribbon.data', id: 'data-tools', title: 'Data Tools', items: [
+        { id: 'data-validation', title: 'Data Validation', command: 'data-validation.operation.open-validation-panel' },
+      ],
+    },
+    {
+      path: 'ribbon.data', id: 'outline', title: 'Outline', items: [
+        { id: 'group-rows-columns', title: 'Group', command: 'sheet.toolbar.dimension-outline.group' },
+      ],
+    },
+    {
+      path: 'ribbon.view', id: 'show', title: 'Show', items: [
+        { id: 'toggle-gridlines', title: 'Gridlines', command: 'sheet.command.toggle-gridlines' },
+      ],
+    },
+    {
+      path: 'ribbon.view', id: 'window', title: 'Window', items: [
+        { id: 'freeze-panes', title: 'Freeze Panes', command: 'sheet.toolbar.sheet-frozen' },
+        { id: 'zoom', title: 'Zoom', command: 'sheet.menu.zoom-ratio' },
+        { id: 'fullscreen', title: 'Full Screen', command: 'base-ui.operation.toggle-fullscreen' },
+      ],
+    },
+  ]
+
+  const nativeTabGroupMenus = nativeTabGroups.map((group) => {
+    const groupMenu = univerAPI.createSubmenu({
+      id: 'gridnova.ribbon.' + group.path.replaceAll('.', '-') + '.' + group.id,
+      title: group.title,
+    })
+    group.items.forEach((item) => {
+      groupMenu.addSubmenu(univerAPI.createMenu({
+        id: 'gridnova.ribbon.' + group.id + '.' + item.id,
+        title: item.title,
+        tooltip: item.title,
+        icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
+        action: () => univerAPI.executeCommand(item.command),
+      }))
+    })
+    groupMenu.appendTo(group.path)
+    return groupMenu
+  })
+
   const homeGroupMenus = homeGroups.map((group) => {
     const groupMenu = univerAPI.createSubmenu({
       id: 'gridnova.ribbon.home.' + group.id,
@@ -272,7 +365,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'sheet.command.menu-insert-shape': { icon: 'gridnova-icon-draw' },
   })
 
-  return [...icons, ...menus, ...homeGroupMenus]
+  return [...icons, ...menus, ...homeGroupMenus, ...nativeTabGroupMenus]
 }
 
 function addColumnHeaderDeleteAction(univerAPI) {
