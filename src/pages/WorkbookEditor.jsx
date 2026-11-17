@@ -224,7 +224,12 @@ export default function WorkbookEditor() {
       return
     }
     if (action === 'print') {
-      window.print()
+      try {
+        const opened = await editorApi?.executeCommand('sheet.operation.print-open')
+        if (opened === false) window.print()
+      } catch {
+        window.print()
+      }
       return
     }
     if (action === 'copy-workbook-id') {
