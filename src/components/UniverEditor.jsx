@@ -118,6 +118,47 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
   return root
 }
 
+function removeDuplicatesFromSelection(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!range) {
+    univerAPI.showMessage({ content: 'Select a range before removing duplicates.', type: 'warning' })
+    return
+  }
+
+  const values = range.getValues()
+  if (!Array.isArray(values) || values.length < 2) {
+    univerAPI.showMessage({ content: 'The selected range does not contain duplicate rows to remove.', type: 'info' })
+    return
+  }
+
+  const hasHeader = window.confirm('Does the first selected row contain column headers?')
+  const firstDataRow = hasHeader ? 1 : 0
+  const headerRows = hasHeader ? [values[0]] : []
+  const seen = new Set()
+  const uniqueRows = []
+
+  values.slice(firstDataRow).forEach((row) => {
+    const key = JSON.stringify(row)
+    if (!seen.has(key)) {
+      seen.add(key)
+      uniqueRows.push(row)
+    }
+  })
+
+  const removedCount = values.length - headerRows.length - uniqueRows.length
+  if (removedCount <= 0) {
+    univerAPI.showMessage({ content: 'No duplicate rows were found in the selected range.', type: 'info' })
+    return
+  }
+
+  const columnCount = Math.max(1, ...values.map((row) => row.length))
+  const output = [...headerRows, ...uniqueRows]
+  while (output.length < values.length) output.push(Array(columnCount).fill(null))
+  range.setValues(output)
+  univerAPI.showMessage({ content: removedCount + ' duplicate row(s) cleared from the selected range.', type: 'success' })
+}
+
 function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   const icons = registerRibbonIcons(univerAPI)
   const tabs = [
@@ -281,6 +322,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       path: 'ribbon.data', id: 'data-tools', title: 'Data Tools', items: [
         { id: 'data-validation', title: 'Data Validation', command: 'data-validation.operation.open-validation-panel' },
+        { id: 'remove-duplicates', title: 'Remove Duplicates', icon: 'table', run: removeDuplicatesFromSelection },
       ],
     },
     {
@@ -313,7 +355,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         title: item.title,
         tooltip: item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
-        action: () => univerAPI.executeCommand(item.command),
+        action: () => item.run ? item.run(univerAPI) : univerAPI.executeCommand(item.command),
       }))
     })
     groupMenu.appendTo(group.path)
