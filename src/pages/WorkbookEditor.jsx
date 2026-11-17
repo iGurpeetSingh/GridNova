@@ -101,6 +101,21 @@ export default function WorkbookEditor() {
 
   useEffect(() => {
     if (!editorApi) return undefined
+    const persistOnPageHide = () => {
+      const snapshot = editorApi.getSnapshot()
+      if (!snapshot) return
+      snapshot.name = title
+      saveWorkbook({ id: workbookId, name: title, snapshot }).catch((error) => {
+        console.error('GridNova page-hide save failed:', error)
+      })
+    }
+    window.addEventListener('pagehide', persistOnPageHide)
+    return () => window.removeEventListener('pagehide', persistOnPageHide)
+  }, [editorApi, title, workbookId])
+
+
+  useEffect(() => {
+    if (!editorApi) return undefined
     const handleKeyDown = (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
         event.preventDefault()
