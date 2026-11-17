@@ -595,7 +595,6 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
         { id: 'insert-chart', title: 'Insert Bar Chart', icon: 'table', run: insertBasicChart },
         { id: 'chart-pivot-tools', title: 'Chart & Pivot Tools', icon: 'table', action: 'insert-tools' },
-        { id: 'chart-pivot-tools', title: 'Chart & Pivot Tools', icon: 'table', action: 'insert-tools' },
       ],
     },
     {
