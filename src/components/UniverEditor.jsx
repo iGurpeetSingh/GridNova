@@ -232,6 +232,26 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
 
   const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction))
 
+  const clipboardGroup = univerAPI.createSubmenu({
+    id: 'gridnova.ribbon.home.clipboard',
+    title: 'Clipboard',
+  })
+  ;[
+    { id: 'paste', title: 'Paste', icon: 'table', command: 'sheet.command.paste' },
+    { id: 'cut', title: 'Cut', command: 'sheet.command.cut' },
+    { id: 'copy', title: 'Copy', command: 'sheet.command.copy' },
+    { id: 'format-painter', title: 'Format Painter', icon: 'layout', command: 'ui.operation.activate-format-painter' },
+  ].forEach((item) => {
+    clipboardGroup.addSubmenu(univerAPI.createMenu({
+      id: 'gridnova.ribbon.home.clipboard.' + item.id,
+      title: item.title,
+      tooltip: item.title,
+      icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
+      action: () => univerAPI.executeCommand(item.command),
+    }))
+  })
+  clipboardGroup.appendTo('ribbon.start')
+
   const homeGroups = [
     {
       id: 'number', title: 'Number', items: [
@@ -407,7 +427,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'sheet.command.menu-insert-shape': { icon: 'gridnova-icon-draw' },
   })
 
-  return [...icons, ...menus, ...homeGroupMenus, ...nativeTabGroupMenus]
+  return [...icons, ...menus, clipboardGroup, ...homeGroupMenus, ...nativeTabGroupMenus]
 }
 
 function addColumnHeaderDeleteAction(univerAPI) {
