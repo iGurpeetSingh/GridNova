@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowDownloadRegular, ArrowUploadRegular, BookOpenRegular, CommentRegular, DrawShapeRegular, GridRegular, PrintRegular, QuestionCircleRegular, SaveRegular, ShareRegular, TableRegular } from '@fluentui/react-icons'
+import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, CommentRegular, CopyRegular, CurrencyDollarRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PercentRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, SortAscendingRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
 import { createUniver, LocaleType, mergeLocales } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import '@univerjs/ui/facade'
@@ -77,6 +77,30 @@ const RIBBON_ICONS = {
   home: GridRegular,
   table: TableRegular,
   guide: BookOpenRegular,
+  undo: ArrowUndoRegular,
+  redo: ArrowRedoRegular,
+  bold: TextBoldRegular,
+  italic: TextItalicRegular,
+  underline: TextUnderlineRegular,
+  strike: TextStrikethroughRegular,
+  alignLeft: TextAlignLeftRegular,
+  alignCenter: TextAlignCenterRegular,
+  alignRight: TextAlignRightRegular,
+  textColor: TextColorRegular,
+  fillColor: PaintBucketRegular,
+  border: BorderAllRegular,
+  paste: ClipboardPasteRegular,
+  cut: CutRegular,
+  copy: CopyRegular,
+  filter: FilterRegular,
+  sort: SortAscendingRegular,
+  search: SearchRegular,
+  calculator: CalculatorRegular,
+  currency: CurrencyDollarRegular,
+  percent: PercentRegular,
+  image: ImageRegular,
+  link: LinkRegular,
+  paint: PaintBrushRegular,
 }
 
 function registerRibbonIcons(univerAPI) {
@@ -640,6 +664,31 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   })
 
   univerAPI.updateMenuConfig({
+
+    'univer.command.undo': { icon: 'gridnova-icon-undo' },
+    'univer.command.redo': { icon: 'gridnova-icon-redo' },
+    'sheet.command.set-once-format-painter': { icon: 'gridnova-icon-paint' },
+    'sheet.command.set-range-bold': { icon: 'gridnova-icon-bold' },
+    'sheet.command.set-range-italic': { icon: 'gridnova-icon-italic' },
+    'sheet.command.set-range-underline': { icon: 'gridnova-icon-underline' },
+    'sheet.command.set-range-stroke': { icon: 'gridnova-icon-strike' },
+    'sheet.command.set-range-text-color': { icon: 'gridnova-icon-textColor' },
+    'sheet.command.set-background-color': { icon: 'gridnova-icon-fillColor' },
+    'sheet.command.set-border-basic': { icon: 'gridnova-icon-border' },
+    'sheet.command.set-horizontal-text-align': { icon: 'gridnova-icon-alignLeft' },
+    'sheet.command.set-vertical-text-align': { icon: 'gridnova-icon-alignCenter' },
+    'sheet.command.set-text-wrap': { icon: 'gridnova-icon-alignRight' },
+    'sheet.command.copy': { icon: 'gridnova-icon-copy' },
+    'sheet.command.cut': { icon: 'gridnova-icon-cut' },
+    'sheet.command.paste': { icon: 'gridnova-icon-paste' },
+    'sheet.command.smart-toggle-filter': { icon: 'gridnova-icon-filter' },
+    'sheet.command.sort-range-asc': { icon: 'gridnova-icon-sort' },
+    'ui.operation.open-find-dialog': { icon: 'gridnova-icon-search' },
+    'sheet.command.numfmt.set.currency': { icon: 'gridnova-icon-currency' },
+    'sheet.command.numfmt.set.percent': { icon: 'gridnova-icon-percent' },
+    'sheet.command.menu-insert-chart': { icon: 'gridnova-icon-calculator' },
+    'sheet.command.insert-float-image': { icon: 'gridnova-icon-image' },
+    'sheet.operation.insert-hyper-link-toolbar': { icon: 'gridnova-icon-link' },
     'ribbon.start.history': { title: 'History', order: 0 },
     'ribbon.start.format': { title: 'Font', order: 2 },
     'ribbon.start.layout': { title: 'Alignment', order: 3 },
