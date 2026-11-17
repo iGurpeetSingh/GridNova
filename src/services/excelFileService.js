@@ -264,7 +264,7 @@ function toColumnLetters(number) {
   return output
 }
 
-export async function exportExcelFile(snapshot, fileName = 'GridNova Workbook.xlsx') {
+export async function exportExcelFile(snapshot, fileName = 'GridNova Workbook.xlsx', options = {}) {
   if (!snapshot?.sheetOrder?.length) throw new Error('There is no workbook data to export.')
   const workbook = new ExcelJS.Workbook()
   workbook.creator = 'GridNova'
@@ -300,7 +300,9 @@ export async function exportExcelFile(snapshot, fileName = 'GridNova Workbook.xl
   })
 
   const buffer = await workbook.xlsx.writeBuffer()
-  downloadBlob(buffer, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  const file = new File([buffer], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+  if (options.download !== false) downloadBlob(buffer, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  return file
 }
 
 export function exportCsvFile(snapshot, fileName = 'GridNova Sheet.csv', sheetId) {

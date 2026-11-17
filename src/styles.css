@@ -324,3 +324,194 @@ a { color: inherit; text-decoration: none; }
   .workbook-list-row { gap: 9px; padding: 9px; }
   .workbook-file-kind { display: none; }
 }
+
+
+/* Microsoft-inspired ribbon display mode switch */
+.ribbon-mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #e2e6ea;
+  border-radius: 7px;
+  background: #f7f8fa;
+  flex: 0 0 auto;
+}
+.ribbon-mode-switch button {
+  display: inline-flex;
+  min-height: 27px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: #536171;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ribbon-mode-switch button svg { width: 15px; height: 15px; }
+.ribbon-mode-switch button:hover { color: #1f5137; background: #edf5ef; }
+.ribbon-mode-switch button.active {
+  border-color: #d9e8de;
+  color: #176f40;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(20, 35, 25, .08);
+}
+@media (max-width: 1100px) {
+  .ribbon-mode-switch button { padding: 0 6px; }
+  .ribbon-mode-switch button span { display: none; }
+}
+
+
+/* Excel-style workbook collaboration controls */
+.editor-cloud-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+}
+.editor-cloud-actions button {
+  display: inline-flex;
+  min-height: 29px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 9px;
+  border: 1px solid #dfe3e8;
+  border-radius: 5px;
+  color: #354152;
+  background: #fff;
+  font-size: 10px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+.editor-cloud-actions button:hover { background: #f6f8fa; border-color: #cbd2da; }
+.editor-cloud-actions button svg { width: 14px; height: 14px; }
+.editor-cloud-actions button.share-action {
+  color: #fff;
+  border-color: #16834b;
+  background: #16834b;
+}
+.editor-cloud-actions button.share-action:hover { background: #116b3d; }
+.editor-mode-indicator {
+  display: inline-flex;
+  min-height: 29px;
+  align-items: center;
+  padding: 0 9px;
+  border: 1px solid #dfe3e8;
+  border-radius: 5px;
+  color: #465466;
+  background: #fff;
+  font-size: 10px;
+  white-space: nowrap;
+}
+@media (max-width: 1250px) {
+  .editor-cloud-actions button span { display: none; }
+  .editor-cloud-actions button { width: 30px; padding: 0; }
+  .editor-mode-indicator { display: none; }
+}
+@media (max-width: 760px) {
+  .editor-cloud-actions { display: none; }
+}
+
+
+/* Local workbook review and activity panel */
+.review-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(15, 23, 42, .24);
+}
+.review-panel {
+  display: flex;
+  width: min(420px, 100vw);
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border-left: 1px solid #dfe4e8;
+  background: #fff;
+  box-shadow: -12px 0 36px rgba(15, 23, 42, .14);
+}
+.review-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid #edf0f2;
+}
+.review-panel-header h2 { margin: 3px 0 0; color: #17212b; font-size: 19px; font-weight: 650; }
+.review-panel-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #edf0f2;
+}
+.review-panel-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 11px;
+  border: 0;
+  border-radius: 6px;
+  color: #536171;
+  background: transparent;
+  font-size: 12px;
+}
+.review-panel-tabs button svg { width: 15px; height: 15px; }
+.review-panel-tabs button.selected { color: #146c43; background: #edf6f0; font-weight: 650; }
+.review-comment-form { display: grid; gap: 10px; padding: 16px 18px; border-bottom: 1px solid #edf0f2; }
+.review-comment-context { display: flex; align-items: center; gap: 8px; color: #344054; font-size: 12px; }
+.review-comment-context > span { display: inline-flex; color: #16834b; }
+.review-comment-context svg { width: 16px; height: 16px; }
+.review-comment-context select { margin-left: auto; padding: 5px 7px; border: 1px solid #dfe4e8; border-radius: 5px; background: #fff; color: #344054; font-size: 11px; }
+.review-comment-form textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 10px 11px;
+  border: 1px solid #d7dde3;
+  border-radius: 7px;
+  color: #263241;
+  font: inherit;
+  font-size: 12px;
+}
+.review-comment-form .panel-primary { justify-self: end; min-width: 76px; }
+.review-comment-form .panel-primary:disabled { opacity: .45; cursor: not-allowed; }
+.review-comment-list, .review-activity-list { flex: 1; overflow: auto; padding: 14px 18px 22px; }
+.review-comment-card { margin-bottom: 10px; padding: 12px; border: 1px solid #e7ebef; border-radius: 8px; background: #fff; }
+.review-comment-meta { display: flex; flex-direction: column; gap: 3px; color: #344054; font-size: 11px; }
+.review-comment-meta time, .review-activity-item time { color: #8a95a2; font-size: 10px; }
+.review-comment-card p { margin: 10px 0; color: #2f3b49; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.review-comment-card > button { padding: 0; border: 0; color: #b42318; background: transparent; font-size: 10px; cursor: pointer; }
+.review-empty { padding: 18px 8px; color: #8793a0; font-size: 12px; text-align: center; }
+.review-activity-item { display: flex; gap: 10px; padding: 12px 2px; border-bottom: 1px solid #edf0f2; }
+.review-activity-dot { width: 8px; height: 8px; margin-top: 5px; border-radius: 50%; background: #16834b; flex: 0 0 auto; }
+.review-activity-item strong { color: #344054; font-size: 12px; }
+.review-activity-item p { margin: 4px 0; color: #667085; font-size: 11px; }
+
+
+.editor-quick-access {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 7px;
+  border-right: 1px solid #e5e9ed;
+  flex: 0 0 auto;
+}
+.editor-quick-access button {
+  display: inline-flex;
+  width: 27px;
+  height: 27px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 4px;
+  color: #536171;
+  background: transparent;
+}
+.editor-quick-access button:hover { color: #176f40; background: #edf5ef; }
+.editor-quick-access button svg { width: 16px; height: 16px; }

@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { ArrowRedoRegular, ArrowUndoRegular, BookOpenRegular, CommentRegular, GridRegular, ShareRegular, TableRegular } from '@fluentui/react-icons'
 import UniverEditor from '../components/UniverEditor.jsx'
 import InsertToolsPanel from '../components/InsertToolsPanel.jsx'
+import ReviewPanel from '../components/ReviewPanel.jsx'
 import { exportCsvFile, exportExcelFile, importExcelFile } from '../services/excelFileService.js'
 import { getWorkbook, saveWorkbook } from '../services/workbookStorage.js'
 
@@ -15,16 +17,41 @@ export default function WorkbookEditor() {
   const [searchParams] = useSearchParams()
   const fileInputRef = useRef(null)
   const lastSavedRef = useRef('')
+  const pendingSelectionRef = useRef(null)
   const saveInFlightRef = useRef(null)
   const [title, setTitle] = useState(searchParams.get('title')?.trim() || 'Untitled workbook')
+  const [isReadOnly, setIsReadOnly] = useState(() => {
+    try { return window.localStorage.getItem('gridnova:editing-mode:' + workbookId) === 'view' } catch { return false }
+  })
+  const [ribbonMode, setRibbonMode] = useState(() => {
+    try { return window.localStorage.getItem('gridnova:ribbon-mode:' + workbookId) || 'classic' } catch { return 'classic' }
+  })
   const [initialSnapshot, setInitialSnapshot] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editorApi, setEditorApi] = useState(null)
   const [saveState, setSaveState] = useState('Loading workbook')
   const [savedAt, setSavedAt] = useState(null)
   const [toolsOpen, setToolsOpen] = useState(false)
+  const [reviewPanelMode, setReviewPanelMode] = useState(null)
+  const [activity, setActivity] = useState(() => {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem('gridnova:activity:' + workbookId) || '[]')
+      return Array.isArray(stored) ? stored : []
+    } catch { return [] }
+  })
   const [notice, setNotice] = useState('')
   const [noticeType, setNoticeType] = useState('success')
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem('gridnova:activity:' + workbookId) || '[]')
+      setActivity(Array.isArray(stored) ? stored : [])
+    } catch {
+      setActivity([])
+    }
+    setReviewPanelMode(null)
+    try { setIsReadOnly(window.localStorage.getItem('gridnova:editing-mode:' + workbookId) === 'view') } catch { setIsReadOnly(false) }
+  }, [workbookId])
 
   useEffect(() => {
     let mounted = true
@@ -98,6 +125,42 @@ export default function WorkbookEditor() {
     }, 1800)
     return () => window.clearInterval(timer)
   }, [editorApi, saveNow])
+
+  useEffect(() => {
+    if (!editorApi || !isReadOnly) return
+    const sheets = editorApi.getWorkbook(workbookId)?.getSheets?.() || [editorApi.getActiveSheet()].filter(Boolean)
+    Promise.all(sheets.map((sheet) => sheet.getWorksheetPermission?.()?.setReadOnly?.()))
+      .catch((error) => {
+        setNoticeType('error')
+        setNotice(error instanceof Error ? error.message : 'Could not restore viewing mode.')
+      })
+  }, [editorApi, isReadOnly, workbookId])
+
+  useEffect(() => {
+    try { window.localStorage.setItem('gridnova:editing-mode:' + workbookId, isReadOnly ? 'view' : 'edit') } catch { /* preference storage is optional */ }
+  }, [workbookId, isReadOnly])
+
+  useEffect(() => {
+    if (!editorApi?.onCommandExecuted) return undefined
+    const subscription = editorApi.onCommandExecuted((event) => {
+      const activeRange = editorApi.getActiveSheet()?.getActiveRange?.()
+      const command = String(event?.id || 'Workbook action')
+      const entry = {
+        id: globalThis.crypto?.randomUUID?.() || String(Date.now()),
+        command,
+        label: command.split('.').pop().replace(/[-_]/g, ' '),
+        type: event?.type || 'COMMAND',
+        cell: activeRange?.getA1Notation?.() || '',
+        createdAt: Date.now(),
+      }
+      setActivity((previous) => {
+        const next = [entry, ...previous].slice(0, 100)
+        try { window.localStorage.setItem('gridnova:activity:' + workbookId, JSON.stringify(next)) } catch { /* activity history is best-effort */ }
+        return next
+      })
+    })
+    return () => subscription?.dispose?.()
+  }, [editorApi, workbookId])
 
   useEffect(() => {
     if (!editorApi) return undefined
@@ -180,6 +243,167 @@ export default function WorkbookEditor() {
     }
   }
 
+  function handleEditorReady(api) {
+    setEditorApi(api)
+    const pending = pendingSelectionRef.current
+    if (!api || !pending) return
+    try {
+      const targetSheet = api.getWorkbook(workbookId)?.getSheetByName(pending.sheetName) || api.getActiveSheet()
+      if (targetSheet && pending.range) targetSheet.getRange(pending.range).activate()
+    } catch { /* selection restoration is best-effort */ }
+    pendingSelectionRef.current = null
+  }
+
+  async function handleRibbonModeChange(nextMode) {
+    if (nextMode === ribbonMode || !['classic', 'collapsed'].includes(nextMode)) return
+    const activeSheet = editorApi?.getActiveSheet()
+    const activeRange = activeSheet?.getActiveRange?.()
+    if (activeSheet && activeRange) {
+      pendingSelectionRef.current = {
+        sheetName: activeSheet.getSheetName(),
+        range: activeRange.getA1Notation(),
+      }
+    }
+    const snapshot = editorApi?.getSnapshot()
+    if (snapshot) {
+      snapshot.name = title
+      setSaveState('Saving before changing ribbon…')
+      try {
+        await saveWorkbook({ id: workbookId, name: title, snapshot, updatedAt: Date.now() })
+        lastSavedRef.current = JSON.stringify(snapshot)
+        setInitialSnapshot(snapshot)
+        setSavedAt(Date.now())
+        setSaveState('Saved in this browser')
+      } catch (error) {
+        setNoticeType('error')
+        setNotice(error instanceof Error ? error.message : 'Could not save before changing the ribbon.')
+        return
+      }
+    }
+    setRibbonMode(nextMode)
+    try { window.localStorage.setItem('gridnova:ribbon-mode:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
+  }
+
+  async function handleQuickAccessCommand(commandId) {
+    try {
+      const result = await editorApi?.executeCommand(commandId)
+      if (result === false) throw new Error('This command is not available right now.')
+    } catch (error) {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'The command could not be completed.')
+    }
+  }
+
+  async function handleTopBarCommand(commandId, fallbackMode) {
+    try {
+      const result = await editorApi?.executeCommand(commandId)
+      if (result === false) setReviewPanelMode(fallbackMode)
+    } catch {
+      setReviewPanelMode(fallbackMode)
+    }
+  }
+
+  async function handleToggleEditingMode() {
+    const sheets = editorApi?.getWorkbook(workbookId)?.getSheets?.() || [editorApi?.getActiveSheet()].filter(Boolean)
+    if (!sheets.length) return
+    const nextReadOnly = !isReadOnly
+    try {
+      await Promise.all(sheets.map((sheet) => {
+        const permission = sheet.getWorksheetPermission?.()
+        return nextReadOnly ? permission?.setReadOnly?.() : permission?.setEditable?.()
+      }))
+      setIsReadOnly(nextReadOnly)
+    } catch (error) {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'Could not change workbook editing mode.')
+    }
+  }
+
+  async function handleShareWorkbook() {
+    try {
+      const snapshot = editorApi?.getSnapshot()
+      if (!snapshot) throw new Error('The workbook is not ready yet.')
+      snapshot.name = title
+      const fileName = safeFileName(title) + '.xlsx'
+      const file = await exportExcelFile(snapshot, fileName, { download: false })
+      if (typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title, text: 'GridNova workbook' })
+        setNoticeType('success')
+        setNotice('Workbook shared.')
+      } else {
+        await exportExcelFile(snapshot, fileName)
+        setNoticeType('success')
+        setNotice('File sharing is not supported here. A shareable Excel copy was downloaded.')
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') return
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'Could not prepare the workbook for sharing.')
+    }
+  }
+
+  async function handleRibbonAction(action) {
+    if (action === 'insert-tools') {
+      setToolsOpen(true)
+      return
+    }
+    if (action === 'open-comments') {
+      await handleTopBarCommand('sheet.operation.toggle-comment-panel', 'comments')
+      return
+    }
+    if (action === 'open-note') {
+      await handleTopBarCommand('sheet.operation.add-note-popup', 'comments')
+      return
+    }
+    if (action === 'open-catch-up') {
+      await handleTopBarCommand('univer.operation.toggle-edit-history', 'activity')
+      return
+    }
+    if (action === 'share-workbook') {
+      await handleShareWorkbook()
+      return
+    }
+    if (action === 'save') {
+      await saveNow({ force: true })
+      return
+    }
+    if (action === 'import') {
+      fileInputRef.current?.click()
+      return
+    }
+    if (action === 'export-xlsx') {
+      await handleExportExcel()
+      return
+    }
+    if (action === 'export-csv') {
+      handleExportCsv()
+      return
+    }
+    if (action === 'print') {
+      try {
+        const opened = await editorApi?.executeCommand('sheet.operation.print-open')
+        if (opened === false) window.print()
+      } catch {
+        window.print()
+      }
+      return
+    }
+    if (action === 'copy-workbook-id') {
+      try {
+        await navigator.clipboard.writeText(workbookId)
+        setNoticeType('success')
+        setNotice('Workbook ID copied.')
+      } catch {
+        setNoticeType('error')
+        setNotice('Clipboard access is unavailable in this browser.')
+      }
+      return
+    }
+    if (action === 'open-help') {
+      window.open('https://docs.univer.ai/guides/sheets', '_blank', 'noopener,noreferrer')
+    }
+  }
+
   async function handleBackToDashboard() {
     await saveNow({ force: true })
     navigate('/')
@@ -203,7 +427,25 @@ export default function WorkbookEditor() {
           />
           <span>Workbook · {String(workbookId).slice(0, 8)}</span>
         </div>
+        <div className="editor-quick-access" aria-label="Quick Access Toolbar">
+          <button type="button" onClick={() => handleQuickAccessCommand('univer.command.undo')} title="Undo" aria-label="Undo"><ArrowUndoRegular /></button>
+          <button type="button" onClick={() => handleQuickAccessCommand('univer.command.redo')} title="Redo" aria-label="Redo"><ArrowRedoRegular /></button>
+        </div>
         <div className="editor-appbar-spacer" />
+        <div className="editor-cloud-actions">
+          <button type="button" onClick={() => handleTopBarCommand('sheet.operation.toggle-comment-panel', 'comments')}><CommentRegular /> <span>Comments</span></button>
+          <button type="button" onClick={() => handleTopBarCommand('univer.operation.toggle-edit-history', 'activity')}><BookOpenRegular /> <span>Catch up</span></button>
+          <button type="button" className="editor-mode-indicator" onClick={handleToggleEditingMode} aria-pressed={isReadOnly} title="Switch between editing and viewing">{isReadOnly ? 'Viewing' : 'Editing'} ▾</button>
+          <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
+        </div>
+        <div className="ribbon-mode-switch" role="group" aria-label="Ribbon display mode">
+          <button type="button" className={ribbonMode === 'collapsed' ? 'active' : ''} aria-pressed={ribbonMode === 'collapsed'} onClick={() => handleRibbonModeChange('collapsed')} title="Single Line Ribbon">
+            <TableRegular /> <span>Single Line</span>
+          </button>
+          <button type="button" className={ribbonMode === 'classic' ? 'active' : ''} aria-pressed={ribbonMode === 'classic'} onClick={() => handleRibbonModeChange('classic')} title="Classic Ribbon">
+            <GridRegular /> <span>Classic</span>
+          </button>
+        </div>
         <span className={'storage-notice ' + (saveState === 'Save failed' ? 'storage-error' : '')}>
           <span className="notice-dot" /> {saveState}
           {savedAt ? ' · ' + new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
@@ -229,7 +471,9 @@ export default function WorkbookEditor() {
             workbookId={workbookId}
             title={title}
             initialSnapshot={initialSnapshot}
-            onReady={setEditorApi}
+            ribbonType={ribbonMode}
+            onReady={handleEditorReady}
+            onRibbonAction={handleRibbonAction}
           />
         )}
       </section>
@@ -242,6 +486,7 @@ export default function WorkbookEditor() {
       </div>
 
       {toolsOpen && <InsertToolsPanel api={editorApi} onClose={() => setToolsOpen(false)} />}
+      {reviewPanelMode && <ReviewPanel workbookId={workbookId} api={editorApi} mode={reviewPanelMode} activity={activity} onClose={() => setReviewPanelMode(null)} />}
     </main>
   )
 }
