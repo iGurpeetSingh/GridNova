@@ -549,6 +549,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
     if (!containerRef.current) return undefined
 
     let univerInstance
+    let ribbonDisposables = []
     let disposed = false
 
     try {
@@ -590,7 +591,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
 
       univerAPI.createWorkbook(workbookData)
       addColumnHeaderDeleteAction(univerAPI)
-      const ribbonDisposables = addMicrosoftInspiredRibbonTabs(univerAPI, (action) => onRibbonActionRef.current?.(action))
+      ribbonDisposables = addMicrosoftInspiredRibbonTabs(univerAPI, (action) => onRibbonActionRef.current?.(action))
 
       const editorApi = {
         getSnapshot() {
