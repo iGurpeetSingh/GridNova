@@ -306,6 +306,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
         { id: 'insert-chart', title: 'Recommended Charts', icon: 'table', command: 'sheet.command.menu-insert-chart' },
         { id: 'insert-sparkline', title: 'Sparkline', command: 'sheet.operation.open-sparkline-selector' },
+        { id: 'chart-pivot-tools', title: 'Chart & Pivot Tools', icon: 'table', action: 'insert-tools' },
       ],
     },
     {
@@ -377,7 +378,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         title: item.title,
         tooltip: item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
-        action: () => item.run ? item.run(univerAPI) : univerAPI.executeCommand(item.command),
+        action: () => item.run ? item.run(univerAPI) : item.action ? onRibbonAction?.(item.action) : univerAPI.executeCommand(item.command),
       }))
     })
     groupMenu.appendTo(group.path)
