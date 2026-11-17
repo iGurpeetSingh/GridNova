@@ -7,6 +7,7 @@ import '@univerjs/preset-sheets-core/lib/index.css'
 export default function UniverEditor({ workbookId, title, initialSnapshot, onReady }) {
   const containerRef = useRef(null)
   const onReadyRef = useRef(onReady)
+  const initialConfigRef = useRef({ workbookId, title, initialSnapshot })
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -37,9 +38,10 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, onRea
       })
 
       univerInstance = univer
-      const workbookData = initialSnapshot || {
-        id: workbookId,
-        name: title || 'Untitled workbook',
+      const config = initialConfigRef.current
+      const workbookData = config.initialSnapshot || {
+        id: config.workbookId,
+        name: config.title || 'Untitled workbook',
       }
       univerAPI.createWorkbook(workbookData)
 
@@ -81,7 +83,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, onRea
         console.error('GridNova editor cleanup failed:', disposeError)
       }
     }
-  }, [workbookId, title, initialSnapshot])
+  }, [workbookId, initialSnapshot])
 
   return (
     <div className="univer-shell">
