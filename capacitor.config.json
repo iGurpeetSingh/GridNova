@@ -1,0 +1,11 @@
+{
+  "appId": "com.gridnova.spreadsheet",
+  "appName": "GridNova",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
