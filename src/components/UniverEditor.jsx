@@ -551,7 +551,6 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'styles', title: 'Styles', order: 5, items: [
         { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', command: 'sheet.operation.open.conditional.formatting.panel' },
-        { id: 'format-conditional-rules', title: 'Manage Conditional Rules', icon: 'layout', command: 'sheet.operation.open.conditional.formatting.panel' },
       ],
     },
     {
