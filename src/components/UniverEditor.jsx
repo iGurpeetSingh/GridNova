@@ -519,7 +519,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
   ]
 
-  const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction))
+  // Univer's Facade supports adding groups to built-in tabs, not creating top-level tabs via appendTo('ribbon').
+  // Keep the supported Home/Insert tabs and place workbook/share actions inside Home groups.
+  const menus = []
 
   const clipboardGroup = univerAPI.createSubmenu({
     id: 'gridnova.ribbon.home.clipboard',
@@ -543,6 +545,21 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   clipboardGroup.appendTo('ribbon.start')
 
   const homeGroups = [
+    {
+      id: 'workbook', title: 'Workbook', order: 0, items: [
+        { id: 'save-workbook', title: 'Save Workbook', icon: 'save', action: 'save' },
+        { id: 'import-workbook', title: 'Import Excel', icon: 'import', action: 'import' },
+        { id: 'export-workbook', title: 'Export Excel', icon: 'export', action: 'export-xlsx' },
+        { id: 'export-csv', title: 'Export CSV', action: 'export-csv' },
+      ],
+    },
+    {
+      id: 'share', title: 'Share', order: 1, items: [
+        { id: 'share-workbook', title: 'Share Workbook', icon: 'share', action: 'share-workbook' },
+        { id: 'share-copy', title: 'Export Shareable Copy', icon: 'export', action: 'export-xlsx' },
+        { id: 'copy-workbook-id', title: 'Copy Workbook ID', action: 'copy-workbook-id' },
+      ],
+    },
     {
       id: 'number', title: 'Number', order: 4, items: [
         { id: 'number-format', title: 'Number Format', icon: 'calculator', command: 'sheet.operation.open.numfmt.panel' },
@@ -682,7 +699,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         title: item.title,
         tooltip: item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
-        action: () => univerAPI.executeCommand(item.command),
+        action: () => item.run ? item.run(univerAPI) : item.action ? onRibbonAction?.(item.action) : univerAPI.executeCommand(item.command),
       }))
     })
     groupMenu.appendTo('ribbon.start')
@@ -787,12 +804,6 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             UniverPresetSheetsDataValidationEnUS,
             {
               'ribbon.start': 'Home',
-              'gridnova.ribbon.file': 'File',
-              'gridnova.ribbon.share': 'Share',
-              'gridnova.ribbon.page-layout': 'Page Layout',
-              'gridnova.ribbon.review': 'Review',
-              'gridnova.ribbon.help': 'Help',
-              'gridnova.ribbon.draw': 'Draw',
             },
           ),
         },
@@ -805,7 +816,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             ribbonType: config.ribbonType,
             menu: {
               'ribbon.start': { title: 'Home', order: 1 },
-              'ribbon.insert': { title: 'Insert', order: 2 },
+              'ribbon.insert': { title: 'Insert', order: 2, hidden: false },
               'ribbon.formulas': { title: 'Formulas', order: 6 },
               'ribbon.data': { title: 'Data', order: 7 },
               'ribbon.view': { title: 'View', order: 9 },
