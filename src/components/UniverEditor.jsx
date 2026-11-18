@@ -549,34 +549,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
 
   const homeGroups = [
     {
-      id: 'workbook', title: 'Workbook', order: 0, items: [
-        { id: 'save-workbook', title: 'Save Workbook', icon: 'save', action: 'save' },
-        { id: 'import-workbook', title: 'Import Excel', icon: 'import', action: 'import' },
-        { id: 'export-workbook', title: 'Export Excel', icon: 'export', action: 'export-xlsx' },
-        { id: 'export-csv', title: 'Export CSV', action: 'export-csv' },
-      ],
-    },
-    {
-      id: 'share', title: 'Share', order: 1, items: [
-        { id: 'share-workbook', title: 'Share Workbook', icon: 'share', action: 'share-workbook' },
-        { id: 'share-copy', title: 'Export Shareable Copy', icon: 'export', action: 'export-xlsx' },
-        { id: 'copy-workbook-id', title: 'Copy Workbook ID', action: 'copy-workbook-id' },
-      ],
-    },
-    {
-      id: 'number', title: 'Number', order: 4, items: [
-        { id: 'number-format', title: 'Number Format', icon: 'calculator', command: 'sheet.operation.open.numfmt.panel' },
-        { id: 'currency', title: 'Currency', icon: 'currency', command: 'sheet.command.numfmt.set.currency' },
-        { id: 'percent', title: 'Percentage', icon: 'percent', command: 'sheet.command.numfmt.set.percent' },
-        { id: 'increase-decimal', title: 'Increase Decimal', command: 'sheet.command.numfmt.add.decimal.command' },
-        { id: 'decrease-decimal', title: 'Decrease Decimal', command: 'sheet.command.numfmt.subtract.decimal.command' },
-      ],
-    },
-    {
       id: 'styles', title: 'Styles', order: 5, items: [
         { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', command: 'sheet.operation.open.conditional.formatting.panel' },
-        { id: 'data-bars', title: 'Data Bars', command: 'sheet.command.add-data-bar-conditional-rule' },
-        { id: 'icon-sets', title: 'Icon Sets', command: 'sheet.command.add-icon-set-conditional-rule' },
+        { id: 'format-conditional-rules', title: 'Manage Conditional Rules', icon: 'layout', command: 'sheet.operation.open.conditional.formatting.panel' },
       ],
     },
     {
@@ -593,6 +568,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'sort-descending', title: 'Sort Z to A', command: 'sheet.command.sort-range-desc' },
         { id: 'filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
         { id: 'clear-contents', title: 'Clear Contents', command: 'sheet.command.clear-selection-content' },
+        { id: 'clear-formats', title: 'Clear Formats', command: 'sheet.command.clear-selection-format' },
+        { id: 'clear-all', title: 'Clear All', command: 'sheet.command.clear-selection-all' },
         { id: 'find', title: 'Find & Replace', icon: 'search', command: 'ui.operation.open-find-dialog' },
       ],
     },
