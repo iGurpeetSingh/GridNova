@@ -778,7 +778,23 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
-          [LocaleType.EN_US]: mergeLocales(UniverPresetSheetsCoreEnUS, UniverPresetSheetsDrawingEnUS, UniverPresetSheetsTableEnUS, UniverPresetSheetsThreadCommentEnUS, UniverPresetSheetsNoteEnUS, UniverPresetSheetsDataValidationEnUS),
+          [LocaleType.EN_US]: mergeLocales(
+            UniverPresetSheetsCoreEnUS,
+            UniverPresetSheetsDrawingEnUS,
+            UniverPresetSheetsTableEnUS,
+            UniverPresetSheetsThreadCommentEnUS,
+            UniverPresetSheetsNoteEnUS,
+            UniverPresetSheetsDataValidationEnUS,
+            {
+              'ribbon.start': 'Home',
+              'gridnova.ribbon.file': 'File',
+              'gridnova.ribbon.share': 'Share',
+              'gridnova.ribbon.page-layout': 'Page Layout',
+              'gridnova.ribbon.review': 'Review',
+              'gridnova.ribbon.help': 'Help',
+              'gridnova.ribbon.draw': 'Draw',
+            },
+          ),
         },
         presets: [
           UniverSheetsCorePreset({
