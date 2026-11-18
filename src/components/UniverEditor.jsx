@@ -477,7 +477,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'page-layout', title: 'Page Layout', order: 5, groups: [
         { id: 'page-setup', title: 'Page Setup', items: [
-          { id: 'print-layout', title: 'Print Layout', icon: 'layout', action: 'print' },
+          { id: 'print-layout', title: 'Page Setup', icon: 'layout', command: 'sheet.operation.open-print-grid-sidebar' },
           { id: 'print', title: 'Print', icon: 'print', action: 'print' },
         ] },
         { id: 'sheet-options', title: 'Sheet Options', items: [
@@ -572,6 +572,18 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'find', title: 'Find & Replace', icon: 'search', command: 'ui.operation.open-find-dialog' },
       ],
     },
+    {
+      id: 'sheet', title: 'Sheet', order: 8, items: [
+        { id: 'rename-sheet', title: 'Rename Sheet', command: 'sheet.operation.rename-sheet' },
+        { id: 'duplicate-sheet', title: 'Duplicate Sheet', command: 'sheet.command.copy-sheet' },
+        { id: 'delete-sheet', title: 'Delete Sheet', command: 'sheet.command.remove-sheet-confirm' },
+        { id: 'hide-sheet', title: 'Hide Sheet', command: 'sheet.command.set-worksheet-hidden' },
+        { id: 'unhide-sheet', title: 'Unhide Sheet', command: 'ui-sheet.command.show-menu-list' },
+        { id: 'change-tab-color', title: 'Sheet Tab Color', command: 'sheet.command.set-tab-color' },
+        { id: 'protect-sheet', title: 'Protect Sheet', command: 'sheet.command.add-range-protection-from-sheet-bar' },
+        { id: 'unprotect-sheet', title: 'Unprotect Sheet', command: 'sheet.command.delete-worksheet-protection-from-sheet-bar' },
+      ],
+    },
   ]
 
   const nativeTabGroups = [
@@ -600,13 +612,19 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.formulas', id: 'function-library', title: 'Function Library', order: 0, items: [
-        { id: 'insert-function', title: 'Insert Function', command: 'formula-ui.operation.insert-function' },
-        { id: 'more-functions', title: 'More Functions', command: 'formula-ui.operation.more-functions' },
+        { id: 'financial-functions', title: 'Financial Functions', command: 'formula-ui.operation.insert-function.financial' },
+        { id: 'logical-functions', title: 'Logical Functions', command: 'formula-ui.operation.insert-function.logical' },
+        { id: 'text-functions', title: 'Text Functions', command: 'formula-ui.operation.insert-function.text' },
+        { id: 'date-functions', title: 'Date & Time Functions', command: 'formula-ui.operation.insert-function.date' },
+        { id: 'lookup-functions', title: 'Lookup & Reference', command: 'formula-ui.operation.insert-function.lookup' },
+        { id: 'math-functions', title: 'Math & Trig Functions', command: 'formula-ui.operation.insert-function.math' },
+        { id: 'statistical-functions', title: 'Statistical Functions', command: 'formula-ui.operation.insert-function.statistical' },
       ],
     },
     {
       path: 'ribbon.formulas', id: 'calculation', title: 'Calculation', order: 1, items: [
         { id: 'recalculate', title: 'Recalculate Now', icon: 'table', run: recalculateFormulas },
+        { id: 'calculation-options', title: 'Calculation Options', command: 'sheets-formula-ui.operation.calculation-options' },
       ],
     },
     {
