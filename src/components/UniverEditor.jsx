@@ -118,8 +118,11 @@ const RIBBON_ICONS = {
 const RIBBON_ICON_COLORS = {
   save: '#217346', share: '#107C41', review: '#7B2CBF', help: '#0078D4',
   draw: '#C65911', image: '#0078D4', table: '#217346', filter: '#0078D4',
-  sort: '#0078D4', currency: '#217346', percent: '#0078D4', paint: '#C65911',
-  fillColor: '#D6A400', textColor: '#D13438',
+  sort: '#0078D4', currency: '#107C41', percent: '#0078D4', paint: '#EAA300',
+  fillColor: '#F2C811', textColor: '#C50F1F', paste: '#0078D4',
+  cut: '#D83B01', copy: '#0078D4', border: '#64748B',
+  alignLeft: '#0078D4', alignCenter: '#0078D4', alignRight: '#0078D4',
+  calculator: '#0078D4', print: '#475569', layout: '#0078D4',
 }
 
 function registerRibbonIcons(univerAPI) {
@@ -521,7 +524,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
 
   // Univer's Facade supports adding groups to built-in tabs, not creating top-level tabs via appendTo('ribbon').
   // Keep the supported Home/Insert tabs and place workbook/share actions inside Home groups.
-  const menus = []
+  const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction))
 
   const clipboardGroup = univerAPI.createSubmenu({
     id: 'gridnova.ribbon.home.clipboard',
@@ -707,6 +710,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   })
 
   univerAPI.updateMenuConfig({
+    'ribbon.start': { title: 'Home', order: 1 },
+    'ribbon.insert': { title: 'Insert', order: 2, hidden: false },
     'ribbon.start.history': { hidden: true },
     'ribbon.start.format': { title: 'Font', order: 2 },
     'ribbon.start.layout': { title: 'Alignment', order: 3 },
@@ -717,6 +722,14 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'sheet.command.set-once-format-painter': { icon: 'gridnova-icon-paint' },
     'sheet.command.set-range-bold': { icon: 'gridnova-icon-bold' },
     'sheet.command.set-range-italic': { icon: 'gridnova-icon-italic' },
+    'sheet.command.set-range-font-family': { order: 0 },
+    'sheet.command.set-range-fontsize': { order: 1 },
+    'sheet.command.add-worksheet-merge': { icon: 'gridnova-icon-layout' },
+    'sheet.command.add-worksheet-merge-all': { icon: 'gridnova-icon-layout' },
+    'sheet.command.add-worksheet-merge-vertical': { icon: 'gridnova-icon-layout' },
+    'sheet.command.add-worksheet-merge-horizontal': { icon: 'gridnova-icon-layout' },
+    'sheet.command.remove-worksheet-merge': { icon: 'gridnova-icon-layout' },
+    'sheet.command.set-text-rotation': { icon: 'gridnova-icon-layout' },
     'sheet.command.set-range-underline': { icon: 'gridnova-icon-underline' },
     'sheet.command.set-range-stroke': { icon: 'gridnova-icon-strike' },
     'sheet.command.set-range-text-color': { icon: 'gridnova-icon-textColor' },
@@ -733,7 +746,13 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'ui.operation.open-find-dialog': { icon: 'gridnova-icon-search' },
     'sheet.command.numfmt.set.currency': { icon: 'gridnova-icon-currency' },
     'sheet.command.numfmt.set.percent': { icon: 'gridnova-icon-percent' },
+    'sheet.command.numfmt.add.decimal.command': { icon: 'gridnova-icon-calculator' },
+    'sheet.command.numfmt.subtract.decimal.command': { icon: 'gridnova-icon-calculator' },
     'sheet.operation.open.numfmt.panel': { icon: 'gridnova-icon-calculator' },
+    'sheet.command.insert-row-before': { icon: 'gridnova-icon-table' },
+    'sheet.command.insert-col-before': { icon: 'gridnova-icon-table' },
+    'sheet.command.remove-row-confirm': { icon: 'gridnova-icon-table' },
+    'sheet.command.remove-col-confirm': { icon: 'gridnova-icon-table' },
     'sheet.menu.image': { icon: 'gridnova-icon-image' },
     'sheet.command.insert-float-image': { icon: 'gridnova-icon-image' },
     'sheet.operation.insert-hyper-link-toolbar': { icon: 'gridnova-icon-link' },
@@ -804,6 +823,12 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             UniverPresetSheetsDataValidationEnUS,
             {
               'ribbon.start': 'Home',
+              'gridnova.ribbon.file': 'File',
+              'gridnova.ribbon.share': 'Share',
+              'gridnova.ribbon.page-layout': 'Page Layout',
+              'gridnova.ribbon.review': 'Review',
+              'gridnova.ribbon.help': 'Help',
+              'gridnova.ribbon.draw': 'Draw',
             },
           ),
         },
