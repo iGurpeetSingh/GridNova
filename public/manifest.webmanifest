@@ -1,0 +1,15 @@
+{
+  "id": "/",
+  "name": "GridNova Spreadsheet",
+  "short_name": "GridNova",
+  "description": "A responsive spreadsheet workspace.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#16834b",
+  "icons": [
+    { "src": "/gridnova-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
