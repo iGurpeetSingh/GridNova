@@ -515,3 +515,86 @@ a { color: inherit; text-decoration: none; }
 }
 .editor-quick-access button:hover { color: #176f40; background: #edf5ef; }
 .editor-quick-access button svg { width: 16px; height: 16px; }
+
+
+/* GridNova responsive editor: real mobile editing surface (not a view-only placeholder). */
+html { height: 100%; }
+body, #root { min-height: 100%; }
+.editor-page { height: 100vh; height: 100dvh; min-height: 0; }
+.editor-workspace { min-width: 0; min-height: 0; }
+.univer-shell, .univer-mount { min-width: 0; min-height: 0; }
+.univer-mount { overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+button, [role="button"], input, select, textarea { touch-action: manipulation; }
+img, svg { max-width: 100%; }
+
+@media (max-width: 600px) {
+  html, body, #root { width: 100%; min-width: 320px; height: 100%; overflow-x: hidden; }
+  body { overscroll-behavior-y: contain; }
+  .dashboard-page { min-height: 100dvh; }
+  .dashboard-sidebar { position: relative; inset: auto; width: 100%; padding: 11px 14px; }
+  .brand-lockup { font-size: 17px; }
+  .dashboard-main { width: 100%; min-height: calc(100dvh - 52px); margin: 0; }
+  .dashboard-topbar { position: static; height: 44px; padding: 0 14px; }
+  .dashboard-content { padding: 22px 14px calc(24px + env(safe-area-inset-bottom)); }
+  .welcome-row { gap: 14px; }
+  .welcome-row h1 { font-size: clamp(25px, 7vw, 32px); letter-spacing: -1px; }
+  .welcome-copy { font-size: 12px; }
+  .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .template-card { padding: 8px; }
+  .template-preview { height: 72px; }
+  .template-meta { padding-top: 9px; }
+  .template-title { font-size: 10px; }
+  .template-detail { font-size: 9px; }
+  .recent-section { margin-top: 28px; }
+  .editor-page { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
+  .editor-appbar {
+    flex: 0 0 auto; min-height: 52px; height: auto; gap: 7px;
+    padding: max(6px, env(safe-area-inset-top)) 9px 6px;
+    overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .editor-appbar::-webkit-scrollbar { display: none; }
+  .editor-brand { flex: 0 0 auto; font-size: 14px; }
+  .appbar-separator { flex: 0 0 1px; }
+  .workbook-heading { flex: 0 0 auto; max-width: 36vw; }
+  .workbook-heading input { width: 34vw; max-width: 150px; min-width: 95px; font-size: 12px; }
+  .workbook-heading span { font-size: 9px; }
+  .editor-appbar-spacer { display: none; }
+  .storage-notice { display: none !important; }
+  .dashboard-return { display: inline-flex; flex: 0 0 auto; min-height: 32px; }
+  .editor-cloud-actions { display: inline-flex; flex: 0 0 auto; }
+  .editor-cloud-actions button { display: inline-flex; width: 34px; height: 34px; min-height: 34px; }
+  .editor-cloud-actions button span { display: none; }
+  .ribbon-mode-switch { flex: 0 0 auto; }
+  .ribbon-mode-switch button { min-height: 32px; padding: 0 8px; }
+  .ribbon-mode-switch button span { display: inline; }
+  .editor-action-group { display: inline-flex; flex: 0 0 auto; gap: 5px; }
+  .editor-action-button, .editor-save-button { min-height: 32px; padding: 0 9px; font-size: 10px; }
+  .editor-workspace { display: block !important; flex: 1 1 auto; width: 100%; min-height: 0; overflow: hidden; }
+  .univer-shell { width: 100%; height: 100%; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+  .univer-mount { width: 100%; height: 100%; min-height: 0; overflow: auto; touch-action: pan-x pan-y; }
+  .mobile-editor-notice { display: none !important; }
+  .editor-notice { position: fixed; top: auto; right: 8px; bottom: calc(10px + env(safe-area-inset-bottom)); left: 8px; z-index: 1500; max-width: none; }
+  .insert-tools-backdrop, .review-panel-backdrop { position: fixed; inset: 0; }
+  .insert-tools-panel, .review-panel { width: 100%; max-width: 100%; height: 100dvh; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .review-panel-header { padding: 15px 15px 12px; }
+  .review-comment-list, .review-activity-list { padding: 12px 14px calc(20px + env(safe-area-inset-bottom)); }
+  .panel-field input, .panel-field select, .review-comment-form textarea { min-height: 42px; font-size: 16px; }
+  .panel-primary, .panel-secondary { min-height: 44px; }
+  .editor-error { inset: 8px; padding: 16px; }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .editor-page { height: 100vh; height: 100dvh; }
+  .editor-appbar { gap: 7px; padding-inline: 8px; }
+  .workbook-heading input { width: 150px; }
+  .editor-workspace { display: block; }
+  .mobile-editor-notice { display: none; }
+}
+
+@media (max-width: 380px) {
+  .template-grid { grid-template-columns: 1fr; }
+  .template-preview { height: 86px; }
+  .ribbon-mode-switch button span { display: none; }
+  .editor-cloud-actions { display: none; }
+}
