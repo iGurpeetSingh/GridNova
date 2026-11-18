@@ -311,6 +311,71 @@ async function formatSelectionAsTable(univerAPI) {
   univerAPI.showMessage({ content: 'Structured table created with filter controls.', type: 'success' })
 }
 
+function renameActiveSheet(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet) return
+  const nextName = window.prompt('Enter a new worksheet name', sheet.getName())
+  if (nextName == null || !nextName.trim()) return
+  try { sheet.setName(nextName.trim()) }
+  catch (error) { univerAPI.showMessage({ content: error instanceof Error ? error.message : 'Could not rename this worksheet.', type: 'error' }) }
+}
+
+function duplicateActiveSheet(univerAPI) {
+  const workbook = univerAPI.getActiveWorkbook()
+  if (!workbook?.getActiveSheet()) return
+  try { workbook.duplicateActiveSheet() }
+  catch (error) { univerAPI.showMessage({ content: error instanceof Error ? error.message : 'Could not duplicate this worksheet.', type: 'error' }) }
+}
+
+function deleteActiveSheet(univerAPI) {
+  const workbook = univerAPI.getActiveWorkbook()
+  const sheet = workbook?.getActiveSheet()
+  if (!workbook || !sheet) return
+  if (workbook.getSheets().length <= 1) {
+    univerAPI.showMessage({ content: 'A workbook must keep at least one worksheet.', type: 'warning' })
+    return
+  }
+  if (window.confirm('Delete worksheet "' + sheet.getName() + '"? This cannot be undone after saving.')) {
+    workbook.deleteSheet(sheet)
+  }
+}
+
+function hideActiveSheet(univerAPI) {
+  const workbook = univerAPI.getActiveWorkbook()
+  const sheet = workbook?.getActiveSheet()
+  if (!workbook || !sheet) return
+  if (workbook.getSheets().filter((item) => !item.isSheetHidden()).length <= 1) {
+    univerAPI.showMessage({ content: 'At least one worksheet must remain visible.', type: 'warning' })
+    return
+  }
+  sheet.hideSheet()
+}
+
+function unhideWorksheet(univerAPI) {
+  const workbook = univerAPI.getActiveWorkbook()
+  const hidden = workbook?.getSheets().filter((sheet) => sheet.isSheetHidden()) || []
+  if (!hidden.length) {
+    univerAPI.showMessage({ content: 'There are no hidden worksheets.', type: 'info' })
+    return
+  }
+  const selected = window.prompt('Enter the worksheet to unhide:\n' + hidden.map((sheet, index) => (index + 1) + '. ' + sheet.getName()).join('\n'), hidden[0].getName())
+  if (selected == null) return
+  const sheet = hidden.find((item) => item.getName().toLowerCase() === selected.trim().toLowerCase())
+  if (!sheet) {
+    univerAPI.showMessage({ content: 'No hidden worksheet matches that name.', type: 'warning' })
+    return
+  }
+  sheet.showSheet()
+}
+
+function setActiveSheetTabColor(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet) return
+  const color = window.prompt('Enter a tab color (CSS color or hex). Leave blank to reset.', sheet.getTabColor?.() || '#16834b')
+  if (color == null) return
+  sheet.setTabColor(color.trim())
+}
+
 function recalculateFormulas(univerAPI) {
   univerAPI.getFormula()?.executeCalculation()
   univerAPI.showMessage({ content: 'Formula recalculation started.', type: 'success' })
@@ -574,14 +639,12 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       id: 'sheet', title: 'Sheet', order: 8, items: [
-        { id: 'rename-sheet', title: 'Rename Sheet', command: 'sheet.operation.rename-sheet' },
-        { id: 'duplicate-sheet', title: 'Duplicate Sheet', command: 'sheet.command.copy-sheet' },
-        { id: 'delete-sheet', title: 'Delete Sheet', command: 'sheet.command.remove-sheet-confirm' },
-        { id: 'hide-sheet', title: 'Hide Sheet', command: 'sheet.command.set-worksheet-hidden' },
-        { id: 'unhide-sheet', title: 'Unhide Sheet', command: 'ui-sheet.command.show-menu-list' },
-        { id: 'change-tab-color', title: 'Sheet Tab Color', command: 'sheet.command.set-tab-color' },
-        { id: 'protect-sheet', title: 'Protect Sheet', command: 'sheet.command.add-range-protection-from-sheet-bar' },
-        { id: 'unprotect-sheet', title: 'Unprotect Sheet', command: 'sheet.command.delete-worksheet-protection-from-sheet-bar' },
+        { id: 'rename-sheet', title: 'Rename Sheet', run: renameActiveSheet },
+        { id: 'duplicate-sheet', title: 'Duplicate Sheet', run: duplicateActiveSheet },
+        { id: 'delete-sheet', title: 'Delete Sheet', run: deleteActiveSheet },
+        { id: 'hide-sheet', title: 'Hide Sheet', run: hideActiveSheet },
+        { id: 'unhide-sheet', title: 'Unhide Sheet', run: unhideWorksheet },
+        { id: 'change-tab-color', title: 'Sheet Tab Color', run: setActiveSheetTabColor },
       ],
     },
   ]
