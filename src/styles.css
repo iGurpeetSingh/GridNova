@@ -598,3 +598,51 @@ img, svg { max-width: 100%; }
   .ribbon-mode-switch button span { display: none; }
   .editor-cloud-actions { display: none; }
 }
+
+/* Desktop workbook app bar: separate identity/actions from editor controls. */
+@media (min-width: 1101px) {
+  .editor-appbar {
+    display: grid;
+    flex: 0 0 auto;
+    min-height: 88px;
+    height: auto;
+    grid-template-columns: auto 1px minmax(180px, 1fr) auto auto auto;
+    grid-template-rows: 38px 38px;
+    grid-template-areas:
+      "brand separator title quick cloud dashboard"
+      "brand separator modes status actions dashboard";
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 4px;
+    padding: 6px 18px;
+  }
+  .editor-brand { grid-area: brand; }
+  .appbar-separator { grid-area: separator; }
+  .workbook-heading { grid-area: title; min-width: 0; }
+  .editor-quick-access { grid-area: quick; }
+  .editor-cloud-actions { grid-area: cloud; justify-self: end; }
+  .ribbon-mode-switch { grid-area: modes; justify-self: start; }
+  .storage-notice { grid-area: status; justify-self: start; }
+  .editor-action-group { grid-area: actions; justify-self: end; }
+  .dashboard-return { grid-area: dashboard; align-self: center; }
+  .editor-appbar-spacer { display: none; }
+  .workbook-heading input { width: min(360px, 100%); }
+}
+
+@media (min-width: 901px) and (max-width: 1100px) {
+  .editor-appbar {
+    min-height: 82px;
+    height: auto;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    row-gap: 7px;
+    padding: 8px 12px;
+  }
+  .editor-appbar-spacer { display: none; }
+  .editor-cloud-actions { order: 5; }
+  .ribbon-mode-switch { order: 6; }
+  .storage-notice { order: 7; }
+  .editor-action-group { order: 8; }
+  .dashboard-return { order: 9; }
+  .workbook-heading { flex: 1 1 180px; }
+}
