@@ -575,10 +575,14 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'file', title: 'File', order: 0, groups: [
         { id: 'workbook', title: 'Workbook', items: [
+          { id: 'new-workbook', title: 'New Workbook', icon: 'home', action: 'new-workbook' },
+          { id: 'open-workbook', title: 'Open Workbook', icon: 'import', action: 'import' },
           { id: 'save', title: 'Save', icon: 'save', action: 'save' },
-          { id: 'import', title: 'Import Excel', icon: 'import', action: 'import' },
+          { id: 'save-as', title: 'Save As', icon: 'copy', action: 'save-as' },
           { id: 'export-xlsx', title: 'Export Excel', icon: 'export', action: 'export-xlsx' },
-          { id: 'export-csv', title: 'Export CSV', action: 'export-csv' },
+        ] },
+        { id: 'information', title: 'Workbook Information', items: [
+          { id: 'copy-id', title: 'Copy Workbook ID', action: 'copy-workbook-id' },
         ] },
         { id: 'print', title: 'Print', items: [
           { id: 'print-workbook', title: 'Print', icon: 'print', action: 'print' },
@@ -587,10 +591,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       id: 'share', title: 'Share', order: 4, groups: [
-        { id: 'share-copy', title: 'Share a Copy', items: [
+        { id: 'share-copy', title: 'Share & Access', items: [
           { id: 'share-file', title: 'Share Workbook File', icon: 'share', action: 'share-workbook' },
-          { id: 'share-export', title: 'Export Workbook Copy', icon: 'export', action: 'export-xlsx' },
-          { id: 'copy-id', title: 'Copy Workbook ID', action: 'copy-workbook-id' },
+          { id: 'copy-link', title: 'Copy Workbook Link', icon: 'link', action: 'copy-workbook-link' },
+          { id: 'manage-access', title: 'Manage Access (Unavailable)', action: 'manage-access-unavailable' },
         ] },
       ],
     },
@@ -599,11 +603,6 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'page-setup', title: 'Page Setup', items: [
           { id: 'print-layout', title: 'Page Setup', icon: 'layout', command: 'sheet.operation.open-print-grid-sidebar' },
           { id: 'print', title: 'Print', icon: 'print', action: 'print' },
-        ] },
-        { id: 'sheet-options', title: 'Sheet Options', items: [
-          { id: 'gridlines', title: 'Toggle Gridlines', icon: 'layout', run: toggleGridlines },
-          { id: 'freeze-row', title: 'Freeze First Row', run: freezeFirstRow },
-          { id: 'freeze-column', title: 'Freeze First Column', run: freezeFirstColumn },
         ] },
       ],
     },
@@ -616,6 +615,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         ] },
         { id: 'protection', title: 'Protection', items: [
           { id: 'protect-range', title: 'Protect Selected Range', command: 'sheet.command.add-range-protection-from-toolbar' },
+          { id: 'protect-sheet-workbook-unavailable', title: 'Sheet / Workbook Protection (Unavailable)', action: 'sheet-protection-unavailable' },
         ] },
         { id: 'history', title: 'History', items: [
           { id: 'edit-history', title: 'Edit History', command: 'univer.operation.toggle-edit-history' },
@@ -625,24 +625,32 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'help', title: 'Help', order: 10, groups: [
         { id: 'support', title: 'Help & Support', items: [
-          { id: 'feature-search', title: 'Search Help', icon: 'help', action: 'open-help' },
-          { id: 'shortcuts', title: 'Keyboard Shortcuts Guide', action: 'open-help' },
-          { id: 'docs', title: 'GridNova Guide', icon: 'guide', action: 'open-help' },
+          { id: 'help-center', title: 'Help Center', icon: 'help', action: 'open-help' },
+          { id: 'shortcuts', title: 'Keyboard Shortcuts', action: 'open-shortcuts' },
+          { id: 'docs', title: 'Function Guide', icon: 'guide', action: 'open-help' },
         ] },
       ],
     },
     {
       id: 'draw', title: 'Draw', order: 11, groups: [
-        { id: 'drawing', title: 'Drawing', items: [
+        { id: 'drawing', title: 'Drawing Tools', items: [
+          { id: 'draw-tools-unavailable', title: 'Pen / Highlighter / Eraser (Unavailable)', action: 'draw-tools-unavailable' },
+        ] },
+      ],
+    },
+    {
+      id: 'shape', title: 'Shape', order: 12, groups: [
+        { id: 'insert-shape', title: 'Insert Shape', items: [
           { id: 'rectangle', title: 'Rectangle', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
           { id: 'ellipse', title: 'Ellipse', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
           { id: 'line', title: 'Line', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
         ] },
+        { id: 'shape-format', title: 'Shape Formatting', items: [
+          { id: 'shape-format-unavailable', title: 'Fill / Outline / Properties (Unavailable)', action: 'shape-format-unavailable' },
+        ] },
       ],
     },
-  ]
-
-  // Univer's Facade supports adding groups to built-in tabs, not creating top-level tabs via appendTo('ribbon').
+  ]e supports adding groups to built-in tabs, not creating top-level tabs via appendTo('ribbon').
   // Keep the supported Home/Insert tabs and place workbook/share actions inside Home groups.
   const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction))
 
@@ -710,19 +718,18 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       path: 'ribbon.insert', id: 'tables', title: 'Tables', order: 0, items: [
         { id: 'insert-table', title: 'Format as Table', icon: 'table', run: formatSelectionAsTable },
-        { id: 'insert-pivot-table', title: 'Pivot Summary Tools', action: 'insert-tools' },
+        { id: 'insert-pivot-summary', title: 'Pivot Summary Tools', action: 'insert-tools' },
       ],
     },
     {
       path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
         { id: 'insert-picture', title: 'Pictures', icon: 'image', command: 'sheet.command.insert-float-image' },
-        { id: 'insert-shape', title: 'Rectangle', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
       ],
     },
     {
       path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
-        { id: 'insert-chart', title: 'Insert Bar Chart', icon: 'table', run: insertBasicChart },
-        { id: 'chart-pivot-tools', title: 'Chart & Pivot Tools', icon: 'table', action: 'insert-tools' },
+        { id: 'insert-chart', title: 'Quick Bar Chart Overlay', icon: 'table', run: insertBasicChart },
+        { id: 'chart-pivot-tools', title: 'Chart & Pivot Summary Tools', icon: 'table', action: 'insert-tools' },
       ],
     },
     {
@@ -731,26 +738,76 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       ],
     },
     {
-      path: 'ribbon.formulas', id: 'function-library', title: 'Function Library', order: 0, items: [
-        { id: 'financial-functions', title: 'Financial Functions', command: 'formula-ui.operation.insert-function.financial' },
-        { id: 'logical-functions', title: 'Logical Functions', command: 'formula-ui.operation.insert-function.logical' },
-        { id: 'text-functions', title: 'Text Functions', command: 'formula-ui.operation.insert-function.text' },
-        { id: 'date-functions', title: 'Date & Time Functions', command: 'formula-ui.operation.insert-function.date' },
-        { id: 'lookup-functions', title: 'Lookup & Reference', command: 'formula-ui.operation.insert-function.lookup' },
-        { id: 'math-functions', title: 'Math & Trig Functions', command: 'formula-ui.operation.insert-function.math' },
-        { id: 'statistical-functions', title: 'Statistical Functions', command: 'formula-ui.operation.insert-function.statistical' },
+      path: 'ribbon.insert', id: 'text-symbols', title: 'Text & Symbols', order: 4, items: [
+        { id: 'text-icons-unavailable', title: 'Text Boxes / Icons (Unavailable)', action: 'insert-text-unavailable' },
       ],
     },
     {
-      path: 'ribbon.formulas', id: 'calculation', title: 'Calculation', order: 1, items: [
-        { id: 'recalculate', title: 'Recalculate Now', icon: 'table', run: recalculateFormulas },
-        { id: 'calculation-options', title: 'Calculation Options', command: 'sheets-formula-ui.operation.calculation-options' },
+      path: 'ribbon.formulas', id: 'function-library', title: 'Function Library', order: 0, items: [
+        { id: 'insert-function', title: 'Insert Function', icon: 'calculator', run: (api) => insertFormulaFunction(api, 'SUM') },
+        { id: 'auto-sum', title: 'AutoSum', icon: 'calculator', run: (api) => insertFormulaFunction(api, 'SUM') },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'financial-functions', title: 'Financial', order: 1, items: [
+        { id: 'function-pmt', title: 'PMT', run: (api) => insertFormulaFunction(api, 'PMT') },
+        { id: 'function-fv', title: 'FV', run: (api) => insertFormulaFunction(api, 'FV') },
+        { id: 'function-npv', title: 'NPV', run: (api) => insertFormulaFunction(api, 'NPV') },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'logical-functions', title: 'Logical', order: 2, items: [
+        { id: 'function-if', title: 'IF', run: (api) => insertFormulaFunction(api, 'IF') },
+        { id: 'function-and', title: 'AND', run: (api) => insertFormulaFunction(api, 'AND') },
+        { id: 'function-or', title: 'OR', run: (api) => insertFormulaFunction(api, 'OR') },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'text-functions', title: 'Text', order: 3, items: [
+        { id: 'function-left', title: 'LEFT', run: (api) => insertFormulaFunction(api, 'LEFT') },
+        { id: 'function-right', title: 'RIGHT', run: (api) => insertFormulaFunction(api, 'RIGHT') },
+        { id: 'function-len', title: 'LEN', run: (api) => insertFormulaFunction(api, 'LEN') },
+        { id: 'function-concat', title: 'CONCAT', run: (api) => insertFormulaFunction(api, 'CONCAT') },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'date-time-functions', title: 'Date & Time', order: 4, items: [
+        { id: 'function-today', title: 'TODAY', run: (api) => insertFormulaFunction(api, 'TODAY') },
+        { id: 'function-now', title: 'NOW', run: (api) => insertFormulaFunction(api, 'NOW') },
+        { id: 'function-date', title: 'DATE', run: (api) => insertFormulaFunction(api, 'DATE') },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'lookup-functions', title: 'Lookup & Reference', order: 5, items: [
+        { id: 'function-vlookup', title: 'VLOOKUP', run: (api) => insertFormulaFunction(api, 'VLOOKUP') },
+        { id: 'function-index', title: 'INDEX', run: (api) => insertFormulaFunction(api, 'INDEX') },
+        { id: 'function-match', title: 'MATCH', run: (api) => insertFormulaFunction(api, 'MATCH') },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'math-functions', title: 'Math & Trigonometry', order: 6, items: [
+        { id: 'function-sum', title: 'SUM', run: (api) => insertFormulaFunction(api, 'SUM') },
+        { id: 'function-round', title: 'ROUND', run: (api) => insertFormulaFunction(api, 'ROUND') },
+        { id: 'function-abs', title: 'ABS', run: (api) => insertFormulaFunction(api, 'ABS') },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'statistical-functions', title: 'Statistical', order: 7, items: [
+        { id: 'function-average', title: 'AVERAGE', run: (api) => insertFormulaFunction(api, 'AVERAGE') },
+        { id: 'function-count', title: 'COUNT', run: (api) => insertFormulaFunction(api, 'COUNT') },
+        { id: 'function-max', title: 'MAX', run: (api) => insertFormulaFunction(api, 'MAX') },
+        { id: 'function-min', title: 'MIN', run: (api) => insertFormulaFunction(api, 'MIN') },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'calculation', title: 'Calculation', order: 8, items: [
+        { id: 'recalculate', title: 'Recalculate Now', icon: 'calculator', run: recalculateFormulas },
       ],
     },
     {
       path: 'ribbon.data', id: 'sort-filter', title: 'Sort & Filter', order: 0, items: [
         { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', command: 'sheet.command.sort-range-asc' },
-        { id: 'sort-descending', title: 'Sort Z to A', command: 'sheet.command.sort-range-desc' },
+        { id: 'sort-descending', title: 'Sort Z to A', icon: 'sort', command: 'sheet.command.sort-range-desc' },
         { id: 'custom-sort', title: 'Custom Sort', command: 'sheet.command.sort-range-custom' },
         { id: 'toggle-filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
         { id: 'clear-filter', title: 'Clear Filter', command: 'sheet.command.clear-filter-criteria' },
@@ -770,22 +827,33 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       ],
     },
     {
-      path: 'ribbon.view', id: 'show', title: 'Show', order: 0, items: [
-        { id: 'toggle-gridlines', title: 'Gridlines', icon: 'layout', run: toggleGridlines },
+      path: 'ribbon.data', id: 'group-subtotal', title: 'Grouping & Subtotals', order: 3, items: [
+        { id: 'group-subtotal-unavailable', title: 'Group / Ungroup / Subtotal (Unavailable)', action: 'data-outline-unavailable' },
       ],
     },
     {
-      path: 'ribbon.view', id: 'window', title: 'Window', order: 1, items: [
-        { id: 'freeze-first-row', title: 'Freeze First Row', run: freezeFirstRow },
-        { id: 'freeze-first-column', title: 'Freeze First Column', run: freezeFirstColumn },
-        { id: 'unfreeze-panes', title: 'Unfreeze Panes', run: unfreezePanes },
-        { id: 'zoom', title: 'Zoom', run: (api) => setSheetZoom(api) },
-        { id: 'zoom-100', title: '100% Zoom', run: (api) => setSheetZoom(api, 100) },
+      path: 'ribbon.view', id: 'show', title: 'Show', order: 0, items: [
+        { id: 'toggle-gridlines', title: 'Gridlines', icon: 'layout', run: toggleGridlines },
+        { id: 'formula-bar-unavailable', title: 'Formula Bar (Unavailable)', action: 'formula-bar-unavailable' },
       ],
     },
-  ]
-
-  const nativeTabGroupMenus = nativeTabGroups.map((group) => {
+    {
+      path: 'ribbon.view', id: 'panes', title: 'Freeze Panes', order: 1, items: [
+        { id: 'freeze-first-row', title: 'Freeze Top Row', run: freezeFirstRow },
+        { id: 'freeze-first-column', title: 'Freeze First Column', run: freezeFirstColumn },
+        { id: 'unfreeze-panes', title: 'Unfreeze Panes', run: unfreezePanes },
+      ],
+    },
+    {
+      path: 'ribbon.view', id: 'window', title: 'Zoom & Window', order: 2, items: [
+        { id: 'zoom-out', title: 'Zoom Out', icon: 'calculator', run: (api) => setSheetZoom(api, Math.max(50, Math.round(api.getActiveSheet()?.getZoom?.() * 100 || 100) - 10)) },
+        { id: 'zoom', title: 'Zoom Percentage', run: (api) => setSheetZoom(api) },
+        { id: 'zoom-in', title: 'Zoom In', icon: 'calculator', run: (api) => setSheetZoom(api, Math.min(200, Math.round(api.getActiveSheet()?.getZoom?.() * 100 || 100) + 10)) },
+        { id: 'zoom-100', title: '100% Zoom', run: (api) => setSheetZoom(api, 100) },
+        { id: 'fullscreen', title: 'Fullscreen', run: toggleFullscreen },
+      ],
+    },
+  ]s = nativeTabGroups.map((group) => {
     const groupMenu = univerAPI.createSubmenu({
       id: 'gridnova.ribbon.' + group.path.replaceAll('.', '-') + '.' + group.id,
       title: group.title,
