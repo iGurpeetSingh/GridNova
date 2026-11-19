@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
+import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, AlignVerticalCenterRegular, AlignHorizontalLeftRegular, ArrowDownRegular, ArrowUpRegular, ArrowsMergeRegular, ColumnInsertLeftRegular, ColumnDeleteRegular, RowInsertTopRegular, RowDeleteRegular, TextWrapRegular, MathSymbolsRegular, CalculatorMultipleRegular, CalculatorRegular, ClipboardPasteRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
 import { createUniver, LocaleType } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import '@univerjs/ui/facade'
@@ -131,7 +131,7 @@ const RIBBON_ICONS = {
   percent: CalculatorRegular,
   image: ImageRegular,
   link: LinkRegular,
-  paint: PaintBrushRegular,
+  paint: PaintBrushRegular,\n  fontIncrease: MathSymbolsRegular,\n  fontDecrease: CalculatorRegular,\n  merge: ArrowsMergeRegular,\n  wrap: TextWrapRegular,\n  alignLeft: AlignHorizontalLeftRegular,\n  alignCenter: AlignVerticalCenterRegular,\n  decimalIncrease: ArrowUpRegular,\n  decimalDecrease: ArrowDownRegular,\n  insertRow: RowInsertTopRegular,\n  insertColumn: ColumnInsertLeftRegular,\n  deleteRow: RowDeleteRegular,\n  deleteColumn: ColumnDeleteRegular,
 }
 
 const RIBBON_ICON_COLORS = {
@@ -1971,6 +1971,25 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     'sheet.command.add-range-protection-from-toolbar': { icon: 'gridnova-icon-review' },
   })
 
+  if (ribbonType === 'classic') {
+    const iconOnlyCommands = [
+      'univer.command.undo','univer.command.redo','sheet.command.cut','sheet.command.copy','sheet.command.paste',
+      'sheet.command.set-range-bold','sheet.command.set-range-italic','sheet.command.set-range-underline','sheet.command.set-range-stroke',
+      'sheet.command.set-range-text-color','sheet.command.set-background-color','sheet.command.set-border-basic',
+      'sheet.command.set-horizontal-text-align','sheet.command.set-vertical-text-align','sheet.command.set-text-wrap',
+      'sheet.command.add-worksheet-merge','sheet.command.add-worksheet-merge-all','sheet.command.add-worksheet-merge-vertical',
+      'sheet.command.add-worksheet-merge-horizontal','sheet.command.remove-worksheet-merge',
+      'sheet.command.set-range-font-increase','sheet.command.set-range-font-decrease',
+      'sheet.command.numfmt.set.currency','sheet.command.numfmt.set.percent',
+      'sheet.command.numfmt.add.decimal.command','sheet.command.numfmt.subtract.decimal.command',
+      'sheet.command.smart-toggle-filter','sheet.command.sort-range-asc','sheet.command.sort-range-desc',
+      'ui.operation.open-find-dialog','sheet.command.insert-row-before','sheet.command.insert-col-before',
+      'sheet.command.remove-row-confirm','sheet.command.remove-col-confirm',
+    ]
+    const menuConfig = Object.fromEntries(iconOnlyCommands.map((id) => [id, { title: '', showLabel: false }]))
+    univerAPI.updateMenuConfig(menuConfig)
+  }
+
   return [...icons, ...drawingComponents, ...menus, clipboardGroup, ...homeGroupMenus, ...nativeTabGroupMenus]
 }
 
@@ -2001,11 +2020,11 @@ function addColumnHeaderDeleteAction(univerAPI) {
 }
 
 export default function UniverEditor({ workbookId, title, initialSnapshot, ribbonType = 'classic', onReady, onRibbonAction }) {
-  const containerRef = useRef(null)
+  const containerRef = useRef(null)\n  const modeClassRef = useRef(ribbonType === 'classic' ? 'single-line' : 'classic')
   const onReadyRef = useRef(onReady)
   const onRibbonActionRef = useRef(onRibbonAction)
   const initialConfigRef = useRef({ workbookId, title, initialSnapshot, ribbonType })
-  initialConfigRef.current = { workbookId, title, initialSnapshot, ribbonType }
+  initialConfigRef.current = { workbookId, title, initialSnapshot, ribbonType }\n  modeClassRef.current = ribbonType === 'classic' ? 'single-line' : 'classic'
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -2021,7 +2040,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
     let disposed = false
 
     try {
-      const config = initialConfigRef.current
+      const config = initialConfigRef.current\n      containerRef.current?.setAttribute('data-gridnova-ribbon-mode', config.ribbonType === 'classic' ? 'single-line' : 'classic')
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
