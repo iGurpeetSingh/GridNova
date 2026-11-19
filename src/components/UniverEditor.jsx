@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { AlignHorizontalLeftRegular, AlignVerticalCenterRegular, ArrowDownRegular, ArrowUpRegular, ArrowsMergeRegular, ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, ColumnDeleteRegular, ColumnInsertLeftRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, MathSymbolsRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, RowDeleteRegular, RowInsertTopRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular, TextWrapRegular } from '@fluentui/react-icons'
+import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
 import { createUniver, LocaleType } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import '@univerjs/ui/facade'
@@ -132,18 +132,18 @@ const RIBBON_ICONS = {
   image: ImageRegular,
   link: LinkRegular,
   paint: PaintBrushRegular,
-  fontIncrease: MathSymbolsRegular,
+  fontIncrease: CalculatorRegular,
   fontDecrease: CalculatorRegular,
-  merge: ArrowsMergeRegular,
-  wrap: TextWrapRegular,
-  alignLeftCompact: AlignHorizontalLeftRegular,
-  alignCenterCompact: AlignVerticalCenterRegular,
-  decimalIncrease: ArrowUpRegular,
-  decimalDecrease: ArrowDownRegular,
-  insertRow: RowInsertTopRegular,
-  insertColumn: ColumnInsertLeftRegular,
-  deleteRow: RowDeleteRegular,
-  deleteColumn: ColumnDeleteRegular,
+  merge: BorderAllRegular,
+  wrap: TextAlignCenterRegular,
+  alignLeftCompact: TextAlignLeftRegular,
+  alignCenterCompact: TextAlignCenterRegular,
+  decimalIncrease: CalculatorRegular,
+  decimalDecrease: CalculatorRegular,
+  insertRow: TableRegular,
+  insertColumn: TableRegular,
+  deleteRow: CutRegular,
+  deleteColumn: CutRegular,
 }
 
 const RIBBON_ICON_COLORS = {
