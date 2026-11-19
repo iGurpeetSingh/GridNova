@@ -753,3 +753,60 @@ img, svg { max-width: 100%; }
     padding-inline: 7px !important;
   }
 }
+
+
+/* GridNova compact, icon-first Single Line ribbon. Only active in Univer classic mode. */
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] {
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  min-height: 42px;
+  padding: 4px 8px !important;
+  overflow: hidden !important;
+  white-space: nowrap;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] button,
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [role="button"] {
+  min-width: 29px;
+  min-height: 29px;
+  width: auto;
+  padding: 4px 6px !important;
+  border-radius: 5px !important;
+  color: #344054;
+  background: transparent;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] button:hover,
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [role="button"]:hover {
+  background: #edf5ef !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-comp*="group"] {
+  flex: 0 0 auto;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [role="separator"] {
+  height: 25px;
+  margin-inline: 5px;
+  border-color: #e3e7eb;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-grid-toolbar"] {
+  min-height: 42px;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-header-menu"] + div {
+  min-height: 42px;
+}
+.univer-mount[data-gridnova-ribbon-mode="classic"] [data-u-comp="ribbon-grid-toolbar"] {
+  min-height: 92px;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] {
+  --gridnova-ribbon-button-size: 30px;
+}
+@media (max-width: 900px) {
+  .univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: thin;
+  }
+}
