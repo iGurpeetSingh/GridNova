@@ -312,6 +312,7 @@ function GridNovaSymbol({ data }) {
 function GridNovaInkCanvas({ data, univerAPI }) {
   const [strokes, setStrokes] = useState(() => Array.isArray(data?.strokes) ? data.strokes : [])
   const [draft, setDraft] = useState(null)
+  const draftRef = useRef(null)
   const pointerIdRef = useRef(null)
   const svgRef = useRef(null)
 
@@ -355,29 +356,35 @@ function GridNovaInkCanvas({ data, univerAPI }) {
     event.preventDefault()
     pointerIdRef.current = event.pointerId
     event.currentTarget.setPointerCapture?.(event.pointerId)
-    setDraft({
+    const nextDraft = {
       points: [point],
       color: mode === 'highlighter' ? '#f2c94c' : defaultColor,
       width: defaultWidth,
       opacity: mode === 'highlighter' ? 0.48 : 1,
-    })
+    }
+    draftRef.current = nextDraft
+    setDraft(nextDraft)
   }
 
   function handlePointerMove(event) {
     if (pointerIdRef.current !== event.pointerId) return
     const point = getPoint(event)
     if (!point) return
-    setDraft((previous) => previous ? { ...previous, points: [...previous.points, point] } : previous)
+    const previous = draftRef.current
+    if (!previous) return
+    const nextDraft = { ...previous, points: [...previous.points, point] }
+    draftRef.current = nextDraft
+    setDraft(nextDraft)
   }
 
   function finishStroke(event) {
     if (pointerIdRef.current !== event.pointerId) return
     pointerIdRef.current = null
     try { event.currentTarget.releasePointerCapture?.(event.pointerId) } catch { /* pointer already released */ }
-    setDraft((current) => {
-      if (current?.points?.length) persistStrokes([...strokes, current])
-      return null
-    })
+    const finished = draftRef.current
+    draftRef.current = null
+    setDraft(null)
+    if (finished?.points?.length) persistStrokes([...strokes, finished])
   }
 
   const visibleStrokes = draft ? [...strokes, draft] : strokes
