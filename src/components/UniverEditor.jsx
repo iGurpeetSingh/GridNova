@@ -154,14 +154,16 @@ function registerRibbonIcons(univerAPI) {
 
 function addRibbonTab(univerAPI, tab, onRibbonAction) {
   const root = univerAPI.createSubmenu({
-    id: 'gridnova.ribbon.' + tab.id,
+    // Separate localized tab keys from their group keys. LocaleService resolves
+    // dotted paths, so a tab label cannot also be the parent of a group object.
+    id: 'gridnova.ribbon.tabs.' + tab.id,
     title: tab.title,
     order: tab.order,
   })
 
   tab.groups.forEach((group) => {
     const groupMenu = univerAPI.createSubmenu({
-      id: 'gridnova.ribbon.' + tab.id + '.' + group.id,
+      id: 'gridnova.ribbon.groups.' + tab.id + '.' + group.id,
       title: group.title,
     })
 
@@ -172,7 +174,7 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
           ? () => univerAPI.executeCommand(item.command, item.params)
           : () => onRibbonAction?.(item.action)
       const menu = univerAPI.createMenu({
-        id: 'gridnova.ribbon.' + tab.id + '.' + item.id,
+        id: 'gridnova.ribbon.commands.' + tab.id + '.' + item.id,
         title: item.title,
         tooltip: item.tooltip || item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
@@ -1029,20 +1031,43 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
               },
               gridnova: {
                 ribbon: {
-                  file: 'File',
-                  share: 'Share',
-                  'page-layout': 'Page Layout',
-                  review: 'Review',
-                  help: 'Help',
-                  draw: 'Draw',
-                  shape: 'Shape',
-                  fileDesc: 'Workbook file actions',
-                  shareDesc: 'Share and export workbook',
-                  'page-layoutDesc': 'Page setup and sheet layout',
-                  reviewDesc: 'Comments, notes and protection',
-                  helpDesc: 'Help and support',
-                  drawDesc: 'Drawing tools',
-                  shapeDesc: 'Insert and format shapes',
+                  tabs: {
+                    file: 'File',
+                    share: 'Share',
+                    'page-layout': 'Page Layout',
+                    review: 'Review',
+                    help: 'Help',
+                    draw: 'Draw',
+                    shape: 'Shape',
+                  },
+                  groups: {
+                    file: {
+                      workbook: 'Workbook',
+                      information: 'Workbook Information',
+                      print: 'Print',
+                    },
+                    share: {
+                      'share-copy': 'Share & Access',
+                    },
+                    'page-layout': {
+                      'page-setup': 'Page Setup',
+                    },
+                    review: {
+                      comments: 'Comments & Notes',
+                      protection: 'Protection',
+                      history: 'History',
+                    },
+                    help: {
+                      support: 'Help & Support',
+                    },
+                    draw: {
+                      drawing: 'Drawing Tools',
+                    },
+                    shape: {
+                      'insert-shape': 'Insert Shape',
+                      'shape-format': 'Shape Formatting',
+                    },
+                  },
                   home: {
                     clipboard: 'Clipboard',
                     styles: 'Styles',
@@ -1078,32 +1103,6 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
                     show: 'Show',
                     panes: 'Freeze Panes',
                     window: 'Zoom & Window',
-                  },
-                  'file': {
-                    workbook: 'Workbook',
-                    information: 'Workbook Information',
-                    print: 'Print',
-                  },
-                  'share': {
-                    'share-copy': 'Share & Access',
-                  },
-                  'page-layout': {
-                    'page-setup': 'Page Setup',
-                  },
-                  'review': {
-                    comments: 'Comments & Notes',
-                    protection: 'Protection',
-                    history: 'History',
-                  },
-                  'help': {
-                    support: 'Help & Support',
-                  },
-                  'draw': {
-                    drawing: 'Drawing Tools',
-                  },
-                  'shape': {
-                    'insert-shape': 'Insert Shape',
-                    'shape-format': 'Shape Formatting',
                   },
                 },
               },
