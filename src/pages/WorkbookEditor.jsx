@@ -25,7 +25,7 @@ export default function WorkbookEditor() {
   })
   const [ribbonMode, setRibbonMode] = useState(() => {
     try {
-      const savedMode = window.localStorage.getItem('gridnova:ribbon-mode:' + workbookId)
+      const savedMode = window.localStorage.getItem('gridnova:ribbon-mode-v2:' + workbookId)
       // Single Line uses Univer classic; Classic uses Univer grid.
       // Migrate previous saved values so the visible buttons match their layouts.
       if (savedMode === 'grid' || savedMode === 'collapsed') return 'classic'
@@ -288,7 +288,7 @@ export default function WorkbookEditor() {
       }
     }
     setRibbonMode(nextMode)
-    try { window.localStorage.setItem('gridnova:ribbon-mode:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
+    try { window.localStorage.setItem('gridnova:ribbon-mode-v2:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
   async function handleQuickAccessCommand(commandId) {
@@ -446,10 +446,10 @@ export default function WorkbookEditor() {
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
         <div className="ribbon-mode-switch" role="group" aria-label="Ribbon display mode">
-          <button type="button" className={ribbonMode === 'grid' ? 'active' : ''} aria-pressed={ribbonMode === 'classic'} onClick={() => handleRibbonModeChange('classic')} title="Single Line Ribbon">
+          <button type="button" className={ribbonMode === 'classic' ? 'active' : ''} aria-pressed={ribbonMode === 'classic'} onClick={() => handleRibbonModeChange('classic')} title="Single Line Ribbon">
             <TableRegular /> <span>Single Line</span>
           </button>
-          <button type="button" className={ribbonMode === 'classic' ? 'active' : ''} aria-pressed={ribbonMode === 'grid'} onClick={() => handleRibbonModeChange('grid')} title="Classic Ribbon">
+          <button type="button" className={ribbonMode === 'grid' ? 'active' : ''} aria-pressed={ribbonMode === 'grid'} onClick={() => handleRibbonModeChange('grid')} title="Classic Ribbon">
             <GridRegular /> <span>Classic</span>
           </button>
         </div>
