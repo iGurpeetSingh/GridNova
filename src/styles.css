@@ -646,3 +646,110 @@ img, svg { max-width: 100%; }
   .dashboard-return { order: 9; }
   .workbook-heading { flex: 1 1 180px; }
 }
+
+
+/* GridNova ribbon layout: full-width Excel-style tabs and toolbars. */
+.univer-shell,
+.univer-mount {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  margin-inline: 0 !important;
+  padding: 0 !important;
+}
+
+.univer-mount [data-u-comp="ribbon-header-menu"] {
+  display: block;
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+}
+
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tablist"] {
+  display: flex;
+  width: 100% !important;
+  min-width: 0;
+  justify-content: flex-start !important;
+  gap: 2px;
+  padding-inline: 12px !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 0 !important;
+  background: #fff !important;
+  scrollbar-width: none;
+}
+
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tablist"]::-webkit-scrollbar {
+  display: none;
+}
+
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tab"] {
+  flex: 0 0 auto;
+  min-height: 32px;
+  border-radius: 0 !important;
+  color: #344054 !important;
+  font-size: 12px;
+  font-weight: 500;
+  outline-offset: -2px;
+}
+
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tab"][aria-selected="true"] {
+  border-bottom: 2px solid #217346 !important;
+  color: #176b3a !important;
+  background: #fff !important;
+  font-weight: 650;
+}
+
+.univer-mount [data-u-comp="ribbon-header-menu"] + div {
+  width: 100% !important;
+  min-width: 0;
+  max-width: none !important;
+  margin-inline: 0 !important;
+  justify-content: flex-start !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+}
+
+.univer-mount [data-u-comp="ribbon-toolbar"] {
+  width: 100% !important;
+  min-width: 0;
+  max-width: none !important;
+  justify-content: flex-start !important;
+  overflow-x: hidden;
+}
+
+.univer-mount [data-u-comp="ribbon-grid-toolbar"] {
+  width: 100% !important;
+  min-width: 0;
+  max-width: none !important;
+  margin-inline: 0 !important;
+  background: #fff !important;
+}
+
+.univer-mount [data-u-comp="ribbon-grid-menu"] {
+  width: 100% !important;
+  min-width: 0;
+  justify-content: flex-start !important;
+  padding-inline: 12px !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+}
+
+.univer-mount [data-u-comp="ribbon-grid-group"] {
+  flex-shrink: 0;
+}
+
+.univer-mount [data-u-comp="ribbon-grid-group-divider"] {
+  opacity: .7;
+}
+
+@media (max-width: 760px) {
+  .univer-mount [data-u-comp="ribbon-header-menu"] [role="tablist"] {
+    padding-inline: 7px !important;
+  }
+  .univer-mount [data-u-comp="ribbon-grid-menu"] {
+    padding-inline: 7px !important;
+  }
+}
