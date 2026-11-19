@@ -1227,6 +1227,110 @@ function removeDuplicatesFromSelection(univerAPI) {
   univerAPI.showMessage({ content: duplicateRowIndexes.length + ' duplicate row(s) removed from the worksheet.', type: 'success' })
 }
 
+function columnIndexToLetters(index) {
+  let value = index + 1
+  let letters = ''
+  while (value > 0) {
+    const remainder = (value - 1) % 26
+    letters = String.fromCharCode(65 + remainder) + letters
+    value = Math.floor((value - 1) / 26)
+  }
+  return letters
+}
+
+function insertSubtotalRow(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) {
+    univerAPI.showMessage({ content: 'Select a contiguous data range before inserting a subtotal.', type: 'warning' })
+    return false
+  }
+
+  const values = range.getValues()
+  if (!Array.isArray(values) || values.length < 2) {
+    univerAPI.showMessage({ content: 'Select a header row and at least one data row.', type: 'warning' })
+    return false
+  }
+
+  const hasHeader = window.confirm('Does the first selected row contain column headers?')
+  const dataOffset = hasHeader ? 1 : 0
+  const firstDataRow = range.getRow() + dataOffset
+  const lastDataRow = range.getLastRow()
+  if (firstDataRow > lastDataRow) {
+    univerAPI.showMessage({ content: 'The selection does not contain any data rows.', type: 'warning' })
+    return false
+  }
+
+  const aggregate = window.prompt('Subtotal function: SUM, AVERAGE, COUNT, MAX or MIN.', 'SUM')
+  if (aggregate == null) return false
+  const functionName = aggregate.trim().toUpperCase()
+  const subtotalCodes = { AVERAGE: 1, COUNT: 2, MAX: 4, MIN: 5, SUM: 9 }
+  const code = subtotalCodes[functionName]
+  if (!code) {
+    univerAPI.showMessage({ content: 'Choose SUM, AVERAGE, COUNT, MAX or MIN.', type: 'warning' })
+    return false
+  }
+
+  const afterRow = range.getLastRow()
+  const maxRows = sheet.getMaxRows?.() ?? 0
+  if (afterRow >= maxRows - 1) {
+    univerAPI.showMessage({ content: 'There is no available row below the selected range.', type: 'warning' })
+    return false
+  }
+
+  const firstColumn = range.getColumn()
+  const lastColumn = range.getLastColumn()
+  const columnCount = lastColumn - firstColumn + 1
+  const dataRows = values.slice(dataOffset)
+  const numericColumns = []
+
+  for (let columnOffset = 0; columnOffset < columnCount; columnOffset++) {
+    const columnValues = dataRows.map((row) => row?.[columnOffset])
+    const populated = columnValues.filter((value) => value !== null && value !== undefined && value !== '')
+    if (populated.length && populated.some((value) => Number.isFinite(typeof value === 'number' ? value : Number(String(value).replace(/,/g, ''))))) {
+      numericColumns.push(columnOffset)
+    }
+  }
+
+  if (!numericColumns.length) {
+    univerAPI.showMessage({ content: 'No numeric columns were found in the selected range.', type: 'warning' })
+    return false
+  }
+
+  try {
+    sheet.insertRowAfter(afterRow, 1)
+    const subtotalRow = afterRow + 1
+    const firstColumnValues = dataRows.map((row) => row?.[0])
+    const firstColumnIsNumeric = firstColumnValues.some((value) =>
+      value !== null && value !== undefined && value !== '' && Number.isFinite(typeof value === 'number' ? value : Number(String(value).replace(/,/g, '')))
+    )
+
+    if (!firstColumnIsNumeric) {
+      sheet.getRange(subtotalRow, firstColumn).setValue('Subtotal')
+    }
+
+    numericColumns.forEach((columnOffset) => {
+      const columnIndex = firstColumn + columnOffset
+      const columnLetters = columnIndexToLetters(columnIndex)
+      const formula = '=SUBTOTAL(' + code + ',' + columnLetters + (firstDataRow + 1) + ':' + columnLetters + (lastDataRow + 1) + ')'
+      sheet.getRange(subtotalRow, columnIndex).setFormula(formula)
+    })
+
+    sheet.getRange(subtotalRow, firstColumn, 1, columnCount).setFontWeight('bold')
+    univerAPI.showMessage({
+      content: functionName + ' subtotal row inserted below the selected data.',
+      type: 'success',
+    })
+    return true
+  } catch (error) {
+    univerAPI.showMessage({
+      content: error instanceof Error ? error.message : 'Could not insert the subtotal row.',
+      type: 'error',
+    })
+    return false
+  }
+}
+
 function splitTextToColumns(univerAPI) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
@@ -1594,7 +1698,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.data', id: 'group-subtotal', title: 'Grouping & Subtotals', order: 3, items: [
-        { id: 'group-subtotal-unavailable', title: 'Group / Ungroup / Subtotal (Unavailable)', action: 'data-outline-unavailable' },
+        { id: 'group-unavailable', title: 'Group Rows (Unavailable)', action: 'data-outline-unavailable' },
+        { id: 'ungroup-unavailable', title: 'Ungroup Rows (Unavailable)', action: 'data-outline-unavailable' },
+        { id: 'insert-subtotal', title: 'Insert Subtotal Row', icon: 'calculator', run: insertSubtotalRow },
       ],
     },
     {
