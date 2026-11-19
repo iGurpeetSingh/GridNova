@@ -58,7 +58,6 @@ export default function WorkbookEditor() {
   const [searchParams] = useSearchParams()
   const fileInputRef = useRef(null)
   const lastSavedRef = useRef('')
-  const pendingSelectionRef = useRef(null)
   const saveInFlightRef = useRef(null)
   const [title, setTitle] = useState(searchParams.get('title')?.trim() || 'Untitled workbook')
   const [isReadOnly, setIsReadOnly] = useState(() => {
@@ -288,43 +287,28 @@ export default function WorkbookEditor() {
 
   function handleEditorReady(api) {
     setEditorApi(api)
-    const pending = pendingSelectionRef.current
-    if (!api || !pending) return
-    try {
-      const targetSheet = api.getWorkbook(workbookId)?.getSheetByName(pending.sheetName) || api.getActiveSheet()
-      if (targetSheet && pending.range) targetSheet.getRange(pending.range).activate()
-    } catch { /* selection restoration is best-effort */ }
-    pendingSelectionRef.current = null
   }
 
-  async function handleRibbonModeChange(nextMode) {
+  function handleRibbonModeChange(nextMode) {
     if (nextMode === ribbonMode || !isRibbonType(nextMode)) return
-    const activeSheet = editorApi?.getActiveSheet()
-    const activeRange = activeSheet?.getActiveRange?.()
-    if (activeSheet && activeRange) {
-      pendingSelectionRef.current = {
-        sheetName: activeSheet.getSheetName(),
-        range: activeRange.getA1Notation(),
-      }
+    if (!editorApi?.setRibbonType) {
+      setNoticeType('error')
+      setNotice('Ribbon layout switching is unavailable until the spreadsheet engine is ready.')
+      return
     }
-    const snapshot = editorApi?.getSnapshot()
-    if (snapshot) {
-      snapshot.name = title
-      setSaveState('Saving before changing ribbon…')
+
+    try {
+      // Switch the layout on the existing Univer instance. This keeps the
+      // active worksheet, current selection, formulas and undo stack intact.
+      editorApi.setRibbonType(nextMode)
+      setRibbonMode(nextMode)
       try {
-        await saveWorkbook({ id: workbookId, name: title, snapshot, updatedAt: Date.now() })
-        lastSavedRef.current = JSON.stringify(snapshot)
-        setInitialSnapshot(snapshot)
-        setSavedAt(Date.now())
-        setSaveState('Saved in this browser')
-      } catch (error) {
-        setNoticeType('error')
-        setNotice(error instanceof Error ? error.message : 'Could not save before changing the ribbon.')
-        return
-      }
+        window.localStorage.setItem(RIBBON_MODE_STORAGE_PREFIX + workbookId, nextMode)
+      } catch { /* preference storage is optional */ }
+    } catch (error) {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'Could not change the ribbon layout.')
     }
-    setRibbonMode(nextMode)
-    try { window.localStorage.setItem(RIBBON_MODE_STORAGE_PREFIX + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
   async function handleQuickAccessCommand(commandId) {
