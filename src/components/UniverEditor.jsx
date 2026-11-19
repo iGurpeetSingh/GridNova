@@ -778,15 +778,13 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'univer.command.redo': { icon: 'gridnova-icon-redo' },
     'ui.operation.activate-format-painter': { icon: 'gridnova-icon-paint' },
     'sheet.command.set-once-format-painter': { icon: 'gridnova-icon-paint' },
-    'sheet.command.set-range-bold': { icon: 'gridnova-icon-bold' },
-    'sheet.command.set-range-italic': { icon: 'gridnova-icon-italic' },
+    'sheet.command.set-range-bold': { icon: 'gridnova-icon-bold', gridLayout: { row: 1, column: 3 } },
+    'sheet.command.set-range-italic': { icon: 'gridnova-icon-italic', gridLayout: { row: 1, column: 4 } },
     // Keep Home controls in a single horizontal command row in grid (Single Line) mode.
     // Explicit gridLayout coordinates prevent controls from being collapsed into
     // unlabeled chevrons or pushed into unexpected empty grid cells.
     'sheet.command.set-range-font-family': { order: 0, gridLayout: { row: 1, column: 1, width: 150, showLabel: true } },
     'sheet.command.set-range-fontsize': { order: 1, gridLayout: { row: 1, column: 2, width: 58, showLabel: true } },
-    'sheet.command.set-range-bold': { gridLayout: { row: 1, column: 3 } },
-    'sheet.command.set-range-italic': { gridLayout: { row: 1, column: 4 } },
     'sheet.command.add-worksheet-merge': { icon: 'gridnova-icon-layout', gridLayout: { row: 1, column: 4 } },
     'sheet.command.add-worksheet-merge-all': { icon: 'gridnova-icon-layout', gridLayout: { row: 1, column: 5 } },
     'sheet.command.add-worksheet-merge-vertical': { icon: 'gridnova-icon-layout', gridLayout: { row: 1, column: 6 } },
