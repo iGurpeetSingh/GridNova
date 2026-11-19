@@ -735,7 +735,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
           { id: 'copy-id', title: 'Copy Workbook ID', action: 'copy-workbook-id' },
         ] },
         { id: 'print', title: 'Print', items: [
-          { id: 'print-workbook', title: 'Print', icon: 'print', action: 'print' },
+          { id: 'print-workbook', title: 'Print via Browser Dialog', icon: 'print', action: 'print' },
         ] },
       ],
     },
@@ -753,7 +753,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       id: 'page-layout', title: 'Page Layout', order: 5, groups: [
         { id: 'page-setup', title: 'Page Setup', items: [
           { id: 'print-layout', title: 'Page Setup / Print Preview (Unavailable)', icon: 'layout', action: 'page-layout-unavailable' },
-          { id: 'print', title: 'Print Worksheet', icon: 'print', action: 'print' },
+          { id: 'print', title: 'Print via Browser Dialog', icon: 'print', action: 'print' },
           { id: 'orientation', title: 'Page Orientation (Unavailable)', action: 'page-layout-unavailable' },
           { id: 'paper-size', title: 'Paper Size (Unavailable)', action: 'page-layout-unavailable' },
           { id: 'margins', title: 'Margins (Unavailable)', action: 'page-layout-unavailable' },
@@ -860,7 +860,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'cell-style-good', title: 'Good Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'good') },
         { id: 'cell-style-bad', title: 'Bad Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'bad') },
         { id: 'cell-style-neutral', title: 'Neutral Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'neutral') },
-        { id: 'format-cells', title: 'Format Cells (Unavailable)', icon: 'layout', action: 'format-cells-unavailable' },
+        { id: 'number-format-settings', title: 'Number Format Settings', icon: 'calculator', command: 'sheet.operation.open.numfmt.panel' },
+        { id: 'format-cells', title: 'Full Format Cells Dialog (Unavailable)', icon: 'layout', action: 'format-cells-unavailable' },
       ],
     },
     {
