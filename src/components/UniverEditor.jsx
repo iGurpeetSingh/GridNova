@@ -1041,6 +1041,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   univerAPI.updateMenuConfig({
     'ribbon.start': { title: 'Home', order: 1 },
     'ribbon.insert': { title: 'Insert', order: 2, hidden: false },
+    'ribbon.start.clipboard': { hidden: true },
     'ribbon.start.history': { hidden: true },
     'ribbon.start.format': { title: 'Font', order: 2 },
     'ribbon.start.layout': { title: 'Alignment', order: 3 },
