@@ -131,7 +131,19 @@ const RIBBON_ICONS = {
   percent: CalculatorRegular,
   image: ImageRegular,
   link: LinkRegular,
-  paint: PaintBrushRegular,\n  fontIncrease: MathSymbolsRegular,\n  fontDecrease: CalculatorRegular,\n  merge: ArrowsMergeRegular,\n  wrap: TextWrapRegular,\n  alignLeft: AlignHorizontalLeftRegular,\n  alignCenter: AlignVerticalCenterRegular,\n  decimalIncrease: ArrowUpRegular,\n  decimalDecrease: ArrowDownRegular,\n  insertRow: RowInsertTopRegular,\n  insertColumn: ColumnInsertLeftRegular,\n  deleteRow: RowDeleteRegular,\n  deleteColumn: ColumnDeleteRegular,
+  paint: PaintBrushRegular,
+  fontIncrease: MathSymbolsRegular,
+  fontDecrease: CalculatorRegular,
+  merge: ArrowsMergeRegular,
+  wrap: TextWrapRegular,
+  alignLeftCompact: AlignHorizontalLeftRegular,
+  alignCenterCompact: AlignVerticalCenterRegular,
+  decimalIncrease: ArrowUpRegular,
+  decimalDecrease: ArrowDownRegular,
+  insertRow: RowInsertTopRegular,
+  insertColumn: ColumnInsertLeftRegular,
+  deleteRow: RowDeleteRegular,
+  deleteColumn: ColumnDeleteRegular,
 }
 
 const RIBBON_ICON_COLORS = {
