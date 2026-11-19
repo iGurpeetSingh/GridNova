@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
+import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, ArrowUpRegular, ArrowDownRegular, TextWrapRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
 import { createUniver, LocaleType } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import '@univerjs/ui/facade'
 import '@univerjs/sheets/facade'
 import { withRibbonGridLayouts } from '../utils/ribbonLayout.js'
 import { getRibbonPresentationMode } from '../utils/ribbonMode.js'
+import { buildHomeRibbonMenuConfig } from '../utils/homeRibbonConfig.js'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
 import { UniverSheetsDrawingPreset } from '@univerjs/preset-sheets-drawing'
 import UniverPresetSheetsDrawingEnUS from '@univerjs/preset-sheets-drawing/locales/en-US'
@@ -133,14 +134,16 @@ const RIBBON_ICONS = {
   image: ImageRegular,
   link: LinkRegular,
   paint: PaintBrushRegular,
-  fontIncrease: CalculatorRegular,
-  fontDecrease: CalculatorRegular,
+  fontIncrease: ArrowUpRegular,
+  fontDecrease: ArrowDownRegular,
   merge: BorderAllRegular,
-  wrap: TextAlignCenterRegular,
+  wrap: TextWrapRegular,
+  shrink: TextAlignRightRegular,
+  rotate: ArrowRedoRegular,
   alignLeftCompact: TextAlignLeftRegular,
   alignCenterCompact: TextAlignCenterRegular,
-  decimalIncrease: CalculatorRegular,
-  decimalDecrease: CalculatorRegular,
+  decimalIncrease: ArrowUpRegular,
+  decimalDecrease: ArrowDownRegular,
   insertRow: TableRegular,
   insertColumn: TableRegular,
   deleteRow: CutRegular,
@@ -1935,33 +1938,34 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     'ribbon.start.history': { hidden: true },
     'ribbon.start.format': { title: 'Font', order: 2 },
     'ribbon.start.layout': { title: 'Alignment', order: 3 },
-    'ribbon.start.others': { title: 'More Editing', order: 8 },
+    'ribbon.start.others': { hidden: true },
+    ...buildHomeRibbonMenuConfig(),
     'univer.command.undo': { icon: 'gridnova-icon-undo' },
     'univer.command.redo': { icon: 'gridnova-icon-redo' },
     'ui.operation.activate-format-painter': { icon: 'gridnova-icon-paint' },
     'sheet.command.set-once-format-painter': { icon: 'gridnova-icon-paint' },
     'sheet.command.set-range-bold': { icon: 'gridnova-icon-bold', gridLayout: { row: 1, column: 2, showLabel: true } },
-    'sheet.command.set-range-font-increase': { icon: 'gridnova-icon-calculator', gridLayout: { row: 1, column: 6, showLabel: true } },
-    'sheet.command.set-range-font-decrease': { icon: 'gridnova-icon-calculator', gridLayout: { row: 2, column: 6, showLabel: true } },
+    'sheet.command.set-range-font-increase': { icon: 'gridnova-icon-fontIncrease', tooltip: 'Increase Font Size', gridLayout: { row: 1, column: 6, showLabel: true } },
+    'sheet.command.set-range-font-decrease': { icon: 'gridnova-icon-fontDecrease', tooltip: 'Decrease Font Size', gridLayout: { row: 2, column: 6, showLabel: true } },
     'sheet.command.set-range-italic': { icon: 'gridnova-icon-italic', gridLayout: { row: 2, column: 2, showLabel: true } },
     // Place expanded Home controls into a labeled two-row grid. Single Line mode
     // ignores these grid coordinates and keeps the native one-row toolbar.
     'sheet.command.set-range-font-family': { order: 0, gridLayout: { row: 1, column: 1, width: 150, showLabel: true } },
     'sheet.command.set-range-fontsize': { order: 1, gridLayout: { row: 2, column: 1, width: 58, showLabel: true } },
-    'sheet.command.add-worksheet-merge': { icon: 'gridnova-icon-layout', gridLayout: { row: 1, column: 4, showLabel: true } },
-    'sheet.command.add-worksheet-merge-all': { icon: 'gridnova-icon-layout', gridLayout: { row: 2, column: 4, showLabel: true } },
-    'sheet.command.add-worksheet-merge-vertical': { icon: 'gridnova-icon-layout', gridLayout: { row: 1, column: 5, showLabel: true } },
-    'sheet.command.add-worksheet-merge-horizontal': { icon: 'gridnova-icon-layout', gridLayout: { row: 2, column: 5, showLabel: true } },
-    'sheet.command.remove-worksheet-merge': { icon: 'gridnova-icon-layout', gridLayout: { row: 1, column: 6, showLabel: true } },
-    'sheet.command.set-text-rotation': { icon: 'gridnova-icon-layout', gridLayout: { row: 2, column: 6, showLabel: true } },
+    'sheet.command.add-worksheet-merge': { icon: 'gridnova-icon-merge', tooltip: 'Merge Cells', gridLayout: { row: 1, column: 4, showLabel: true } },
+    'sheet.command.add-worksheet-merge-all': { icon: 'gridnova-icon-merge', tooltip: 'Merge All', gridLayout: { row: 2, column: 4, showLabel: true } },
+    'sheet.command.add-worksheet-merge-vertical': { icon: 'gridnova-icon-merge', tooltip: 'Merge Vertically', gridLayout: { row: 1, column: 5, showLabel: true } },
+    'sheet.command.add-worksheet-merge-horizontal': { icon: 'gridnova-icon-merge', tooltip: 'Merge Horizontally', gridLayout: { row: 2, column: 5, showLabel: true } },
+    'sheet.command.remove-worksheet-merge': { icon: 'gridnova-icon-merge', tooltip: 'Unmerge Cells', gridLayout: { row: 1, column: 6, showLabel: true } },
+    'sheet.command.set-text-rotation': { icon: 'gridnova-icon-rotate', tooltip: 'Text Rotation', gridLayout: { row: 2, column: 6, showLabel: true } },
     'sheet.command.set-range-underline': { icon: 'gridnova-icon-underline', gridLayout: { row: 1, column: 3, showLabel: true } },
     'sheet.command.set-range-stroke': { icon: 'gridnova-icon-strike', gridLayout: { row: 2, column: 3, showLabel: true } },
-    'sheet.command.set-range-text-color': { icon: 'gridnova-icon-textColor', gridLayout: { row: 1, column: 4, showLabel: true } },
-    'sheet.command.set-background-color': { icon: 'gridnova-icon-fillColor', gridLayout: { row: 2, column: 4, showLabel: true } },
-    'sheet.command.set-border-basic': { icon: 'gridnova-icon-border', gridLayout: { row: 1, column: 5, showLabel: true } },
-    'sheet.command.set-horizontal-text-align': { icon: 'gridnova-icon-alignLeft', gridLayout: { row: 1, column: 1, showLabel: true } },
-    'sheet.command.set-vertical-text-align': { icon: 'gridnova-icon-alignCenter', gridLayout: { row: 2, column: 1, showLabel: true } },
-    'sheet.command.set-text-wrap': { icon: 'gridnova-icon-alignRight', gridLayout: { row: 1, column: 2, showLabel: true } },
+    'sheet.command.set-range-text-color': { icon: 'gridnova-icon-textColor', tooltip: 'Font Color', gridLayout: { row: 1, column: 4, showLabel: true } },
+    'sheet.command.set-background-color': { icon: 'gridnova-icon-fillColor', tooltip: 'Fill Color', gridLayout: { row: 2, column: 4, showLabel: true } },
+    'sheet.command.set-border-basic': { icon: 'gridnova-icon-border', tooltip: 'Borders', gridLayout: { row: 1, column: 5, showLabel: true } },
+    'sheet.command.set-horizontal-text-align': { icon: 'gridnova-icon-alignLeft', tooltip: 'Horizontal Alignment', gridLayout: { row: 1, column: 1, showLabel: true } },
+    'sheet.command.set-vertical-text-align': { icon: 'gridnova-icon-alignCenter', tooltip: 'Vertical Alignment', gridLayout: { row: 2, column: 1, showLabel: true } },
+    'sheet.command.set-text-wrap': { icon: 'gridnova-icon-wrap', tooltip: 'Wrap Text', gridLayout: { row: 1, column: 2, showLabel: true } },
     'sheet.command.copy': { icon: 'gridnova-icon-copy' },
     'sheet.command.cut': { icon: 'gridnova-icon-cut' },
     'sheet.command.paste': { icon: 'gridnova-icon-paste' },
@@ -1970,9 +1974,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     'ui.operation.open-find-dialog': { icon: 'gridnova-icon-search' },
     'sheet.command.numfmt.set.currency': { icon: 'gridnova-icon-currency', gridLayout: { row: 2, column: 1, showLabel: true } },
     'sheet.command.numfmt.set.percent': { icon: 'gridnova-icon-percent', gridLayout: { row: 1, column: 2, showLabel: true } },
-    'sheet.command.numfmt.add.decimal.command': { icon: 'gridnova-icon-calculator', gridLayout: { row: 2, column: 2, showLabel: true } },
-    'sheet.command.numfmt.subtract.decimal.command': { icon: 'gridnova-icon-calculator', gridLayout: { row: 1, column: 3, showLabel: true } },
-    'sheet.operation.open.numfmt.panel': { icon: 'gridnova-icon-calculator', gridLayout: { row: 1, column: 1, width: 112, showLabel: true } },
+    'sheet.command.numfmt.add.decimal.command': { icon: 'gridnova-icon-decimalIncrease', tooltip: 'Increase Decimal Places', gridLayout: { row: 2, column: 2, showLabel: true } },
+    'sheet.command.numfmt.subtract.decimal.command': { icon: 'gridnova-icon-decimalDecrease', tooltip: 'Decrease Decimal Places', gridLayout: { row: 1, column: 3, showLabel: true } },
+    'sheet.operation.open.numfmt.panel': { tooltip: 'Number Format', gridLayout: { row: 1, column: 1, width: 112, showLabel: true } },
     'sheet.command.insert-row-before': { icon: 'gridnova-icon-table' },
     'sheet.command.insert-col-before': { icon: 'gridnova-icon-table' },
     'sheet.command.remove-row-confirm': { icon: 'gridnova-icon-table' },
