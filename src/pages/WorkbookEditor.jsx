@@ -25,9 +25,10 @@ export default function WorkbookEditor() {
   })
   const [ribbonMode, setRibbonMode] = useState(() => {
     try {
-      const savedMode = window.localStorage.getItem('gridnova:ribbon-mode-v4:' + workbookId)
-      // Single Line matches the Excel reference: tabs stay visible above the toolbar.
-      return savedMode || 'grid'
+      // Start with the Excel-style tab strip. This versioned key avoids carrying
+      // forward any earlier incorrect Single Line / Classic mappings.
+      const savedMode = window.localStorage.getItem('gridnova:ribbon-mode-v5:' + workbookId)
+      return savedMode === 'classic' ? 'classic' : 'grid'
     } catch { return 'grid' }
   })
   const [initialSnapshot, setInitialSnapshot] = useState(null)
@@ -285,7 +286,7 @@ export default function WorkbookEditor() {
       }
     }
     setRibbonMode(nextMode)
-    try { window.localStorage.setItem('gridnova:ribbon-mode-v4:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
+    try { window.localStorage.setItem('gridnova:ribbon-mode-v5:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
   async function handleQuickAccessCommand(commandId) {
