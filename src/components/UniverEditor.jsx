@@ -1706,7 +1706,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       path: 'ribbon.view', id: 'show', title: 'Show', order: 0, items: [
         { id: 'toggle-gridlines', title: 'Gridlines', icon: 'layout', run: toggleGridlines },
-        { id: 'formula-bar-unavailable', title: 'Formula Bar (Unavailable)', action: 'formula-bar-unavailable' },
+        { id: 'formula-bar-toggle', title: 'Show / Hide Formula Bar', icon: 'text', action: 'toggle-formula-bar' },
         { id: 'headings-unavailable', title: 'Show / Hide Headings (Unavailable)', action: 'view-tools-unavailable' },
         { id: 'normal-view', title: 'Normal View (Current)', action: 'normal-view-current' },
         { id: 'page-layout-view', title: 'Page Layout View (Unavailable)', action: 'view-tools-unavailable' },
@@ -1982,6 +1982,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             toolbar: true,
             contextMenu: true,
             ribbonType: config.ribbonType,
+            formulaBar: true,
             menu: {
               'ribbon.start': { title: 'Home', order: 1 },
               'ribbon.insert': { title: 'Insert', order: 2, hidden: false },
@@ -2033,6 +2034,12 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
         },
         setRibbonType(type) {
           univerAPI.setRibbonType(type)
+        },
+        setFormulaBarVisible(visible) {
+          const formulaBar = containerRef.current?.querySelector('[data-u-comp="formula-bar"]')
+          if (!formulaBar) return false
+          formulaBar.style.display = visible ? '' : 'none'
+          return true
         },
         onCommandExecuted(callback) {
           return univerAPI.addEvent(univerAPI.Event.CommandExecuted, callback)
