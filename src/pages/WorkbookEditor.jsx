@@ -27,10 +27,7 @@ export default function WorkbookEditor() {
     try {
       const savedMode = window.localStorage.getItem('gridnova:ribbon-mode-v2:' + workbookId)
       // Single Line uses Univer classic; Classic uses Univer grid.
-      // Migrate previous saved values so the visible buttons match their layouts.
-      if (savedMode === 'grid' || savedMode === 'collapsed') return 'classic'
-      if (savedMode === 'classic') return 'grid'
-      return 'classic'
+      return savedMode || 'classic'
     } catch { return 'classic' }
   })
   const [initialSnapshot, setInitialSnapshot] = useState(null)
