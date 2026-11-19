@@ -810,3 +810,222 @@ img, svg { max-width: 100%; }
     scrollbar-width: thin;
   }
 }
+
+
+/* Single Line mode: keep the requested two-row structure, but reduce command
+   buttons to icon-first controls. The command names remain in their tooltip and
+   accessible label; selector values such as Arial, 11 and General stay visible. */
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] {
+  justify-content: flex-start !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  text-align: left;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] > div {
+  flex: 0 0 auto;
+  align-items: center;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command] {
+  flex: 0 0 auto;
+  min-height: 30px;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="univer.command.undo"],
+  [data-u-command="univer.command.redo"],
+  [data-u-command="sheet.command.cut"],
+  [data-u-command="sheet.command.copy"],
+  [data-u-command="sheet.command.paste"],
+  [data-u-command="sheet.command.set-range-bold"],
+  [data-u-command="sheet.command.set-range-italic"],
+  [data-u-command="sheet.command.set-range-underline"],
+  [data-u-command="sheet.command.set-range-stroke"],
+  [data-u-command="sheet.command.set-range-text-color"],
+  [data-u-command="sheet.command.set-background-color"],
+  [data-u-command="sheet.command.set-border-basic"],
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.add-worksheet-merge"],
+  [data-u-command="sheet.command.add-worksheet-merge-all"],
+  [data-u-command="sheet.command.add-worksheet-merge-vertical"],
+  [data-u-command="sheet.command.add-worksheet-merge-horizontal"],
+  [data-u-command="sheet.command.remove-worksheet-merge"],
+  [data-u-command="sheet.command.set-range-font-increase"],
+  [data-u-command="sheet.command.set-range-font-decrease"],
+  [data-u-command="sheet.command.numfmt.set.currency"],
+  [data-u-command="sheet.command.numfmt.set.percent"],
+  [data-u-command="sheet.command.numfmt.add.decimal.command"],
+  [data-u-command="sheet.command.numfmt.subtract.decimal.command"],
+  [data-u-command="sheet.command.smart-toggle-filter"],
+  [data-u-command="sheet.command.sort-range-asc"],
+  [data-u-command="sheet.command.sort-range-desc"],
+  [data-u-command="ui.operation.open-find-dialog"],
+  [data-u-command="sheet.command.insert-row-before"],
+  [data-u-command="sheet.command.insert-col-before"],
+  [data-u-command="sheet.command.remove-row-confirm"],
+  [data-u-command="sheet.command.remove-col-confirm"],
+  [data-u-command="gridnova.ribbon.home.auto-sum"],
+  [data-u-command="gridnova.ribbon.panes.freeze-first-row"],
+  [data-u-command="gridnova.ribbon.panes.freeze-first-column"],
+  [data-u-command="gridnova.ribbon.panes.unfreeze-panes"],
+  [data-u-command="gridnova.ribbon.show.toggle-gridlines"],
+  [data-u-command="gridnova.ribbon.window.zoom-out"],
+  [data-u-command="gridnova.ribbon.window.zoom-in"],
+  [data-u-command="gridnova.ribbon.window.zoom-100"],
+  [data-u-command="gridnova.ribbon.home.insert-row"],
+  [data-u-command="gridnova.ribbon.home.insert-column"],
+  [data-u-command="gridnova.ribbon.home.delete-row"],
+  [data-u-command="gridnova.ribbon.home.delete-column"]
+) {
+  display: inline-flex !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="univer.command.undo"],
+  [data-u-command="univer.command.redo"],
+  [data-u-command="sheet.command.cut"],
+  [data-u-command="sheet.command.copy"],
+  [data-u-command="sheet.command.paste"],
+  [data-u-command="sheet.command.set-range-bold"],
+  [data-u-command="sheet.command.set-range-italic"],
+  [data-u-command="sheet.command.set-range-underline"],
+  [data-u-command="sheet.command.set-range-stroke"],
+  [data-u-command="sheet.command.set-range-text-color"],
+  [data-u-command="sheet.command.set-background-color"],
+  [data-u-command="sheet.command.set-border-basic"],
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.add-worksheet-merge"],
+  [data-u-command="sheet.command.add-worksheet-merge-all"],
+  [data-u-command="sheet.command.add-worksheet-merge-vertical"],
+  [data-u-command="sheet.command.add-worksheet-merge-horizontal"],
+  [data-u-command="sheet.command.remove-worksheet-merge"],
+  [data-u-command="sheet.command.set-range-font-increase"],
+  [data-u-command="sheet.command.set-range-font-decrease"],
+  [data-u-command="sheet.command.numfmt.set.currency"],
+  [data-u-command="sheet.command.numfmt.set.percent"],
+  [data-u-command="sheet.command.numfmt.add.decimal.command"],
+  [data-u-command="sheet.command.numfmt.subtract.decimal.command"],
+  [data-u-command="sheet.command.smart-toggle-filter"],
+  [data-u-command="sheet.command.sort-range-asc"],
+  [data-u-command="sheet.command.sort-range-desc"],
+  [data-u-command="ui.operation.open-find-dialog"],
+  [data-u-command="sheet.command.insert-row-before"],
+  [data-u-command="sheet.command.insert-col-before"],
+  [data-u-command="sheet.command.remove-row-confirm"],
+  [data-u-command="sheet.command.remove-col-confirm"],
+  [data-u-command="gridnova.ribbon.home.auto-sum"],
+  [data-u-command="gridnova.ribbon.panes.freeze-first-row"],
+  [data-u-command="gridnova.ribbon.panes.freeze-first-column"],
+  [data-u-command="gridnova.ribbon.panes.unfreeze-panes"],
+  [data-u-command="gridnova.ribbon.show.toggle-gridlines"],
+  [data-u-command="gridnova.ribbon.window.zoom-out"],
+  [data-u-command="gridnova.ribbon.window.zoom-in"],
+  [data-u-command="gridnova.ribbon.window.zoom-100"],
+  [data-u-command="gridnova.ribbon.home.insert-row"],
+  [data-u-command="gridnova.ribbon.home.insert-column"],
+  [data-u-command="gridnova.ribbon.home.delete-row"],
+  [data-u-command="gridnova.ribbon.home.delete-column"]
+) span {
+  display: none !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="univer.command.undo"],
+  [data-u-command="univer.command.redo"],
+  [data-u-command="sheet.command.cut"],
+  [data-u-command="sheet.command.copy"],
+  [data-u-command="sheet.command.paste"],
+  [data-u-command="sheet.command.set-range-bold"],
+  [data-u-command="sheet.command.set-range-italic"],
+  [data-u-command="sheet.command.set-range-underline"],
+  [data-u-command="sheet.command.set-range-stroke"],
+  [data-u-command="sheet.command.set-range-text-color"],
+  [data-u-command="sheet.command.set-background-color"],
+  [data-u-command="sheet.command.set-border-basic"],
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.add-worksheet-merge"],
+  [data-u-command="sheet.command.add-worksheet-merge-all"],
+  [data-u-command="sheet.command.add-worksheet-merge-vertical"],
+  [data-u-command="sheet.command.add-worksheet-merge-horizontal"],
+  [data-u-command="sheet.command.remove-worksheet-merge"],
+  [data-u-command="sheet.command.set-range-font-increase"],
+  [data-u-command="sheet.command.set-range-font-decrease"],
+  [data-u-command="sheet.command.numfmt.set.currency"],
+  [data-u-command="sheet.command.numfmt.set.percent"],
+  [data-u-command="sheet.command.numfmt.add.decimal.command"],
+  [data-u-command="sheet.command.numfmt.subtract.decimal.command"],
+  [data-u-command="sheet.command.smart-toggle-filter"],
+  [data-u-command="sheet.command.sort-range-asc"],
+  [data-u-command="sheet.command.sort-range-desc"],
+  [data-u-command="ui.operation.open-find-dialog"],
+  [data-u-command="sheet.command.insert-row-before"],
+  [data-u-command="sheet.command.insert-col-before"],
+  [data-u-command="sheet.command.remove-row-confirm"],
+  [data-u-command="sheet.command.remove-col-confirm"],
+  [data-u-command="gridnova.ribbon.home.auto-sum"],
+  [data-u-command="gridnova.ribbon.panes.freeze-first-row"],
+  [data-u-command="gridnova.ribbon.panes.freeze-first-column"],
+  [data-u-command="gridnova.ribbon.panes.unfreeze-panes"],
+  [data-u-command="gridnova.ribbon.show.toggle-gridlines"],
+  [data-u-command="gridnova.ribbon.window.zoom-out"],
+  [data-u-command="gridnova.ribbon.window.zoom-in"],
+  [data-u-command="gridnova.ribbon.window.zoom-100"],
+  [data-u-command="gridnova.ribbon.home.insert-row"],
+  [data-u-command="gridnova.ribbon.home.insert-column"],
+  [data-u-command="gridnova.ribbon.home.delete-row"],
+  [data-u-command="gridnova.ribbon.home.delete-column"]
+) svg {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command]:hover {
+  background: #edf5ef !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command][aria-pressed="true"],
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command][data-activated="true"] {
+  background: #e2f0e6 !important;
+  color: #176b3a !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command][aria-disabled="true"],
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command][data-disabled="true"] {
+  opacity: .42;
+  cursor: not-allowed !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [role="separator"] {
+  flex: 0 0 1px;
+  min-width: 1px;
+  height: 24px;
+  margin-inline: 4px;
+  background: #e3e7eb;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-header-menu"] {
+  min-height: 36px;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-header-menu"] [role="tablist"] {
+  min-height: 36px;
+  align-items: stretch;
+}
+.univer-mount[data-gridnova-ribbon-mode="classic"] [data-u-comp="ribbon-toolbar"] {
+  justify-content: flex-start !important;
+}
+@media (max-width: 900px) {
+  .univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+}
