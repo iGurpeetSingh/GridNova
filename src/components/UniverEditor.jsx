@@ -740,7 +740,7 @@ function getWorkbookPrintSettings(univerAPI) {
   }
 }
 
-function applyWorkbookPrintSettings(univerAPI, patch = {}) {
+function applyWorkbookPrintSettings(univerAPI, patch = {}, showNotice = true) {
   const workbookId = univerAPI.getActiveWorkbook()?.getId?.()
   if (!workbookId) return false
   const current = getWorkbookPrintSettings(univerAPI)
@@ -775,10 +775,12 @@ function applyWorkbookPrintSettings(univerAPI, patch = {}) {
       }
     }
   `
-  univerAPI.showMessage({
-    content: 'Print layout saved: ' + next.paperSize + ' ' + next.orientation + ', ' + next.margin + ' mm margins, ' + next.scale + '% scale.',
-    type: 'success',
-  })
+  if (showNotice) {
+    univerAPI.showMessage({
+      content: 'Print layout saved: ' + next.paperSize + ' ' + next.orientation + ', ' + next.margin + ' mm margins, ' + next.scale + '% scale.',
+      type: 'success',
+    })
+  }
   return true
 }
 
@@ -843,7 +845,7 @@ function togglePrintBackground(univerAPI) {
 function applySavedWorkbookPrintSettings(univerAPI) {
   const current = getWorkbookPrintSettings(univerAPI)
   if (!current) return false
-  return applyWorkbookPrintSettings(univerAPI, current)
+  return applyWorkbookPrintSettings(univerAPI, current, false)
 }
 
 function insertTextBox(univerAPI) {
