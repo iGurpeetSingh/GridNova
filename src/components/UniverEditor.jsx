@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
-import { createUniver, LocaleType, mergeLocales } from '@univerjs/presets'
+import { createUniver, LocaleType } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import '@univerjs/ui/facade'
 import '@univerjs/sheets/facade'
@@ -24,6 +24,24 @@ import '@univerjs/preset-sheets-data-validation/lib/index.css'
 
 const DEFAULT_ROW_COUNT = 1000
 const DEFAULT_COLUMN_COUNT = 26
+
+function mergeLocaleMessages(...packs) {
+  const mergeNode = (target, source) => {
+    Object.entries(source || {}).forEach(([key, value]) => {
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        target[key] = mergeNode(
+          target[key] && typeof target[key] === 'object' && !Array.isArray(target[key]) ? target[key] : {},
+          value,
+        )
+      } else {
+        target[key] = value
+      }
+    })
+    return target
+  }
+
+  return packs.reduce((result, pack) => mergeNode(result, pack), {})
+}
 
 function createBlankWorkbookSnapshot(workbookId, title) {
   const sheetId = 'sheet1'
@@ -878,7 +896,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
-          [LocaleType.EN_US]: mergeLocales(
+          [LocaleType.EN_US]: mergeLocaleMessages(
             UniverPresetSheetsCoreEnUS,
             UniverPresetSheetsDrawingEnUS,
             UniverPresetSheetsTableEnUS,
@@ -886,22 +904,28 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             UniverPresetSheetsNoteEnUS,
             UniverPresetSheetsDataValidationEnUS,
             {
-              // Univer UI translations use the "ui.*" namespace. This is the
-              // actual key for its built-in Start tab label.
-              'ui.ribbon.start': 'Home',
-              'gridnova.ribbon.file': 'File',
-              'gridnova.ribbon.fileDesc': 'Workbook file actions',
-              'gridnova.ribbon.share': 'Share',
-              'gridnova.ribbon.shareDesc': 'Share and export workbook',
-              'gridnova.ribbon.page-layout': 'Page Layout',
-              'gridnova.ribbon.page-layoutDesc': 'Page setup and sheet layout',
-              'gridnova.ribbon.review': 'Review',
-              'gridnova.ribbon.reviewDesc': 'Comments, notes and protection',
-              'gridnova.ribbon.help': 'Help',
-              'gridnova.ribbon.helpDesc': 'Help and support',
-              'gridnova.ribbon.draw': 'Draw',
+              ui: {
+                ribbon: {
+                  start: 'Home',
+                },
+              },
+              gridnova: {
+                ribbon: {
+                  file: 'File',
+                  fileDesc: 'Workbook file actions',
+                  share: 'Share',
+                  shareDesc: 'Share and export workbook',
+                  'page-layout': 'Page Layout',
+                  'page-layoutDesc': 'Page setup and sheet layout',
+                  review: 'Review',
+                  reviewDesc: 'Comments, notes and protection',
+                  help: 'Help',
+                  helpDesc: 'Help and support',
+                  draw: 'Draw',
+                },
+              },
             },
-          ),
+          )
         },
         presets: [
           UniverSheetsCorePreset({
