@@ -597,16 +597,17 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     order: 1,
   })
   ;[
-    { id: 'paste', title: 'Paste', icon: 'paste', command: 'sheet.command.paste' },
-    { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut' },
-    { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy' },
-    { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: 'sheet.command.set-once-format-painter' },
+    { id: 'paste', title: 'Paste', icon: 'paste', command: 'sheet.command.paste', gridLayout: { row: 1, column: 1, rowSpan: 2, width: 54, showLabel: true } },
+    { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut', gridLayout: { row: 1, column: 2 } },
+    { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy', gridLayout: { row: 2, column: 2 } },
+    { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: 'sheet.command.set-once-format-painter', gridLayout: { row: 1, column: 3 } },
   ].forEach((item) => {
     clipboardGroup.addSubmenu(univerAPI.createMenu({
       id: 'gridnova.ribbon.home.clipboard.' + item.id,
       title: item.title,
       tooltip: item.title,
       icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
+      gridLayout: item.gridLayout,
       action: () => univerAPI.executeCommand(item.command),
     }))
   })
