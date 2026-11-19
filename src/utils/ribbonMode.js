@@ -1,20 +1,22 @@
 export const RIBBON_MODE_STORAGE_PREFIX = 'gridnova:ribbon-mode-v7:'
 
 /**
- * Univer's "classic" type is GridNova's compact Single Line ribbon:
- * visible tabs plus one horizontal command strip with automatic More overflow.
- * Univer's "grid" type is GridNova's expanded Classic ribbon:
- * visible tabs plus the two-row grouped command ribbon.
+ * Univer ribbon modes used by GridNova:
+ * - collapsed: compact Single Line ribbon with the active tab's groups/commands
+ *   on a single horizontal toolbar row and overflow handled by the engine.
+ * - grid: expanded Classic ribbon with a tab strip and two-row command groups.
+ *
+ * The old GridNova preference used "classic" for Single Line. Treat it as a
+ * legacy saved value so existing users keep their selected mode after upgrade.
  */
 export const RIBBON_TYPE = Object.freeze({
-  SINGLE_LINE: 'classic',
+  SINGLE_LINE: 'collapsed',
   CLASSIC: 'grid',
 })
 
 export function normalizeRibbonType(savedValue) {
-  return savedValue === RIBBON_TYPE.CLASSIC
-    ? RIBBON_TYPE.CLASSIC
-    : RIBBON_TYPE.SINGLE_LINE
+  if (savedValue === RIBBON_TYPE.CLASSIC) return RIBBON_TYPE.CLASSIC
+  return RIBBON_TYPE.SINGLE_LINE
 }
 
 export function isRibbonType(value) {
