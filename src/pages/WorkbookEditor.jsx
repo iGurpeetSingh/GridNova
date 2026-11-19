@@ -26,10 +26,12 @@ export default function WorkbookEditor() {
   const [ribbonMode, setRibbonMode] = useState(() => {
     try {
       const savedMode = window.localStorage.getItem('gridnova:ribbon-mode:' + workbookId)
-      // The old "Single Line" option used Univer's collapsed ribbon, which hides
-      // the tabs behind a Start dropdown. Grid keeps tabs visible with commands below.
-      return savedMode === 'collapsed' ? 'grid' : (savedMode || 'grid')
-    } catch { return 'grid' }
+      // Single Line uses Univer classic; Classic uses Univer grid.
+      // Migrate previous saved values so the visible buttons match their layouts.
+      if (savedMode === 'grid' || savedMode === 'collapsed') return 'classic'
+      if (savedMode === 'classic') return 'grid'
+      return 'classic'
+    } catch { return 'classic' }
   })
   const [initialSnapshot, setInitialSnapshot] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -444,10 +446,10 @@ export default function WorkbookEditor() {
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
         <div className="ribbon-mode-switch" role="group" aria-label="Ribbon display mode">
-          <button type="button" className={ribbonMode === 'grid' ? 'active' : ''} aria-pressed={ribbonMode === 'grid'} onClick={() => handleRibbonModeChange('grid')} title="Single Line Ribbon">
+          <button type="button" className={ribbonMode === 'grid' ? 'active' : ''} aria-pressed={ribbonMode === 'classic'} onClick={() => handleRibbonModeChange('classic')} title="Single Line Ribbon">
             <TableRegular /> <span>Single Line</span>
           </button>
-          <button type="button" className={ribbonMode === 'classic' ? 'active' : ''} aria-pressed={ribbonMode === 'classic'} onClick={() => handleRibbonModeChange('classic')} title="Classic Ribbon">
+          <button type="button" className={ribbonMode === 'classic' ? 'active' : ''} aria-pressed={ribbonMode === 'grid'} onClick={() => handleRibbonModeChange('grid')} title="Classic Ribbon">
             <GridRegular /> <span>Classic</span>
           </button>
         </div>
