@@ -11,6 +11,46 @@ function safeFileName(value) {
   return String(value || 'GridNova Workbook').replace(/[\\/:*?"<>|]/g, '-').trim() || 'GridNova Workbook'
 }
 
+function makeBlankSnapshot(id, name) {
+  const sheetId = 'sheet1'
+  return {
+    id,
+    name,
+    appVersion: '1.0.0',
+    locale: 'enUS',
+    styles: {},
+    sheetOrder: [sheetId],
+    sheets: {
+      [sheetId]: {
+        id: sheetId,
+        name: 'Sheet1',
+        tabColor: '',
+        hidden: 0,
+        rowCount: 1000,
+        columnCount: 26,
+        zoomRatio: 1,
+        freeze: { startRow: -1, startColumn: -1, ySplit: 0, xSplit: 0 },
+        scrollTop: 0,
+        scrollLeft: 0,
+        defaultColumnWidth: 100,
+        defaultRowHeight: 23,
+        mergeData: [],
+        cellData: {},
+        rowData: {},
+        columnData: {},
+        rowHeader: { width: 46, hidden: 0 },
+        columnHeader: { height: 20, hidden: 0 },
+        showGridlines: 1,
+        rightToLeft: 0,
+      },
+    },
+  }
+}
+
+function makeWorkbookId() {
+  return globalThis.crypto?.randomUUID?.() ?? ('workbook-' + Date.now() + '-' + Math.random().toString(36).slice(2))
+}
+
 export default function WorkbookEditor() {
   const navigate = useNavigate()
   const { workbookId } = useParams()
@@ -373,8 +413,38 @@ export default function WorkbookEditor() {
       await saveNow({ force: true })
       return
     }
+    if (action === 'new-workbook') {
+      const nextId = makeWorkbookId()
+      const nextTitle = 'Untitled workbook'
+      try {
+        const snapshot = makeBlankSnapshot(nextId, nextTitle)
+        await saveWorkbook({ id: nextId, name: nextTitle, snapshot })
+        navigate('/workbook/' + nextId + '?title=' + encodeURIComponent(nextTitle))
+      } catch (error) {
+        setNoticeType('error')
+        setNotice(error instanceof Error ? error.message : 'Could not create a new workbook.')
+      }
+      return
+    }
     if (action === 'import') {
       fileInputRef.current?.click()
+      return
+    }
+    if (action === 'save-as') {
+      try {
+        const snapshot = editorApi?.getSnapshot()
+        if (!snapshot) throw new Error('The workbook is not ready yet.')
+        const nextId = makeWorkbookId()
+        const nextTitle = title + ' (Copy)'
+        const copy = JSON.parse(JSON.stringify(snapshot))
+        copy.id = nextId
+        copy.name = nextTitle
+        await saveWorkbook({ id: nextId, name: nextTitle, snapshot: copy })
+        navigate('/workbook/' + nextId + '?title=' + encodeURIComponent(nextTitle))
+      } catch (error) {
+        setNoticeType('error')
+        setNotice(error instanceof Error ? error.message : 'Could not save a workbook copy.')
+      }
       return
     }
     if (action === 'export-xlsx') {
@@ -403,6 +473,35 @@ export default function WorkbookEditor() {
         setNoticeType('error')
         setNotice('Clipboard access is unavailable in this browser.')
       }
+      return
+    }
+    if (action === 'copy-workbook-link') {
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+        setNoticeType('success')
+        setNotice('Workbook link copied.')
+      } catch {
+        setNoticeType('error')
+        setNotice('Clipboard access is unavailable in this browser.')
+      }
+      return
+    }
+    const unavailableActions = {
+      'manage-access-unavailable': 'Manage Access',
+      'sheet-protection-unavailable': 'Sheet / Workbook Protection',
+      'draw-tools-unavailable': 'Pen, Highlighter and Eraser',
+      'shape-format-unavailable': 'Shape Fill, Outline and Properties',
+      'insert-text-unavailable': 'Text Boxes and Icons',
+      'data-outline-unavailable': 'Group, Ungroup and Subtotal',
+      'formula-bar-unavailable': 'Formula Bar visibility',
+    }
+    if (unavailableActions[action]) {
+      setNoticeType('error')
+      setNotice(unavailableActions[action] + ' is not implemented in this GridNova build.')
+      return
+    }
+    if (action === 'open-shortcuts') {
+      window.open('https://docs.univer.ai/guides/sheets', '_blank', 'noopener,noreferrer')
       return
     }
     if (action === 'open-help') {
