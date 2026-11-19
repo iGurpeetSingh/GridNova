@@ -700,7 +700,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       tooltip: item.title,
       icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
       gridLayout: item.gridLayout,
-      action: () => univerAPI.executeCommand(item.command),
+      action: () => item.command
+        ? univerAPI.executeCommand(item.command)
+        : onRibbonAction?.(item.action),
     }))
   })
   clipboardGroup.appendTo('ribbon.start')
