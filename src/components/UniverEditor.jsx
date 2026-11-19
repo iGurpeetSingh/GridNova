@@ -776,7 +776,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut', gridLayout: { row: 1, column: 2 } },
     { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy', gridLayout: { row: 2, column: 2 } },
     { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: 'sheet.command.set-once-format-painter', gridLayout: { row: 1, column: 3 } },
-    { id: 'paste-special', title: 'Paste Special (Unavailable)', icon: 'paste', action: 'paste-special-unavailable', gridLayout: { row: 2, column: 3 } },
+    { id: 'paste-values', title: 'Paste Values', icon: 'paste', command: 'sheet.command.paste-value', gridLayout: { row: 2, column: 3 } },
+    { id: 'paste-formats', title: 'Paste Formats', icon: 'paint', command: 'sheet.command.paste-format', gridLayout: { row: 2, column: 4 } },
+    { id: 'paste-column-width', title: 'Paste Column Width', icon: 'layout', command: 'sheet.command.paste-col-width', gridLayout: { row: 2, column: 5 } },
   ].map((item) => ({
     ...item,
     gridLayout: { ...item.gridLayout, showLabel: true },
@@ -1020,7 +1022,11 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         tooltip: item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
         gridLayout: item.gridLayout,
-        action: () => item.run ? item.run(univerAPI) : item.action ? onRibbonAction?.(item.action) : univerAPI.executeCommand(item.command),
+        action: () => item.run
+          ? item.run(univerAPI)
+          : item.action
+            ? onRibbonAction?.(item.action)
+            : univerAPI.executeCommand(item.command, item.params),
       }))
     })
     groupMenu.appendTo(group.path)
