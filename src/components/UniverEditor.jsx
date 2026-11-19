@@ -799,7 +799,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   const homeGroups = [
     {
       id: 'styles', title: 'Styles', order: 5, items: [
-        { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', gridLayout: { row: 1, column: 1 }, command: 'sheet.operation.open.conditional.formatting.panel' },
+        { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', gridLayout: { row: 1, column: 1 }, command: 'sheet.operation.open.conditional.formatting.panel', params: { value: 3 } },
         { id: 'format-as-table', title: 'Format as Table', icon: 'table', gridLayout: { row: 1, column: 2 }, run: formatSelectionAsTable },
         { id: 'cell-styles', title: 'Cell Styles (Unavailable)', icon: 'paint', action: 'cell-styles-unavailable' },
         { id: 'format-cells', title: 'Format Cells (Unavailable)', icon: 'layout', action: 'format-cells-unavailable' },
@@ -966,7 +966,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.data', id: 'data-tools', title: 'Data Tools', order: 1, items: [
-        { id: 'data-validation', title: 'Data Validation', command: 'data-validation.operation.open-validation-panel' },
+        { id: 'data-validation', title: 'Data Validation', command: 'data-validation.operation.open-validation-panel', params: { isAdd: true } },
         { id: 'remove-duplicates', title: 'Remove Duplicates', icon: 'table', run: removeDuplicatesFromSelection },
         { id: 'text-to-columns', title: 'Text to Columns', icon: 'table', run: splitTextToColumns },
       ],
@@ -1046,7 +1046,11 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         tooltip: item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
         gridLayout: item.gridLayout,
-        action: () => item.run ? item.run(univerAPI) : item.action ? onRibbonAction?.(item.action) : univerAPI.executeCommand(item.command),
+        action: () => item.run
+          ? item.run(univerAPI)
+          : item.action
+            ? onRibbonAction?.(item.action)
+            : univerAPI.executeCommand(item.command, item.params),
       }))
     })
     groupMenu.appendTo('ribbon.start')
