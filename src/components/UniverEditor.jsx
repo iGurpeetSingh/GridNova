@@ -616,36 +616,37 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   const homeGroups = [
     {
       id: 'styles', title: 'Styles', order: 5, items: [
-        { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', command: 'sheet.operation.open.conditional.formatting.panel' },
+        { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', gridLayout: { row: 1, column: 1 }, command: 'sheet.operation.open.conditional.formatting.panel' },
+        { id: 'format-as-table', title: 'Format as Table', icon: 'table', gridLayout: { row: 1, column: 2 }, run: formatSelectionAsTable },
       ],
     },
     {
       id: 'cells', title: 'Cells', order: 6, items: [
-        { id: 'insert-row', title: 'Insert Row', command: 'sheet.command.insert-row-before' },
-        { id: 'insert-column', title: 'Insert Column', command: 'sheet.command.insert-col-before' },
-        { id: 'delete-row', title: 'Delete Row', command: 'sheet.command.remove-row-confirm' },
-        { id: 'delete-column', title: 'Delete Column', command: 'sheet.command.remove-col-confirm' },
+        { id: 'insert-row', title: 'Insert Row', icon: 'table', gridLayout: { row: 1, column: 1 }, command: 'sheet.command.insert-row-before' },
+        { id: 'insert-column', title: 'Insert Column', icon: 'table', gridLayout: { row: 1, column: 2 }, command: 'sheet.command.insert-col-before' },
+        { id: 'delete-row', title: 'Delete Row', icon: 'cut', gridLayout: { row: 1, column: 3 }, command: 'sheet.command.remove-row-confirm' },
+        { id: 'delete-column', title: 'Delete Column', icon: 'cut', gridLayout: { row: 1, column: 4 }, command: 'sheet.command.remove-col-confirm' },
       ],
     },
     {
       id: 'editing', title: 'Editing', order: 7, items: [
-        { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', command: 'sheet.command.sort-range-asc' },
-        { id: 'sort-descending', title: 'Sort Z to A', command: 'sheet.command.sort-range-desc' },
-        { id: 'filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
-        { id: 'clear-contents', title: 'Clear Contents', command: 'sheet.command.clear-selection-content' },
-        { id: 'clear-formats', title: 'Clear Formats', command: 'sheet.command.clear-selection-format' },
-        { id: 'clear-all', title: 'Clear All', command: 'sheet.command.clear-selection-all' },
-        { id: 'find', title: 'Find & Replace', icon: 'search', command: 'ui.operation.open-find-dialog' },
+        { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', gridLayout: { row: 1, column: 1 }, command: 'sheet.command.sort-range-asc' },
+        { id: 'sort-descending', title: 'Sort Z to A', icon: 'sort', gridLayout: { row: 1, column: 2 }, command: 'sheet.command.sort-range-desc' },
+        { id: 'filter', title: 'Filter', icon: 'filter', gridLayout: { row: 1, column: 3 }, command: 'sheet.command.smart-toggle-filter' },
+        { id: 'clear-contents', title: 'Clear Contents', icon: 'table', gridLayout: { row: 1, column: 4 }, command: 'sheet.command.clear-selection-content' },
+        { id: 'clear-formats', title: 'Clear Formats', icon: 'paint', gridLayout: { row: 1, column: 5 }, command: 'sheet.command.clear-selection-format' },
+        { id: 'clear-all', title: 'Clear All', icon: 'table', gridLayout: { row: 1, column: 6 }, command: 'sheet.command.clear-selection-all' },
+        { id: 'find', title: 'Find & Replace', icon: 'search', gridLayout: { row: 1, column: 7 }, command: 'ui.operation.open-find-dialog' },
       ],
     },
     {
       id: 'sheet', title: 'Sheet', order: 8, items: [
-        { id: 'rename-sheet', title: 'Rename Sheet', run: renameActiveSheet },
-        { id: 'duplicate-sheet', title: 'Duplicate Sheet', run: duplicateActiveSheet },
-        { id: 'delete-sheet', title: 'Delete Sheet', run: deleteActiveSheet },
-        { id: 'hide-sheet', title: 'Hide Sheet', run: hideActiveSheet },
-        { id: 'unhide-sheet', title: 'Unhide Sheet', run: unhideWorksheet },
-        { id: 'change-tab-color', title: 'Sheet Tab Color', run: setActiveSheetTabColor },
+        { id: 'rename-sheet', title: 'Rename Sheet', icon: 'table', gridLayout: { row: 1, column: 1 }, run: renameActiveSheet },
+        { id: 'duplicate-sheet', title: 'Duplicate Sheet', icon: 'copy', gridLayout: { row: 1, column: 2 }, run: duplicateActiveSheet },
+        { id: 'delete-sheet', title: 'Delete Sheet', icon: 'cut', gridLayout: { row: 1, column: 3 }, run: deleteActiveSheet },
+        { id: 'hide-sheet', title: 'Hide Sheet', icon: 'layout', gridLayout: { row: 1, column: 4 }, run: hideActiveSheet },
+        { id: 'unhide-sheet', title: 'Unhide Sheet', icon: 'layout', gridLayout: { row: 1, column: 5 }, run: unhideWorksheet },
+        { id: 'change-tab-color', title: 'Sheet Tab Color', icon: 'fillColor', gridLayout: { row: 1, column: 6 }, run: setActiveSheetTabColor },
       ],
     },
   ]
@@ -741,6 +742,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         title: item.title,
         tooltip: item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
+        gridLayout: item.gridLayout,
         action: () => item.run ? item.run(univerAPI) : item.action ? onRibbonAction?.(item.action) : univerAPI.executeCommand(item.command),
       }))
     })
