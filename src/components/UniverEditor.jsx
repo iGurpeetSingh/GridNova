@@ -4,6 +4,7 @@ import { createUniver, LocaleType } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import '@univerjs/ui/facade'
 import '@univerjs/sheets/facade'
+import { withRibbonGridLayouts } from '../utils/ribbonLayout.js'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
 import { UniverSheetsDrawingPreset } from '@univerjs/preset-sheets-drawing'
 import UniverPresetSheetsDrawingEnUS from '@univerjs/preset-sheets-drawing/locales/en-US'
@@ -167,7 +168,7 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
       title: group.title,
     })
 
-    group.items.forEach((item) => {
+    withRibbonGridLayouts(group.items).forEach((item) => {
       const action = item.run
         ? () => item.run(univerAPI)
         : item.command
@@ -693,7 +694,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy', gridLayout: { row: 2, column: 2 } },
     { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: 'sheet.command.set-once-format-painter', gridLayout: { row: 1, column: 3 } },
     { id: 'paste-special', title: 'Paste Special (Unavailable)', icon: 'paste', action: 'paste-special-unavailable', gridLayout: { row: 2, column: 3 } },
-  ].forEach((item) => {
+  ].map((item) => ({
+    ...item,
+    gridLayout: { ...item.gridLayout, showLabel: true },
+  })).forEach((item) => {
     clipboardGroup.addSubmenu(univerAPI.createMenu({
       id: 'gridnova.ribbon.home.clipboard.' + item.id,
       title: item.title,
@@ -896,7 +900,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       title: group.title,
       order: group.order,
     })
-    group.items.forEach((item) => {
+    withRibbonGridLayouts(group.items).forEach((item) => {
       groupMenu.addSubmenu(univerAPI.createMenu({
         id: 'gridnova.ribbon.' + group.id + '.' + item.id,
         title: item.title,
@@ -916,7 +920,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       title: group.title,
       order: group.order,
     })
-    group.items.forEach((item) => {
+    withRibbonGridLayouts(group.items).forEach((item) => {
       groupMenu.addSubmenu(univerAPI.createMenu({
         id: 'gridnova.ribbon.home.' + item.id,
         title: item.title,
