@@ -394,9 +394,45 @@ function setActiveSheetTabColor(univerAPI) {
   sheet.setTabColor(color.trim())
 }
 
-function recalculateFormulas(univerAPI) {
-  univerAPI.getFormula()?.executeCalculation()
-  univerAPI.showMessage({ content: 'Formula recalculation started.', type: 'success' })
+async function insertFormulaFunction(univerAPI, suggestedFunction = 'SUM') {
+  const value = window.prompt('Enter a spreadsheet function name (without the leading =).', suggestedFunction)
+  if (value == null) return
+  const functionName = value.trim().replace(/^=/, '').replace(/\s*\(.*/, '').toUpperCase()
+  if (!/^[A-Z][A-Z0-9_.]*$/.test(functionName)) {
+    univerAPI.showMessage({ content: 'Enter a valid function name, such as SUM or VLOOKUP.', type: 'warning' })
+    return
+  }
+
+  try {
+    const result = await univerAPI.executeCommand('formula-ui.operation.insert-function', { value: functionName })
+    if (result === false) {
+      univerAPI.showMessage({ content: 'Select a cell or a supported range before inserting a function.', type: 'warning' })
+    }
+  } catch (error) {
+    univerAPI.showMessage({ content: error instanceof Error ? error.message : 'The function could not be inserted.', type: 'error' })
+  }
+}
+
+function showFeatureUnavailable(univerAPI, featureName, reason) {
+  univerAPI.showMessage({
+    content: featureName + ' is not available in the current GridNova editor integration. ' + reason,
+    type: 'info',
+  })
+}
+
+async function recalculateFormulas(univerAPI) {
+  const formula = univerAPI.getFormula?.()
+  if (!formula || typeof formula.executeCalculation !== 'function') {
+    showFeatureUnavailable(univerAPI, 'Formula recalculation', 'The installed formula service does not expose recalculation.')
+    return
+  }
+
+  try {
+    await formula.executeCalculation()
+    univerAPI.showMessage({ content: 'Formula recalculation completed.', type: 'success' })
+  } catch (error) {
+    univerAPI.showMessage({ content: error instanceof Error ? error.message : 'Formula recalculation failed.', type: 'error' })
+  }
 }
 
 function setSheetZoom(univerAPI, requestedPercentage) {
@@ -467,29 +503,30 @@ function removeDuplicatesFromSelection(univerAPI) {
 
   const hasHeader = window.confirm('Does the first selected row contain column headers?')
   const firstDataRow = hasHeader ? 1 : 0
-  const headerRows = hasHeader ? [values[0]] : []
   const seen = new Set()
-  const uniqueRows = []
+  const duplicateRowIndexes = []
 
-  values.slice(firstDataRow).forEach((row) => {
+  values.forEach((row, index) => {
+    if (index < firstDataRow) return
     const key = JSON.stringify(row)
-    if (!seen.has(key)) {
-      seen.add(key)
-      uniqueRows.push(row)
-    }
+    if (seen.has(key)) duplicateRowIndexes.push(range.getRow() + index)
+    else seen.add(key)
   })
 
-  const removedCount = values.length - headerRows.length - uniqueRows.length
-  if (removedCount <= 0) {
+  if (!duplicateRowIndexes.length) {
     univerAPI.showMessage({ content: 'No duplicate rows were found in the selected range.', type: 'info' })
     return
   }
 
-  const columnCount = Math.max(1, ...values.map((row) => row.length))
-  const output = [...headerRows, ...uniqueRows]
-  while (output.length < values.length) output.push(Array(columnCount).fill(null))
-  range.setValues(output)
-  univerAPI.showMessage({ content: removedCount + ' duplicate row(s) cleared from the selected range.', type: 'success' })
+  if (typeof sheet.deleteRowsByPoints !== 'function') {
+    showFeatureUnavailable(univerAPI, 'Remove Duplicates', 'This worksheet facade does not expose non-contiguous row deletion.')
+    return
+  }
+
+  // The facade deletes the selected worksheet rows as one undoable command path;
+  // row indexes are zero-based and the API handles reverse-order deletion.
+  sheet.deleteRowsByPoints(duplicateRowIndexes)
+  univerAPI.showMessage({ content: duplicateRowIndexes.length + ' duplicate row(s) removed from the worksheet.', type: 'success' })
 }
 
 function splitTextToColumns(univerAPI) {
