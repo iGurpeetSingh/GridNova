@@ -249,6 +249,66 @@ function GridNovaBarChart({ data }) {
   )
 }
 
+function GridNovaTextBox({ data }) {
+  const text = String(data?.text ?? '')
+  const fontSize = Number.isFinite(Number(data?.fontSize)) ? Math.min(72, Math.max(10, Number(data.fontSize))) : 18
+  const color = typeof data?.color === 'string' ? data.color : '#243342'
+  const align = ['left', 'center', 'right'].includes(data?.align) ? data.align : 'left'
+  return (
+    <div
+      role="note"
+      aria-label="GridNova text box"
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center',
+        padding: 10,
+        overflow: 'hidden',
+        whiteSpace: 'pre-wrap',
+        overflowWrap: 'anywhere',
+        background: data?.background || 'rgba(255,255,255,.96)',
+        border: data?.border || '1px solid #93a4b5',
+        borderRadius: 6,
+        color,
+        fontSize,
+        fontWeight: data?.bold ? 700 : 400,
+        textAlign: align,
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
+      {text}
+    </div>
+  )
+}
+
+function GridNovaSymbol({ data }) {
+  const symbol = String(data?.text ?? '★').slice(0, 8)
+  const color = typeof data?.color === 'string' ? data.color : '#217346'
+  return (
+    <div
+      role="img"
+      aria-label={'GridNova symbol ' + symbol}
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'grid',
+        placeItems: 'center',
+        boxSizing: 'border-box',
+        color,
+        fontSize: Math.min(96, Math.max(18, Number(data?.fontSize) || 56)),
+        lineHeight: 1,
+        background: 'transparent',
+        userSelect: 'none',
+      }}
+    >
+      {symbol}
+    </div>
+  )
+}
+
 function applyCellStylePreset(univerAPI, presetName) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
@@ -333,6 +393,8 @@ function registerDrawingComponents(univerAPI) {
     univerAPI.registerComponent('gridnova-draw-ellipse', GridNovaEllipseShape),
     univerAPI.registerComponent('gridnova-draw-line', GridNovaLineShape),
     univerAPI.registerComponent('gridnova-bar-chart', GridNovaBarChart),
+    univerAPI.registerComponent('gridnova-text-box', GridNovaTextBox),
+    univerAPI.registerComponent('gridnova-symbol', GridNovaSymbol),
   ]
 }
 
@@ -356,6 +418,66 @@ function insertDrawingShape(univerAPI, shapeType) {
     return
   }
   univerAPI.showMessage({ content: shapeType[0].toUpperCase() + shapeType.slice(1) + ' added over the selected range.', type: 'success' })
+}
+
+function insertTextBox(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet || typeof sheet.addFloatDomToRange !== 'function') {
+    univerAPI.showMessage({ content: 'Text overlays are unavailable in this editor build.', type: 'warning' })
+    return false
+  }
+
+  const text = window.prompt('Enter text for the worksheet text box.', 'Add your text here')
+  if (text == null) return false
+  if (!text.trim()) {
+    univerAPI.showMessage({ content: 'Enter some text before inserting the text box.', type: 'warning' })
+    return false
+  }
+
+  const range = sheet.getActiveRange() || sheet.getRange('A1')
+  const id = 'gridnova-text-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+  const drawing = sheet.addFloatDomToRange(
+    range,
+    { componentKey: 'gridnova-text-box', data: { text: text.trim() }, allowTransform: true },
+    { width: 300, height: 100 },
+    id,
+  )
+  if (!drawing) {
+    univerAPI.showMessage({ content: 'The text box could not be inserted.', type: 'error' })
+    return false
+  }
+  univerAPI.showMessage({ content: 'Text box inserted over the selected range. Drag or resize it on the sheet.', type: 'success' })
+  return true
+}
+
+function insertSymbol(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet || typeof sheet.addFloatDomToRange !== 'function') {
+    univerAPI.showMessage({ content: 'Symbol overlays are unavailable in this editor build.', type: 'warning' })
+    return false
+  }
+
+  const symbol = window.prompt('Enter a symbol or Unicode character to insert.', '★')
+  if (symbol == null) return false
+  if (!symbol.trim()) {
+    univerAPI.showMessage({ content: 'Enter a symbol before inserting it.', type: 'warning' })
+    return false
+  }
+
+  const range = sheet.getActiveRange() || sheet.getRange('A1')
+  const id = 'gridnova-symbol-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+  const drawing = sheet.addFloatDomToRange(
+    range,
+    { componentKey: 'gridnova-symbol', data: { text: symbol.trim().slice(0, 8) }, allowTransform: true },
+    { width: 100, height: 100 },
+    id,
+  )
+  if (!drawing) {
+    univerAPI.showMessage({ content: 'The symbol could not be inserted.', type: 'error' })
+    return false
+  }
+  univerAPI.showMessage({ content: 'Symbol inserted over the selected range. Drag or resize it on the sheet.', type: 'success' })
+  return true
 }
 
 async function formatSelectionAsTable(univerAPI) {
@@ -937,7 +1059,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.insert', id: 'text-symbols', title: 'Text & Symbols', order: 4, items: [
-        { id: 'text-icons-unavailable', title: 'Text Boxes / Icons (Unavailable)', action: 'insert-text-unavailable' },
+        { id: 'insert-text-box', title: 'Text Box', icon: 'text', run: insertTextBox },
+        { id: 'insert-symbol', title: 'Symbol', icon: 'text', run: insertSymbol },
       ],
     },
     {
