@@ -1273,3 +1273,317 @@ img, svg { max-width: 100%; }
 ):hover {
   background: #edf5ef !important;
 }
+
+
+/* GridNova's custom Home commands also stay icon-first in the compact ribbon.
+   Their menu definitions provide the matching tooltip and real command action. */
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="gridnova.ribbon.home.clipboard.paste"],
+  [data-u-command="gridnova.ribbon.home.clipboard.cut"],
+  [data-u-command="gridnova.ribbon.home.clipboard.copy"],
+  [data-u-command="gridnova.ribbon.home.clipboard.format-painter"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-values"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-formats"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-column-width"],
+  [data-u-command="gridnova.ribbon.home.conditional-formatting"],
+  [data-u-command="gridnova.ribbon.home.format-as-table"],
+  [data-u-command="gridnova.ribbon.home.cell-style-title"],
+  [data-u-command="gridnova.ribbon.home.cell-style-heading"],
+  [data-u-command="gridnova.ribbon.home.cell-style-input"],
+  [data-u-command="gridnova.ribbon.home.cell-style-good"],
+  [data-u-command="gridnova.ribbon.home.cell-style-bad"],
+  [data-u-command="gridnova.ribbon.home.cell-style-neutral"],
+  [data-u-command="gridnova.ribbon.home.number-format-settings"],
+  [data-u-command="gridnova.ribbon.home.format-cells"],
+  [data-u-command="gridnova.ribbon.home.insert-row"],
+  [data-u-command="gridnova.ribbon.home.insert-column"],
+  [data-u-command="gridnova.ribbon.home.delete-row"],
+  [data-u-command="gridnova.ribbon.home.delete-column"],
+  [data-u-command="gridnova.ribbon.home.row-height"],
+  [data-u-command="gridnova.ribbon.home.column-width"],
+  [data-u-command="gridnova.ribbon.home.hide-rows"],
+  [data-u-command="gridnova.ribbon.home.unhide-rows"],
+  [data-u-command="gridnova.ribbon.home.hide-columns"],
+  [data-u-command="gridnova.ribbon.home.unhide-columns"],
+  [data-u-command="gridnova.ribbon.home.auto-sum"],
+  [data-u-command="gridnova.ribbon.home.sort-ascending"],
+  [data-u-command="gridnova.ribbon.home.sort-descending"],
+  [data-u-command="gridnova.ribbon.home.filter"],
+  [data-u-command="gridnova.ribbon.home.clear-contents"],
+  [data-u-command="gridnova.ribbon.home.clear-formats"],
+  [data-u-command="gridnova.ribbon.home.clear-all"],
+  [data-u-command="gridnova.ribbon.home.find"],
+  [data-u-command="gridnova.ribbon.home.replace"],
+  [data-u-command="gridnova.ribbon.home.go-to"],
+  [data-u-command="gridnova.ribbon.home.rename-sheet"],
+  [data-u-command="gridnova.ribbon.home.duplicate-sheet"],
+  [data-u-command="gridnova.ribbon.home.delete-sheet"],
+  [data-u-command="gridnova.ribbon.home.hide-sheet"],
+  [data-u-command="gridnova.ribbon.home.unhide-sheet"],
+  [data-u-command="gridnova.ribbon.home.change-tab-color"]
+) {
+  display: inline-flex !important;
+  flex: 0 0 30px !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px !important;
+  overflow: visible !important;
+  border-radius: 5px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="gridnova.ribbon.home.clipboard.paste"],
+  [data-u-command="gridnova.ribbon.home.clipboard.cut"],
+  [data-u-command="gridnova.ribbon.home.clipboard.copy"],
+  [data-u-command="gridnova.ribbon.home.clipboard.format-painter"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-values"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-formats"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-column-width"],
+  [data-u-command="gridnova.ribbon.home.conditional-formatting"],
+  [data-u-command="gridnova.ribbon.home.format-as-table"],
+  [data-u-command="gridnova.ribbon.home.cell-style-title"],
+  [data-u-command="gridnova.ribbon.home.cell-style-heading"],
+  [data-u-command="gridnova.ribbon.home.cell-style-input"],
+  [data-u-command="gridnova.ribbon.home.cell-style-good"],
+  [data-u-command="gridnova.ribbon.home.cell-style-bad"],
+  [data-u-command="gridnova.ribbon.home.cell-style-neutral"],
+  [data-u-command="gridnova.ribbon.home.number-format-settings"],
+  [data-u-command="gridnova.ribbon.home.format-cells"],
+  [data-u-command="gridnova.ribbon.home.insert-row"],
+  [data-u-command="gridnova.ribbon.home.insert-column"],
+  [data-u-command="gridnova.ribbon.home.delete-row"],
+  [data-u-command="gridnova.ribbon.home.delete-column"],
+  [data-u-command="gridnova.ribbon.home.row-height"],
+  [data-u-command="gridnova.ribbon.home.column-width"],
+  [data-u-command="gridnova.ribbon.home.hide-rows"],
+  [data-u-command="gridnova.ribbon.home.unhide-rows"],
+  [data-u-command="gridnova.ribbon.home.hide-columns"],
+  [data-u-command="gridnova.ribbon.home.unhide-columns"],
+  [data-u-command="gridnova.ribbon.home.auto-sum"],
+  [data-u-command="gridnova.ribbon.home.sort-ascending"],
+  [data-u-command="gridnova.ribbon.home.sort-descending"],
+  [data-u-command="gridnova.ribbon.home.filter"],
+  [data-u-command="gridnova.ribbon.home.clear-contents"],
+  [data-u-command="gridnova.ribbon.home.clear-formats"],
+  [data-u-command="gridnova.ribbon.home.clear-all"],
+  [data-u-command="gridnova.ribbon.home.find"],
+  [data-u-command="gridnova.ribbon.home.replace"],
+  [data-u-command="gridnova.ribbon.home.go-to"],
+  [data-u-command="gridnova.ribbon.home.rename-sheet"],
+  [data-u-command="gridnova.ribbon.home.duplicate-sheet"],
+  [data-u-command="gridnova.ribbon.home.delete-sheet"],
+  [data-u-command="gridnova.ribbon.home.hide-sheet"],
+  [data-u-command="gridnova.ribbon.home.unhide-sheet"],
+  [data-u-command="gridnova.ribbon.home.change-tab-color"]
+) span {
+  display: none !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="gridnova.ribbon.home.clipboard.paste"],
+  [data-u-command="gridnova.ribbon.home.clipboard.cut"],
+  [data-u-command="gridnova.ribbon.home.clipboard.copy"],
+  [data-u-command="gridnova.ribbon.home.clipboard.format-painter"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-values"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-formats"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-column-width"],
+  [data-u-command="gridnova.ribbon.home.conditional-formatting"],
+  [data-u-command="gridnova.ribbon.home.format-as-table"],
+  [data-u-command="gridnova.ribbon.home.cell-style-title"],
+  [data-u-command="gridnova.ribbon.home.cell-style-heading"],
+  [data-u-command="gridnova.ribbon.home.cell-style-input"],
+  [data-u-command="gridnova.ribbon.home.cell-style-good"],
+  [data-u-command="gridnova.ribbon.home.cell-style-bad"],
+  [data-u-command="gridnova.ribbon.home.cell-style-neutral"],
+  [data-u-command="gridnova.ribbon.home.number-format-settings"],
+  [data-u-command="gridnova.ribbon.home.format-cells"],
+  [data-u-command="gridnova.ribbon.home.insert-row"],
+  [data-u-command="gridnova.ribbon.home.insert-column"],
+  [data-u-command="gridnova.ribbon.home.delete-row"],
+  [data-u-command="gridnova.ribbon.home.delete-column"],
+  [data-u-command="gridnova.ribbon.home.row-height"],
+  [data-u-command="gridnova.ribbon.home.column-width"],
+  [data-u-command="gridnova.ribbon.home.hide-rows"],
+  [data-u-command="gridnova.ribbon.home.unhide-rows"],
+  [data-u-command="gridnova.ribbon.home.hide-columns"],
+  [data-u-command="gridnova.ribbon.home.unhide-columns"],
+  [data-u-command="gridnova.ribbon.home.auto-sum"],
+  [data-u-command="gridnova.ribbon.home.sort-ascending"],
+  [data-u-command="gridnova.ribbon.home.sort-descending"],
+  [data-u-command="gridnova.ribbon.home.filter"],
+  [data-u-command="gridnova.ribbon.home.clear-contents"],
+  [data-u-command="gridnova.ribbon.home.clear-formats"],
+  [data-u-command="gridnova.ribbon.home.clear-all"],
+  [data-u-command="gridnova.ribbon.home.find"],
+  [data-u-command="gridnova.ribbon.home.replace"],
+  [data-u-command="gridnova.ribbon.home.go-to"],
+  [data-u-command="gridnova.ribbon.home.rename-sheet"],
+  [data-u-command="gridnova.ribbon.home.duplicate-sheet"],
+  [data-u-command="gridnova.ribbon.home.delete-sheet"],
+  [data-u-command="gridnova.ribbon.home.hide-sheet"],
+  [data-u-command="gridnova.ribbon.home.unhide-sheet"],
+  [data-u-command="gridnova.ribbon.home.change-tab-color"]
+) svg {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+}
+
+/* Match the hidden measurement toolbar to the visible icon-only toolbar so
+   Univer's built-in More overflow makes the same responsive decision. */
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [aria-hidden="true"] :is(
+  [data-u-command="gridnova.ribbon.home.clipboard.paste"],
+  [data-u-command="gridnova.ribbon.home.clipboard.cut"],
+  [data-u-command="gridnova.ribbon.home.clipboard.copy"],
+  [data-u-command="gridnova.ribbon.home.clipboard.format-painter"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-values"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-formats"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-column-width"],
+  [data-u-command="gridnova.ribbon.home.conditional-formatting"],
+  [data-u-command="gridnova.ribbon.home.format-as-table"],
+  [data-u-command="gridnova.ribbon.home.cell-style-title"],
+  [data-u-command="gridnova.ribbon.home.cell-style-heading"],
+  [data-u-command="gridnova.ribbon.home.cell-style-input"],
+  [data-u-command="gridnova.ribbon.home.cell-style-good"],
+  [data-u-command="gridnova.ribbon.home.cell-style-bad"],
+  [data-u-command="gridnova.ribbon.home.cell-style-neutral"],
+  [data-u-command="gridnova.ribbon.home.number-format-settings"],
+  [data-u-command="gridnova.ribbon.home.format-cells"],
+  [data-u-command="gridnova.ribbon.home.insert-row"],
+  [data-u-command="gridnova.ribbon.home.insert-column"],
+  [data-u-command="gridnova.ribbon.home.delete-row"],
+  [data-u-command="gridnova.ribbon.home.delete-column"],
+  [data-u-command="gridnova.ribbon.home.row-height"],
+  [data-u-command="gridnova.ribbon.home.column-width"],
+  [data-u-command="gridnova.ribbon.home.hide-rows"],
+  [data-u-command="gridnova.ribbon.home.unhide-rows"],
+  [data-u-command="gridnova.ribbon.home.hide-columns"],
+  [data-u-command="gridnova.ribbon.home.unhide-columns"],
+  [data-u-command="gridnova.ribbon.home.auto-sum"],
+  [data-u-command="gridnova.ribbon.home.sort-ascending"],
+  [data-u-command="gridnova.ribbon.home.sort-descending"],
+  [data-u-command="gridnova.ribbon.home.filter"],
+  [data-u-command="gridnova.ribbon.home.clear-contents"],
+  [data-u-command="gridnova.ribbon.home.clear-formats"],
+  [data-u-command="gridnova.ribbon.home.clear-all"],
+  [data-u-command="gridnova.ribbon.home.find"],
+  [data-u-command="gridnova.ribbon.home.replace"],
+  [data-u-command="gridnova.ribbon.home.go-to"],
+  [data-u-command="gridnova.ribbon.home.rename-sheet"],
+  [data-u-command="gridnova.ribbon.home.duplicate-sheet"],
+  [data-u-command="gridnova.ribbon.home.delete-sheet"],
+  [data-u-command="gridnova.ribbon.home.hide-sheet"],
+  [data-u-command="gridnova.ribbon.home.unhide-sheet"],
+  [data-u-command="gridnova.ribbon.home.change-tab-color"]
+) {
+  display: inline-flex !important;
+  flex: 0 0 30px !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px !important;
+  overflow: visible !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [aria-hidden="true"] :is(
+  [data-u-command="gridnova.ribbon.home.clipboard.paste"],
+  [data-u-command="gridnova.ribbon.home.clipboard.cut"],
+  [data-u-command="gridnova.ribbon.home.clipboard.copy"],
+  [data-u-command="gridnova.ribbon.home.clipboard.format-painter"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-values"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-formats"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-column-width"],
+  [data-u-command="gridnova.ribbon.home.conditional-formatting"],
+  [data-u-command="gridnova.ribbon.home.format-as-table"],
+  [data-u-command="gridnova.ribbon.home.cell-style-title"],
+  [data-u-command="gridnova.ribbon.home.cell-style-heading"],
+  [data-u-command="gridnova.ribbon.home.cell-style-input"],
+  [data-u-command="gridnova.ribbon.home.cell-style-good"],
+  [data-u-command="gridnova.ribbon.home.cell-style-bad"],
+  [data-u-command="gridnova.ribbon.home.cell-style-neutral"],
+  [data-u-command="gridnova.ribbon.home.number-format-settings"],
+  [data-u-command="gridnova.ribbon.home.format-cells"],
+  [data-u-command="gridnova.ribbon.home.insert-row"],
+  [data-u-command="gridnova.ribbon.home.insert-column"],
+  [data-u-command="gridnova.ribbon.home.delete-row"],
+  [data-u-command="gridnova.ribbon.home.delete-column"],
+  [data-u-command="gridnova.ribbon.home.row-height"],
+  [data-u-command="gridnova.ribbon.home.column-width"],
+  [data-u-command="gridnova.ribbon.home.hide-rows"],
+  [data-u-command="gridnova.ribbon.home.unhide-rows"],
+  [data-u-command="gridnova.ribbon.home.hide-columns"],
+  [data-u-command="gridnova.ribbon.home.unhide-columns"],
+  [data-u-command="gridnova.ribbon.home.auto-sum"],
+  [data-u-command="gridnova.ribbon.home.sort-ascending"],
+  [data-u-command="gridnova.ribbon.home.sort-descending"],
+  [data-u-command="gridnova.ribbon.home.filter"],
+  [data-u-command="gridnova.ribbon.home.clear-contents"],
+  [data-u-command="gridnova.ribbon.home.clear-formats"],
+  [data-u-command="gridnova.ribbon.home.clear-all"],
+  [data-u-command="gridnova.ribbon.home.find"],
+  [data-u-command="gridnova.ribbon.home.replace"],
+  [data-u-command="gridnova.ribbon.home.go-to"],
+  [data-u-command="gridnova.ribbon.home.rename-sheet"],
+  [data-u-command="gridnova.ribbon.home.duplicate-sheet"],
+  [data-u-command="gridnova.ribbon.home.delete-sheet"],
+  [data-u-command="gridnova.ribbon.home.hide-sheet"],
+  [data-u-command="gridnova.ribbon.home.unhide-sheet"],
+  [data-u-command="gridnova.ribbon.home.change-tab-color"]
+) span {
+  display: none !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [aria-hidden="true"] :is(
+  [data-u-command="gridnova.ribbon.home.clipboard.paste"],
+  [data-u-command="gridnova.ribbon.home.clipboard.cut"],
+  [data-u-command="gridnova.ribbon.home.clipboard.copy"],
+  [data-u-command="gridnova.ribbon.home.clipboard.format-painter"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-values"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-formats"],
+  [data-u-command="gridnova.ribbon.home.clipboard.paste-column-width"],
+  [data-u-command="gridnova.ribbon.home.conditional-formatting"],
+  [data-u-command="gridnova.ribbon.home.format-as-table"],
+  [data-u-command="gridnova.ribbon.home.cell-style-title"],
+  [data-u-command="gridnova.ribbon.home.cell-style-heading"],
+  [data-u-command="gridnova.ribbon.home.cell-style-input"],
+  [data-u-command="gridnova.ribbon.home.cell-style-good"],
+  [data-u-command="gridnova.ribbon.home.cell-style-bad"],
+  [data-u-command="gridnova.ribbon.home.cell-style-neutral"],
+  [data-u-command="gridnova.ribbon.home.number-format-settings"],
+  [data-u-command="gridnova.ribbon.home.format-cells"],
+  [data-u-command="gridnova.ribbon.home.insert-row"],
+  [data-u-command="gridnova.ribbon.home.insert-column"],
+  [data-u-command="gridnova.ribbon.home.delete-row"],
+  [data-u-command="gridnova.ribbon.home.delete-column"],
+  [data-u-command="gridnova.ribbon.home.row-height"],
+  [data-u-command="gridnova.ribbon.home.column-width"],
+  [data-u-command="gridnova.ribbon.home.hide-rows"],
+  [data-u-command="gridnova.ribbon.home.unhide-rows"],
+  [data-u-command="gridnova.ribbon.home.hide-columns"],
+  [data-u-command="gridnova.ribbon.home.unhide-columns"],
+  [data-u-command="gridnova.ribbon.home.auto-sum"],
+  [data-u-command="gridnova.ribbon.home.sort-ascending"],
+  [data-u-command="gridnova.ribbon.home.sort-descending"],
+  [data-u-command="gridnova.ribbon.home.filter"],
+  [data-u-command="gridnova.ribbon.home.clear-contents"],
+  [data-u-command="gridnova.ribbon.home.clear-formats"],
+  [data-u-command="gridnova.ribbon.home.clear-all"],
+  [data-u-command="gridnova.ribbon.home.find"],
+  [data-u-command="gridnova.ribbon.home.replace"],
+  [data-u-command="gridnova.ribbon.home.go-to"],
+  [data-u-command="gridnova.ribbon.home.rename-sheet"],
+  [data-u-command="gridnova.ribbon.home.duplicate-sheet"],
+  [data-u-command="gridnova.ribbon.home.delete-sheet"],
+  [data-u-command="gridnova.ribbon.home.hide-sheet"],
+  [data-u-command="gridnova.ribbon.home.unhide-sheet"],
+  [data-u-command="gridnova.ribbon.home.change-tab-color"]
+) svg {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+}
