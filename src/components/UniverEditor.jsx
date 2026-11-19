@@ -424,6 +424,29 @@ function showFeatureUnavailable(univerAPI, featureName, reason) {
   })
 }
 
+async function insertAutoSum(univerAPI) {
+  try {
+    const result = await univerAPI.executeCommand('formula-ui.operation.insert-function', { value: 'SUM' })
+    if (result === false) {
+      univerAPI.showMessage({ content: 'Select a cell or numeric range before using AutoSum.', type: 'warning' })
+    }
+  } catch (error) {
+    univerAPI.showMessage({ content: error instanceof Error ? error.message : 'AutoSum could not be inserted.', type: 'error' })
+  }
+}
+
+function goToCell(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet) return
+  const address = window.prompt('Enter a cell or range address (for example, C12 or A1:D8).', 'A1')
+  if (address == null || !address.trim()) return
+  try {
+    sheet.getRange(address.trim()).activate()
+  } catch (error) {
+    univerAPI.showMessage({ content: error instanceof Error ? error.message : 'The cell or range address is invalid.', type: 'warning' })
+  }
+}
+
 async function recalculateFormulas(univerAPI) {
   const formula = univerAPI.getFormula?.()
   if (!formula || typeof formula.executeCalculation !== 'function') {
@@ -730,13 +753,17 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       id: 'editing', title: 'Editing', order: 7, items: [
-        { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', gridLayout: { row: 1, column: 1 }, command: 'sheet.command.sort-range-asc' },
-        { id: 'sort-descending', title: 'Sort Z to A', icon: 'sort', gridLayout: { row: 1, column: 2 }, command: 'sheet.command.sort-range-desc' },
-        { id: 'filter', title: 'Filter', icon: 'filter', gridLayout: { row: 1, column: 3 }, command: 'sheet.command.smart-toggle-filter' },
-        { id: 'clear-contents', title: 'Clear Contents', icon: 'table', gridLayout: { row: 1, column: 4 }, command: 'sheet.command.clear-selection-content' },
-        { id: 'clear-formats', title: 'Clear Formats', icon: 'paint', gridLayout: { row: 1, column: 5 }, command: 'sheet.command.clear-selection-format' },
-        { id: 'clear-all', title: 'Clear All', icon: 'table', gridLayout: { row: 1, column: 6 }, command: 'sheet.command.clear-selection-all' },
-        { id: 'find', title: 'Find & Replace', icon: 'search', gridLayout: { row: 1, column: 7 }, command: 'ui.operation.open-find-dialog' },
+        { id: 'auto-sum', title: 'AutoSum', icon: 'calculator', run: insertAutoSum },
+        { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', command: 'sheet.command.sort-range-asc' },
+        { id: 'sort-descending', title: 'Sort Z to A', icon: 'sort', command: 'sheet.command.sort-range-desc' },
+        { id: 'filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
+        { id: 'clear-contents', title: 'Clear Contents', icon: 'table', command: 'sheet.command.clear-selection-content' },
+        { id: 'clear-formats', title: 'Clear Formats', icon: 'paint', command: 'sheet.command.clear-selection-format' },
+        { id: 'clear-all', title: 'Clear All', icon: 'table', command: 'sheet.command.clear-selection-all' },
+        { id: 'find', title: 'Find', icon: 'search', command: 'ui.operation.open-find-dialog' },
+        { id: 'replace', title: 'Replace', icon: 'search', command: 'ui.operation.open-find-dialog' },
+        { id: 'go-to', title: 'Go To', icon: 'search', run: goToCell },
+        { id: 'fill', title: 'Fill (Unavailable)', icon: 'table', action: 'fill-unavailable' },
       ],
     },
     {
@@ -782,7 +809,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       path: 'ribbon.formulas', id: 'function-library', title: 'Function Library', order: 0, items: [
         { id: 'insert-function', title: 'Insert Function', icon: 'calculator', run: (api) => insertFormulaFunction(api, 'SUM') },
-        { id: 'auto-sum', title: 'AutoSum', icon: 'calculator', run: (api) => insertFormulaFunction(api, 'SUM') },
+        { id: 'auto-sum', title: 'AutoSum', icon: 'calculator', run: insertAutoSum },
       ],
     },
     {
@@ -837,8 +864,20 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       ],
     },
     {
-      path: 'ribbon.formulas', id: 'calculation', title: 'Calculation', order: 8, items: [
+      path: 'ribbon.formulas', id: 'defined-names', title: 'Defined Names', order: 8, items: [
+        { id: 'manage-names-unavailable', title: 'Name Manager (Unavailable)', action: 'formula-feature-unavailable' },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'formula-auditing', title: 'Formula Auditing', order: 9, items: [
+        { id: 'trace-formulas-unavailable', title: 'Trace Precedents / Dependents (Unavailable)', action: 'formula-feature-unavailable' },
+        { id: 'show-formulas-unavailable', title: 'Show Formulas (Unavailable)', action: 'formula-feature-unavailable' },
+      ],
+    },
+    {
+      path: 'ribbon.formulas', id: 'calculation', title: 'Calculation', order: 10, items: [
         { id: 'recalculate', title: 'Recalculate Now', icon: 'calculator', run: recalculateFormulas },
+        { id: 'calculation-options', title: 'Calculation Options (Unavailable)', action: 'formula-feature-unavailable' },
       ],
     },
     {
