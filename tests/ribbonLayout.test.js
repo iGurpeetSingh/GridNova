@@ -31,3 +31,19 @@ test('Existing grid width and icon sizing are retained', () => {
   assert.equal(result.gridLayout.iconSize, 18)
   assert.deepEqual([result.gridLayout.row, result.gridLayout.column], [1, 1])
 })
+
+
+test('Single Line mode preserves command identity while removing captions through menu config', () => {
+  const commands = [
+    'sheet.command.set-range-bold',
+    'sheet.command.set-range-italic',
+    'sheet.command.set-text-wrap',
+    'sheet.command.add-worksheet-merge',
+    'sheet.command.smart-toggle-filter',
+    'sheet.command.insert-row-before',
+  ]
+  const items = withRibbonGridLayouts(commands.map((id) => ({ id, command: id })), 'classic')
+  assert.deepEqual(items.map((item) => item.command), commands)
+  assert.ok(items.every((item) => !item.gridLayout))
+})
+
