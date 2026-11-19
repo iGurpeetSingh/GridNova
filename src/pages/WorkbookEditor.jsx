@@ -68,6 +68,9 @@ export default function WorkbookEditor() {
       return normalizeRibbonType(window.localStorage.getItem(RIBBON_MODE_STORAGE_PREFIX + workbookId))
     } catch { return RIBBON_TYPE.SINGLE_LINE }
   })
+  const [formulaBarVisible, setFormulaBarVisible] = useState(() => {
+    try { return window.localStorage.getItem('gridnova:formula-bar:' + workbookId) !== 'false' } catch { return true }
+  })
   const [initialSnapshot, setInitialSnapshot] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editorApi, setEditorApi] = useState(null)
@@ -93,7 +96,13 @@ export default function WorkbookEditor() {
     }
     setReviewPanelMode(null)
     try { setIsReadOnly(window.localStorage.getItem('gridnova:editing-mode:' + workbookId) === 'view') } catch { setIsReadOnly(false) }
+    try { setFormulaBarVisible(window.localStorage.getItem('gridnova:formula-bar:' + workbookId) !== 'false') } catch { setFormulaBarVisible(true) }
   }, [workbookId])
+
+  useEffect(() => {
+    if (!editorApi?.setFormulaBarVisible) return
+    editorApi.setFormulaBarVisible(formulaBarVisible)
+  }, [editorApi, formulaBarVisible])
 
   useEffect(() => {
     let mounted = true
@@ -386,6 +395,20 @@ export default function WorkbookEditor() {
       setReviewPanelMode('activity')
       return
     }
+    if (action === 'toggle-formula-bar') {
+      const nextVisible = !formulaBarVisible
+      const applied = editorApi?.setFormulaBarVisible?.(nextVisible)
+      if (!applied) {
+        setNoticeType('error')
+        setNotice('Formula Bar could not be updated because the editor toolbar is not ready.')
+        return
+      }
+      setFormulaBarVisible(nextVisible)
+      try { window.localStorage.setItem('gridnova:formula-bar:' + workbookId, String(nextVisible)) } catch { /* local preference is optional */ }
+      setNoticeType('success')
+      setNotice(nextVisible ? 'Formula Bar shown.' : 'Formula Bar hidden.')
+      return
+    }
     if (action === 'share-workbook') {
       await handleShareWorkbook()
       return
@@ -477,7 +500,6 @@ export default function WorkbookEditor() {
       'shape-format-unavailable': 'Shape Fill, Outline and Properties',
       'insert-text-unavailable': 'Text Boxes and Icons',
       'data-outline-unavailable': 'Group, Ungroup and Subtotal',
-      'formula-bar-unavailable': 'Formula Bar visibility',
       'paste-special-unavailable': 'Paste Special',
       'cell-styles-unavailable': 'Cell Styles',
       'format-cells-unavailable': 'Format Cells',
