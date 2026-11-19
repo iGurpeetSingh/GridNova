@@ -369,21 +369,21 @@ function insertBasicChart(univerAPI) {
   univerAPI.showMessage({ content: 'Bar chart inserted over the selected data range.', type: 'success' })
 }
 
-function GridNovaRectangleShape() {
+function GridNovaRectangleShape({ data }) {
   return <svg viewBox="0 0 180 100" width="100%" height="100%" aria-label="Rectangle shape">
-    <rect x="8" y="8" width="164" height="84" rx="5" fill="#dbeafe" fillOpacity=".55" stroke="#2563eb" strokeWidth="3" />
+    <rect x="8" y="8" width="164" height="84" rx="5" fill={data?.fill || '#dbeafe'} fillOpacity={data?.fillOpacity ?? '.55'} stroke={data?.stroke || '#2563eb'} strokeWidth={Number(data?.strokeWidth) || 3} />
   </svg>
 }
 
-function GridNovaEllipseShape() {
+function GridNovaEllipseShape({ data }) {
   return <svg viewBox="0 0 180 100" width="100%" height="100%" aria-label="Ellipse shape">
-    <ellipse cx="90" cy="50" rx="78" ry="38" fill="#dcfce7" fillOpacity=".55" stroke="#16834b" strokeWidth="3" />
+    <ellipse cx="90" cy="50" rx="78" ry="38" fill={data?.fill || '#dcfce7'} fillOpacity={data?.fillOpacity ?? '.55'} stroke={data?.stroke || '#16834b'} strokeWidth={Number(data?.strokeWidth) || 3} />
   </svg>
 }
 
-function GridNovaLineShape() {
+function GridNovaLineShape({ data }) {
   return <svg viewBox="0 0 180 100" width="100%" height="100%" aria-label="Line shape">
-    <line x1="8" y1="88" x2="172" y2="12" stroke="#d97706" strokeWidth="4" strokeLinecap="round" />
+    <line x1="8" y1="88" x2="172" y2="12" stroke={data?.stroke || '#d97706'} strokeWidth={Number(data?.strokeWidth) || 4} strokeLinecap="round" />
   </svg>
 }
 
@@ -407,9 +407,14 @@ function insertDrawingShape(univerAPI, shapeType) {
   const range = sheet.getActiveRange() || sheet.getRange('A1')
   const componentKey = 'gridnova-draw-' + shapeType
   const id = 'gridnova-shape-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+  const shapeDefaults = {
+    rectangle: { fill: '#dbeafe', stroke: '#2563eb', fillOpacity: '.55', strokeWidth: 3 },
+    ellipse: { fill: '#dcfce7', stroke: '#16834b', fillOpacity: '.55', strokeWidth: 3 },
+    line: { stroke: '#d97706', strokeWidth: 4 },
+  }
   const shape = sheet.addFloatDomToRange(
     range,
-    { componentKey, allowTransform: true },
+    { componentKey, data: shapeDefaults[shapeType] || {}, allowTransform: true },
     { width: 180, height: 100 },
     id,
   )
@@ -418,6 +423,102 @@ function insertDrawingShape(univerAPI, shapeType) {
     return
   }
   univerAPI.showMessage({ content: shapeType[0].toUpperCase() + shapeType.slice(1) + ' added over the selected range.', type: 'success' })
+}
+
+function getSelectedGridNovaFloatDom(univerAPI, allowedPrefixes = ['gridnova-draw-', 'gridnova-text-box', 'gridnova-symbol']) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet || typeof sheet.getAllFloatDoms !== 'function') {
+    univerAPI.showMessage({ content: 'Shape formatting requires the installed Drawing Facade.', type: 'warning' })
+    return null
+  }
+
+  const items = sheet.getAllFloatDoms().filter((item) =>
+    allowedPrefixes.some((prefix) => item.componentKey?.startsWith(prefix))
+  )
+  if (!items.length) {
+    univerAPI.showMessage({ content: 'Insert a GridNova shape, text box or symbol first.', type: 'warning' })
+    return null
+  }
+
+  const options = items.map((item, index) => {
+    const kind = item.componentKey?.replace('gridnova-draw-', '').replace('gridnova-', '') || 'shape'
+    return (index + 1) + '. ' + kind + ' · ' + item.id.slice(-8)
+  })
+  const answer = window.prompt('Choose the GridNova object to format:\n' + options.join('\n'), String(items.length))
+  if (answer == null) return null
+  const index = Number(answer) - 1
+  if (!Number.isInteger(index) || index < 0 || index >= items.length) {
+    univerAPI.showMessage({ content: 'Enter one of the listed object numbers.', type: 'warning' })
+    return null
+  }
+  return { sheet, item: items[index] }
+}
+
+function setGridNovaShapeFill(univerAPI) {
+  const selected = getSelectedGridNovaFloatDom(univerAPI)
+  if (!selected) return false
+  const color = window.prompt('Enter a Fill Color (CSS color or hex).', '#dbeafe')
+  if (color == null) return false
+  const value = color.trim()
+  if (!value || value.length > 40) {
+    univerAPI.showMessage({ content: 'Enter a valid CSS color.', type: 'warning' })
+    return false
+  }
+  const data = { ...(selected.item.data || {}), fill: value, background: value }
+  selected.sheet.updateFloatDom(selected.item.id, { data })
+  univerAPI.showMessage({ content: 'Shape fill updated.', type: 'success' })
+  return true
+}
+
+function setGridNovaShapeOutline(univerAPI) {
+  const selected = getSelectedGridNovaFloatDom(univerAPI)
+  if (!selected) return false
+  const color = window.prompt('Enter an Outline Color (CSS color or hex).', '#2563eb')
+  if (color == null) return false
+  const value = color.trim()
+  if (!value || value.length > 40) {
+    univerAPI.showMessage({ content: 'Enter a valid CSS color.', type: 'warning' })
+    return false
+  }
+  const data = { ...(selected.item.data || {}), stroke: value, border: '2px solid ' + value }
+  selected.sheet.updateFloatDom(selected.item.id, { data })
+  univerAPI.showMessage({ content: 'Shape outline updated.', type: 'success' })
+  return true
+}
+
+function setGridNovaShapeProperties(univerAPI) {
+  const selected = getSelectedGridNovaFloatDom(univerAPI)
+  if (!selected) return false
+  const current = selected.item.position || {}
+  const width = window.prompt('Object width in pixels.', String(Math.round(current.width || 180)))
+  if (width == null) return false
+  const height = window.prompt('Object height in pixels.', String(Math.round(current.height || 100)))
+  if (height == null) return false
+  const angle = window.prompt('Object rotation in degrees.', String(Math.round(current.angle || 0)))
+  if (angle == null) return false
+  const nextWidth = Number(width)
+  const nextHeight = Number(height)
+  const nextAngle = Number(angle)
+  if (!Number.isFinite(nextWidth) || nextWidth < 20 || nextWidth > 3000
+    || !Number.isFinite(nextHeight) || nextHeight < 20 || nextHeight > 3000
+    || !Number.isFinite(nextAngle) || Math.abs(nextAngle) > 360) {
+    univerAPI.showMessage({ content: 'Use width/height 20–3000 px and rotation -360° to 360°.', type: 'warning' })
+    return false
+  }
+  selected.sheet.updateFloatDom(selected.item.id, {
+    position: { width: nextWidth, height: nextHeight, angle: nextAngle },
+  })
+  univerAPI.showMessage({ content: 'Shape properties updated.', type: 'success' })
+  return true
+}
+
+function deleteGridNovaShape(univerAPI) {
+  const selected = getSelectedGridNovaFloatDom(univerAPI)
+  if (!selected) return false
+  if (!window.confirm('Delete the selected GridNova shape or text overlay?')) return false
+  selected.sheet.removeFloatDom(selected.item.id)
+  univerAPI.showMessage({ content: 'GridNova object deleted.', type: 'success' })
+  return true
 }
 
 function insertTextBox(univerAPI) {
@@ -934,7 +1035,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
           { id: 'line', title: 'Line', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
         ] },
         { id: 'shape-format', title: 'Shape Formatting', items: [
-          { id: 'shape-format-unavailable', title: 'Fill / Outline / Properties (Unavailable)', action: 'shape-format-unavailable' },
+          { id: 'shape-fill', title: 'Fill Color', icon: 'fillColor', run: setGridNovaShapeFill },
+        { id: 'shape-outline', title: 'Outline Color', icon: 'border', run: setGridNovaShapeOutline },
+        { id: 'shape-properties', title: 'Size / Rotation Properties', icon: 'layout', run: setGridNovaShapeProperties },
+        { id: 'shape-delete', title: 'Delete Selected Shape', icon: 'cut', run: deleteGridNovaShape },
         ] },
       ],
     },
