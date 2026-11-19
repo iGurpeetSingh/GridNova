@@ -879,13 +879,19 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             UniverPresetSheetsNoteEnUS,
             UniverPresetSheetsDataValidationEnUS,
             {
-              'ribbon.start': 'Home',
-              'gridnova.ribbon.file': 'File',
-              'gridnova.ribbon.share': 'Share',
-              'gridnova.ribbon.page-layout': 'Page Layout',
-              'gridnova.ribbon.review': 'Review',
-              'gridnova.ribbon.help': 'Help',
-              'gridnova.ribbon.draw': 'Draw',
+              ribbon: {
+                start: 'Home',
+              },
+              gridnova: {
+                ribbon: {
+                  file: 'File',
+                  share: 'Share',
+                  'page-layout': 'Page Layout',
+                  review: 'Review',
+                  help: 'Help',
+                  draw: 'Draw',
+                },
+              },
             },
           ),
         },
