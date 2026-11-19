@@ -505,6 +505,54 @@ function showSelectedRows(univerAPI) {
   sheet.showRows(range.getRow(), range.getLastRow() - range.getRow() + 1)
 }
 
+function hideSelectedColumns(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return
+  sheet.hideColumns(range.getColumn(), range.getLastColumn() - range.getColumn() + 1)
+}
+
+function showSelectedColumns(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return
+  sheet.showColumns(range.getColumn(), range.getLastColumn() - range.getColumn() + 1)
+}
+
+function setSelectedRowHeight(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return
+  const start = range.getRow()
+  const count = range.getLastRow() - start + 1
+  const current = sheet.getRowHeight?.(start) || 23
+  const value = window.prompt('Set selected row height in pixels.', String(Math.round(current)))
+  if (value == null) return
+  const height = Number(value)
+  if (!Number.isFinite(height) || height < 10 || height > 409) {
+    univerAPI.showMessage({ content: 'Row height must be between 10 and 409 pixels.', type: 'warning' })
+    return
+  }
+  sheet.setRowHeights(start, count, height)
+}
+
+function setSelectedColumnWidth(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return
+  const start = range.getColumn()
+  const count = range.getLastColumn() - start + 1
+  const current = sheet.getColumnWidth?.(start) || 100
+  const value = window.prompt('Set selected column width in pixels.', String(Math.round(current)))
+  if (value == null) return
+  const width = Number(value)
+  if (!Number.isFinite(width) || width < 10 || width > 2048) {
+    univerAPI.showMessage({ content: 'Column width must be between 10 and 2048 pixels.', type: 'warning' })
+    return
+  }
+  sheet.setColumnWidths(start, count, width)
+}
+
 function toggleGridlines(univerAPI) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   if (!sheet) return
@@ -632,6 +680,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'share-copy', title: 'Share & Access', items: [
           { id: 'share-file', title: 'Share Workbook File', icon: 'share', action: 'share-workbook' },
           { id: 'copy-link', title: 'Copy Workbook Link', icon: 'link', action: 'copy-workbook-link' },
+          { id: 'share-comments', title: 'Comments', icon: 'review', action: 'open-comments' },
           { id: 'manage-access', title: 'Manage Access (Unavailable)', action: 'manage-access-unavailable' },
         ] },
       ],
@@ -747,10 +796,16 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       id: 'cells', title: 'Cells', order: 6, items: [
-        { id: 'insert-row', title: 'Insert Row', icon: 'table', gridLayout: { row: 1, column: 1 }, command: 'sheet.command.insert-row-before' },
-        { id: 'insert-column', title: 'Insert Column', icon: 'table', gridLayout: { row: 1, column: 2 }, command: 'sheet.command.insert-col-before' },
-        { id: 'delete-row', title: 'Delete Row', icon: 'cut', gridLayout: { row: 1, column: 3 }, command: 'sheet.command.remove-row-confirm' },
-        { id: 'delete-column', title: 'Delete Column', icon: 'cut', gridLayout: { row: 1, column: 4 }, command: 'sheet.command.remove-col-confirm' },
+        { id: 'insert-row', title: 'Insert Row', icon: 'table', command: 'sheet.command.insert-row-before' },
+        { id: 'insert-column', title: 'Insert Column', icon: 'table', command: 'sheet.command.insert-col-before' },
+        { id: 'delete-row', title: 'Delete Row', icon: 'cut', command: 'sheet.command.remove-row-confirm' },
+        { id: 'delete-column', title: 'Delete Column', icon: 'cut', command: 'sheet.command.remove-col-confirm' },
+        { id: 'row-height', title: 'Row Height', icon: 'layout', run: setSelectedRowHeight },
+        { id: 'column-width', title: 'Column Width', icon: 'layout', run: setSelectedColumnWidth },
+        { id: 'hide-rows', title: 'Hide Rows', icon: 'layout', run: hideSelectedRows },
+        { id: 'unhide-rows', title: 'Unhide Rows', icon: 'layout', run: showSelectedRows },
+        { id: 'hide-columns', title: 'Hide Columns', icon: 'layout', run: hideSelectedColumns },
+        { id: 'unhide-columns', title: 'Unhide Columns', icon: 'layout', run: showSelectedColumns },
       ],
     },
     {
@@ -790,11 +845,15 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
         { id: 'insert-picture', title: 'Pictures', icon: 'image', command: 'sheet.command.insert-float-image' },
+        { id: 'insert-rectangle', title: 'Rectangle Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
+        { id: 'insert-ellipse', title: 'Ellipse Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
+        { id: 'insert-line', title: 'Line Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
       ],
     },
     {
       path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
-        { id: 'insert-chart', title: 'Quick Bar Chart Overlay', icon: 'table', run: insertBasicChart },
+        { id: 'insert-chart', title: 'Insert Bar Chart Overlay', icon: 'table', run: insertBasicChart },
+        { id: 'native-charts-unavailable', title: 'Column / Line / Pie / Area Charts (Unavailable)', action: 'insert-charts-unavailable' },
         { id: 'chart-pivot-tools', title: 'Chart & Pivot Summary Tools', icon: 'table', action: 'insert-tools' },
       ],
     },
@@ -913,6 +972,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       path: 'ribbon.view', id: 'show', title: 'Show', order: 0, items: [
         { id: 'toggle-gridlines', title: 'Gridlines', icon: 'layout', run: toggleGridlines },
         { id: 'formula-bar-unavailable', title: 'Formula Bar (Unavailable)', action: 'formula-bar-unavailable' },
+        { id: 'headings-unavailable', title: 'Show / Hide Headings (Unavailable)', action: 'view-tools-unavailable' },
         { id: 'normal-view', title: 'Normal View (Current)', action: 'normal-view-current' },
         { id: 'page-layout-view', title: 'Page Layout View (Unavailable)', action: 'view-tools-unavailable' },
       ],
@@ -987,6 +1047,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'ui.operation.activate-format-painter': { icon: 'gridnova-icon-paint' },
     'sheet.command.set-once-format-painter': { icon: 'gridnova-icon-paint' },
     'sheet.command.set-range-bold': { icon: 'gridnova-icon-bold', gridLayout: { row: 1, column: 2, showLabel: true } },
+    'sheet.command.set-range-font-increase': { icon: 'gridnova-icon-calculator', gridLayout: { row: 1, column: 6, showLabel: true } },
+    'sheet.command.set-range-font-decrease': { icon: 'gridnova-icon-calculator', gridLayout: { row: 2, column: 6, showLabel: true } },
     'sheet.command.set-range-italic': { icon: 'gridnova-icon-italic', gridLayout: { row: 2, column: 2, showLabel: true } },
     // Place expanded Home controls into a labeled two-row grid. Single Line mode
     // ignores these grid coordinates and keeps the native one-row toolbar.
