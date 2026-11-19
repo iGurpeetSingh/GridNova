@@ -879,6 +879,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             UniverPresetSheetsNoteEnUS,
             UniverPresetSheetsDataValidationEnUS,
             {
+              'ribbon.start': 'Home',
               ribbon: {
                 start: 'Home',
               },
