@@ -2032,11 +2032,11 @@ function addColumnHeaderDeleteAction(univerAPI) {
 }
 
 export default function UniverEditor({ workbookId, title, initialSnapshot, ribbonType = 'classic', onReady, onRibbonAction }) {
-  const containerRef = useRef(null)\n  const modeClassRef = useRef(ribbonType === 'classic' ? 'single-line' : 'classic')
+  const containerRef = useRef(null)
   const onReadyRef = useRef(onReady)
   const onRibbonActionRef = useRef(onRibbonAction)
   const initialConfigRef = useRef({ workbookId, title, initialSnapshot, ribbonType })
-  initialConfigRef.current = { workbookId, title, initialSnapshot, ribbonType }\n  modeClassRef.current = ribbonType === 'classic' ? 'single-line' : 'classic'
+  initialConfigRef.current = { workbookId, title, initialSnapshot, ribbonType }
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -2052,7 +2052,8 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
     let disposed = false
 
     try {
-      const config = initialConfigRef.current\n      containerRef.current?.setAttribute('data-gridnova-ribbon-mode', config.ribbonType === 'classic' ? 'single-line' : 'classic')
+      const config = initialConfigRef.current
+      containerRef.current?.setAttribute('data-gridnova-ribbon-mode', config.ribbonType === 'classic' ? 'single-line' : 'classic')
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
