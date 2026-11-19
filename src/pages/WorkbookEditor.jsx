@@ -499,7 +499,20 @@ export default function WorkbookEditor() {
       return
     }
     if (action === 'open-shortcuts') {
-      window.open('https://docs.univer.ai/guides/sheets', '_blank', 'noopener,noreferrer')
+      window.alert([
+        'GRIDNOVA KEYBOARD SHORTCUTS',
+        '',
+        'Ctrl / Cmd + C   Copy',
+        'Ctrl / Cmd + X   Cut',
+        'Ctrl / Cmd + V   Paste',
+        'Ctrl / Cmd + Z   Undo',
+        'Ctrl + Y         Redo (Windows/Linux)',
+        'Cmd + Shift + Z  Redo (Mac)',
+        'Ctrl / Cmd + F   Find',
+        'Ctrl / Cmd + S   Save workbook',
+        '',
+        'Some shortcuts depend on which editor control is focused.',
+      ].join('\\n'))
       return
     }
     if (action === 'open-help') {
