@@ -25,10 +25,10 @@ export default function WorkbookEditor() {
   })
   const [ribbonMode, setRibbonMode] = useState(() => {
     try {
-      const savedMode = window.localStorage.getItem('gridnova:ribbon-mode-v3:' + workbookId)
-      // Single Line is the compact one-row command strip; Classic keeps grouped rows.
-      return savedMode || 'collapsed'
-    } catch { return 'collapsed' }
+      const savedMode = window.localStorage.getItem('gridnova:ribbon-mode-v4:' + workbookId)
+      // Single Line matches the Excel reference: tabs stay visible above the toolbar.
+      return savedMode || 'grid'
+    } catch { return 'grid' }
   })
   const [initialSnapshot, setInitialSnapshot] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -259,7 +259,7 @@ export default function WorkbookEditor() {
   }
 
   async function handleRibbonModeChange(nextMode) {
-    if (nextMode === ribbonMode || !['classic', 'collapsed'].includes(nextMode)) return
+    if (nextMode === ribbonMode || !['classic', 'grid'].includes(nextMode)) return
     const activeSheet = editorApi?.getActiveSheet()
     const activeRange = activeSheet?.getActiveRange?.()
     if (activeSheet && activeRange) {
@@ -285,7 +285,7 @@ export default function WorkbookEditor() {
       }
     }
     setRibbonMode(nextMode)
-    try { window.localStorage.setItem('gridnova:ribbon-mode-v3:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
+    try { window.localStorage.setItem('gridnova:ribbon-mode-v4:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
   async function handleQuickAccessCommand(commandId) {
@@ -443,7 +443,7 @@ export default function WorkbookEditor() {
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
         <div className="ribbon-mode-switch" role="group" aria-label="Ribbon display mode">
-          <button type="button" className={ribbonMode === 'collapsed' ? 'active' : ''} aria-pressed={ribbonMode === 'collapsed'} onClick={() => handleRibbonModeChange('collapsed')} title="Single Line Ribbon">
+          <button type="button" className={ribbonMode === 'grid' ? 'active' : ''} aria-pressed={ribbonMode === 'grid'} onClick={() => handleRibbonModeChange('grid')} title="Single Line Ribbon">
             <TableRegular /> <span>Single Line</span>
           </button>
           <button type="button" className={ribbonMode === 'classic' ? 'active' : ''} aria-pressed={ribbonMode === 'classic'} onClick={() => handleRibbonModeChange('classic')} title="Classic Ribbon">
