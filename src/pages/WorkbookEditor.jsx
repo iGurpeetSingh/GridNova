@@ -413,10 +413,16 @@ export default function WorkbookEditor() {
       await saveNow({ force: true })
       return
     }
+    if (action === 'browse-workbooks') {
+      await saveNow({ force: true })
+      navigate('/')
+      return
+    }
     if (action === 'new-workbook') {
       const nextId = makeWorkbookId()
       const nextTitle = 'Untitled workbook'
       try {
+        await saveNow({ force: true })
         const snapshot = makeBlankSnapshot(nextId, nextTitle)
         await saveWorkbook({ id: nextId, name: nextTitle, snapshot })
         navigate('/workbook/' + nextId + '?title=' + encodeURIComponent(nextTitle))
