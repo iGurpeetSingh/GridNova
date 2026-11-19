@@ -1901,7 +1901,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
       title: group.title,
       order: group.order,
     })
-    withRibbonGridLayouts(group.items).forEach((item) => {
+    withRibbonGridLayouts(group.items, ribbonType).forEach((item) => {
       groupMenu.addSubmenu(univerAPI.createMenu({
         id: 'gridnova.ribbon.home.' + item.id,
         title: item.title,
