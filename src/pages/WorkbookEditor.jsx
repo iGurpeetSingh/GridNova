@@ -68,7 +68,7 @@ export default function WorkbookEditor() {
       // Verified against the two supplied screenshots:
       // Univer "classic" renders the compact one-row toolbar;
       // Univer "grid" renders the expanded two-row ribbon.
-      const savedMode = window.localStorage.getItem('gridnova:ribbon-mode-v6:' + workbookId)
+      const savedMode = window.localStorage.getItem('gridnova:ribbon-mode-v7:' + workbookId)
       return savedMode === 'grid' ? 'grid' : 'classic'
     } catch { return 'classic' }
   })
@@ -327,7 +327,7 @@ export default function WorkbookEditor() {
       }
     }
     setRibbonMode(nextMode)
-    try { window.localStorage.setItem('gridnova:ribbon-mode-v6:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
+    try { window.localStorage.setItem('gridnova:ribbon-mode-v7:' + workbookId, nextMode) } catch { /* preference storage is optional */ }
   }
 
   async function handleQuickAccessCommand(commandId) {
