@@ -309,6 +309,112 @@ function GridNovaSymbol({ data }) {
   )
 }
 
+function GridNovaInkCanvas({ data, univerAPI }) {
+  const [strokes, setStrokes] = useState(() => Array.isArray(data?.strokes) ? data.strokes : [])
+  const [draft, setDraft] = useState(null)
+  const pointerIdRef = useRef(null)
+  const svgRef = useRef(null)
+
+  useEffect(() => {
+    setStrokes(Array.isArray(data?.strokes) ? data.strokes : [])
+  }, [data?.strokes])
+
+  const mode = data?.mode === 'highlighter' ? 'highlighter' : 'pen'
+  const defaultColor = mode === 'highlighter' ? '#ffe66d' : '#1d4ed8'
+  const defaultWidth = mode === 'highlighter' ? 14 : 3
+
+  function getPoint(event) {
+    const bounds = svgRef.current?.getBoundingClientRect()
+    if (!bounds || !bounds.width || !bounds.height) return null
+    return {
+      x: Math.max(0, Math.min(360, (event.clientX - bounds.left) / bounds.width * 360)),
+      y: Math.max(0, Math.min(200, (event.clientY - bounds.top) / bounds.height * 200)),
+    }
+  }
+
+  function persistStrokes(nextStrokes) {
+    setStrokes(nextStrokes)
+    const sheet = univerAPI?.getActiveWorkbook?.()?.getActiveSheet?.()
+    if (!sheet || !data?.id || typeof sheet.updateFloatDom !== 'function') return
+    try {
+      sheet.updateFloatDom(data.id, {
+        data: { ...data, strokes: nextStrokes },
+      })
+    } catch (error) {
+      univerAPI?.showMessage?.({
+        content: error instanceof Error ? error.message : 'Could not save the drawing stroke.',
+        type: 'error',
+      })
+    }
+  }
+
+  function handlePointerDown(event) {
+    if (event.button !== undefined && event.button !== 0) return
+    const point = getPoint(event)
+    if (!point) return
+    event.preventDefault()
+    pointerIdRef.current = event.pointerId
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+    setDraft({
+      points: [point],
+      color: mode === 'highlighter' ? '#f2c94c' : defaultColor,
+      width: defaultWidth,
+      opacity: mode === 'highlighter' ? 0.48 : 1,
+    })
+  }
+
+  function handlePointerMove(event) {
+    if (pointerIdRef.current !== event.pointerId) return
+    const point = getPoint(event)
+    if (!point) return
+    setDraft((previous) => previous ? { ...previous, points: [...previous.points, point] } : previous)
+  }
+
+  function finishStroke(event) {
+    if (pointerIdRef.current !== event.pointerId) return
+    pointerIdRef.current = null
+    try { event.currentTarget.releasePointerCapture?.(event.pointerId) } catch { /* pointer already released */ }
+    setDraft((current) => {
+      if (current?.points?.length) persistStrokes([...strokes, current])
+      return null
+    })
+  }
+
+  const visibleStrokes = draft ? [...strokes, draft] : strokes
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,.88)', border: '1px solid #94a3b8', borderRadius: 8, overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', zIndex: 1, top: 5, left: 8, pointerEvents: 'none', padding: '2px 6px', borderRadius: 4, background: 'rgba(255,255,255,.82)', color: '#475569', fontSize: 10, fontFamily: 'Arial,sans-serif' }}>
+        {mode === 'highlighter' ? 'Highlighter · drag to mark' : 'Pen · drag to draw'}
+      </div>
+      <svg
+        ref={svgRef}
+        viewBox="0 0 360 200"
+        preserveAspectRatio="none"
+        width="100%"
+        height="100%"
+        style={{ display: 'block', touchAction: 'none', cursor: 'crosshair' }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishStroke}
+        onPointerCancel={finishStroke}
+      >
+        {visibleStrokes.map((stroke, index) => (
+          <polyline
+            key={index}
+            points={(stroke.points || []).map((point) => point.x + ',' + point.y).join(' ')}
+            fill="none"
+            stroke={stroke.color || defaultColor}
+            strokeWidth={stroke.width || defaultWidth}
+            strokeOpacity={stroke.opacity ?? 1}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        ))}
+      </svg>
+    </div>
+  )
+}
+
 function applyCellStylePreset(univerAPI, presetName) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
@@ -395,6 +501,7 @@ function registerDrawingComponents(univerAPI) {
     univerAPI.registerComponent('gridnova-bar-chart', GridNovaBarChart),
     univerAPI.registerComponent('gridnova-text-box', GridNovaTextBox),
     univerAPI.registerComponent('gridnova-symbol', GridNovaSymbol),
+    univerAPI.registerComponent('gridnova-ink-canvas', (props) => <GridNovaInkCanvas {...props} univerAPI={univerAPI} />),
   ]
 }
 
@@ -518,6 +625,76 @@ function deleteGridNovaShape(univerAPI) {
   if (!window.confirm('Delete the selected GridNova shape or text overlay?')) return false
   selected.sheet.removeFloatDom(selected.item.id)
   univerAPI.showMessage({ content: 'GridNova object deleted.', type: 'success' })
+  return true
+}
+
+function insertInkCanvas(univerAPI, mode = 'pen') {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet || typeof sheet.addFloatDomToRange !== 'function') {
+    univerAPI.showMessage({ content: 'The worksheet Drawing Facade is unavailable.', type: 'warning' })
+    return false
+  }
+
+  const range = sheet.getActiveRange() || sheet.getRange('A1')
+  const id = 'gridnova-ink-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+  const data = { id, mode, createdAt: Date.now(), strokes: [] }
+  const drawing = sheet.addFloatDomToRange(
+    range,
+    { componentKey: 'gridnova-ink-canvas', data, allowTransform: true },
+    { width: 420, height: 240 },
+    id,
+  )
+  if (!drawing) {
+    univerAPI.showMessage({ content: 'The drawing canvas could not be inserted.', type: 'error' })
+    return false
+  }
+  univerAPI.showMessage({
+    content: (mode === 'highlighter' ? 'Highlighter' : 'Pen') + ' canvas added. Drag on it to create saved strokes.',
+    type: 'success',
+  })
+  return true
+}
+
+function getLatestInkCanvas(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  if (!sheet || typeof sheet.getAllFloatDoms !== 'function') return null
+  const canvases = sheet.getAllFloatDoms()
+    .filter((item) => item.componentKey === 'gridnova-ink-canvas')
+    .sort((a, b) => Number(b.data?.createdAt || 0) - Number(a.data?.createdAt || 0))
+  return canvases.length ? { sheet, item: canvases[0] } : null
+}
+
+function eraseLastInkStroke(univerAPI) {
+  const canvas = getLatestInkCanvas(univerAPI)
+  if (!canvas) {
+    univerAPI.showMessage({ content: 'Add a Pen or Highlighter canvas before using Eraser.', type: 'warning' })
+    return false
+  }
+  const strokes = Array.isArray(canvas.item.data?.strokes) ? canvas.item.data.strokes : []
+  if (!strokes.length) {
+    univerAPI.showMessage({ content: 'There are no strokes to erase on the latest drawing canvas.', type: 'info' })
+    return false
+  }
+  canvas.sheet.updateFloatDom(canvas.item.id, {
+    data: { ...canvas.item.data, strokes: strokes.slice(0, -1) },
+  })
+  univerAPI.showMessage({ content: 'Last stroke erased from the latest drawing canvas.', type: 'success' })
+  return true
+}
+
+function clearLatestInkCanvas(univerAPI) {
+  const canvas = getLatestInkCanvas(univerAPI)
+  if (!canvas) {
+    univerAPI.showMessage({ content: 'There is no GridNova drawing canvas on this worksheet.', type: 'warning' })
+    return false
+  }
+  const strokes = Array.isArray(canvas.item.data?.strokes) ? canvas.item.data.strokes : []
+  if (!strokes.length) return false
+  if (!window.confirm('Clear all strokes from the latest drawing canvas?')) return false
+  canvas.sheet.updateFloatDom(canvas.item.id, {
+    data: { ...canvas.item.data, strokes: [] },
+  })
+  univerAPI.showMessage({ content: 'Drawing canvas cleared.', type: 'success' })
   return true
 }
 
@@ -1023,7 +1200,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'draw', title: 'Draw', order: 11, groups: [
         { id: 'drawing', title: 'Drawing Tools', items: [
-          { id: 'draw-tools-unavailable', title: 'Pen / Highlighter / Eraser (Unavailable)', action: 'draw-tools-unavailable' },
+          { id: 'pen', title: 'Pen', icon: 'draw', run: (api) => insertInkCanvas(api, 'pen') },
+          { id: 'highlighter', title: 'Highlighter', icon: 'paint', run: (api) => insertInkCanvas(api, 'highlighter') },
+          { id: 'eraser', title: 'Eraser (Last Stroke)', icon: 'cut', run: eraseLastInkStroke },
+          { id: 'clear-canvas', title: 'Clear Latest Canvas', icon: 'cut', run: clearLatestInkCanvas },
         ] },
       ],
     },
