@@ -1379,7 +1379,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'workbook', title: 'Workbook', items: [
           { id: 'new-workbook', title: 'New Workbook', icon: 'home', action: 'new-workbook' },
           { id: 'open-workbook', title: 'Browse Workbooks', icon: 'home', action: 'browse-workbooks' },
-          { id: 'import-workbook', title: 'Import XLSX / CSV', icon: 'import', action: 'import' },
+          { id: 'import-workbook', title: 'Open Workbook (XLSX / CSV)', icon: 'import', action: 'import' },
           { id: 'save', title: 'Save', icon: 'save', action: 'save' },
           { id: 'save-as', title: 'Save As', icon: 'copy', action: 'save-as' },
           { id: 'export-xlsx', title: 'Export Excel', icon: 'export', action: 'export-xlsx' },
