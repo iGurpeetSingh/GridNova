@@ -17,6 +17,15 @@ export function normalizeRibbonType(savedValue) {
     : RIBBON_TYPE.SINGLE_LINE
 }
 
+/**
+ * CSS presentation class for the selected Univer ribbon type.
+ * Univer 1.5.2 uses "classic" for a tab row plus a separate toolbar row,
+ * and "grid" for the expanded two-row command groups.
+ */
+export function getRibbonPresentationMode(value) {
+  return value === RIBBON_TYPE.SINGLE_LINE ? 'single-line' : 'classic'
+}
+
 export function isRibbonType(value) {
   return value === RIBBON_TYPE.SINGLE_LINE || value === RIBBON_TYPE.CLASSIC
 }
