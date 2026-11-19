@@ -579,6 +579,15 @@ function removeDuplicatesFromSelection(univerAPI) {
     return
   }
 
+  const lastUsedColumn = sheet.getLastColumn?.() ?? -1
+  if (range.getColumn() !== 0 || range.getLastColumn() !== lastUsedColumn) {
+    univerAPI.showMessage({
+      content: 'To remove worksheet rows safely, select the full data width from column A through the last used column.',
+      type: 'warning',
+    })
+    return
+  }
+
   const values = range.getValues()
   if (!Array.isArray(values) || values.length < 2) {
     univerAPI.showMessage({ content: 'The selected range does not contain duplicate rows to remove.', type: 'info' })
