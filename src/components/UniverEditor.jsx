@@ -219,31 +219,99 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
 
 
 
-function GridNovaBarChart({ data }) {
+function GridNovaDataChart({ data }) {
   const labels = Array.isArray(data?.labels) ? data.labels : []
-  const values = Array.isArray(data?.values) ? data.values : []
-  const maxValue = Math.max(1, ...values.map((value) => Math.max(0, Number(value) || 0)))
-  const chartWidth = 330
-  const chartHeight = 150
-  const barGap = 10
-  const barWidth = Math.max(8, (chartWidth - Math.max(0, values.length - 1) * barGap) / Math.max(1, values.length))
+  const values = Array.isArray(data?.values) ? data.values.map((value) => Number(value) || 0) : []
+  const type = ['bar', 'column', 'line', 'pie', 'area'].includes(data?.type) ? data.type : 'bar'
+  const colors = ['#217346', '#4472c4', '#ed7d31', '#70ad47', '#a5a5a5', '#ffc000', '#5b9bd5', '#8064a2', '#c0504d', '#4bacc6']
+  const positiveValues = values.map((value) => Math.max(0, value))
+  const maxValue = Math.max(1, ...positiveValues)
+  const total = positiveValues.reduce((sum, value) => sum + value, 0)
+  const chartTitle = String(data?.title || (type[0].toUpperCase() + type.slice(1) + ' Chart'))
+  const plotLeft = 34
+  const plotTop = 24
+  const plotWidth = 306
+  const plotHeight = 132
+  const chartBottom = plotTop + plotHeight
+  const points = positiveValues.map((value, index) => ({
+    x: positiveValues.length <= 1 ? plotLeft + plotWidth / 2 : plotLeft + index * plotWidth / (positiveValues.length - 1),
+    y: chartBottom - value / maxValue * (plotHeight - 8),
+    value,
+    label: String(labels[index] || index + 1),
+  }))
+  const pieRadius = 58
+  const pieCircumference = 2 * Math.PI * pieRadius
+  let pieOffset = 0
+
   return (
-    <div style={{ width: '100%', height: '100%', padding: 8, boxSizing: 'border-box', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8 }}>
-      <svg viewBox="0 0 360 205" width="100%" height="100%" role="img" aria-label="GridNova bar chart">
-        <line x1="20" y1="165" x2="348" y2="165" stroke="#94a3b8" strokeWidth="1" />
-        {values.map((value, index) => {
-          const numeric = Math.max(0, Number(value) || 0)
-          const height = numeric / maxValue * chartHeight
-          const x = 22 + index * (barWidth + barGap)
-          const y = 165 - height
+    <div style={{ width: '100%', height: '100%', padding: 8, boxSizing: 'border-box', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, fontFamily: 'Arial,sans-serif' }}>
+      <div style={{ height: 18, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontSize: 12, fontWeight: 700, color: '#243342' }}>{chartTitle}</div>
+      <svg viewBox="0 0 360 205" width="100%" height="calc(100% - 18px)" role="img" aria-label={'GridNova ' + type + ' chart'}>
+        {(type === 'bar') && values.map((value, index) => {
+          const numeric = positiveValues[index]
+          const y = 26 + index * Math.max(15, 145 / Math.max(1, values.length))
+          const height = Math.max(8, Math.min(22, 140 / Math.max(1, values.length) - 3))
           return (
             <g key={index}>
-              <rect x={x} y={y} width={barWidth} height={height} rx="3" fill="#217346" />
-              <text x={x + barWidth / 2} y="181" textAnchor="middle" fontSize="9" fill="#475569">{String(labels[index] || '').slice(0, 9)}</text>
-              <text x={x + barWidth / 2} y={Math.max(12, y - 5)} textAnchor="middle" fontSize="9" fill="#334155">{numeric}</text>
+              <text x="4" y={y + height * .78} fontSize="9" fill="#475569">{String(labels[index] || index + 1).slice(0, 7)}</text>
+              <rect x="72" y={y} width={numeric / maxValue * 250} height={height} rx="3" fill={colors[index % colors.length]} />
+              <text x={Math.min(336, 76 + numeric / maxValue * 250)} y={y + height * .78} fontSize="9" fill="#334155">{numeric}</text>
             </g>
           )
         })}
+        {type === 'column' && <>
+          <line x1={plotLeft} y1={chartBottom} x2="348" y2={chartBottom} stroke="#94a3b8" strokeWidth="1" />
+          {values.map((value, index) => {
+            const numeric = positiveValues[index]
+            const width = Math.max(7, Math.min(32, plotWidth / Math.max(1, values.length) - 5))
+            const x = plotLeft + index * (plotWidth / Math.max(1, values.length)) + 2
+            const height = numeric / maxValue * (plotHeight - 8)
+            const y = chartBottom - height
+            return <g key={index}>
+              <rect x={x} y={y} width={width} height={height} rx="2" fill={colors[index % colors.length]} />
+              <text x={x + width / 2} y="177" textAnchor="middle" fontSize="8" fill="#475569">{String(labels[index] || '').slice(0, 6)}</text>
+              <text x={x + width / 2} y={Math.max(18, y - 4)} textAnchor="middle" fontSize="8" fill="#334155">{numeric}</text>
+            </g>
+          })}
+        </>}
+        {type === 'line' && <>
+          <line x1={plotLeft} y1={chartBottom} x2="348" y2={chartBottom} stroke="#94a3b8" strokeWidth="1" />
+          <polyline points={points.map((point) => point.x + ',' + point.y).join(' ')} fill="none" stroke="#217346" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+          {points.map((point, index) => <g key={index}>
+            <circle cx={point.x} cy={point.y} r="4" fill="#217346" />
+            <text x={point.x} y="177" textAnchor="middle" fontSize="8" fill="#475569">{point.label.slice(0, 6)}</text>
+          </g>)}
+        </>}
+        {type === 'area' && <>
+          <line x1={plotLeft} y1={chartBottom} x2="348" y2={chartBottom} stroke="#94a3b8" strokeWidth="1" />
+          <polygon points={[plotLeft + ',' + chartBottom, ...points.map((point) => point.x + ',' + point.y), points.at(-1)?.x + ',' + chartBottom].join(' ')} fill="#70ad47" fillOpacity=".28" stroke="none" />
+          <polyline points={points.map((point) => point.x + ',' + point.y).join(' ')} fill="none" stroke="#217346" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+          {points.map((point, index) => <text key={index} x={point.x} y="177" textAnchor="middle" fontSize="8" fill="#475569">{point.label.slice(0, 6)}</text>)}
+        </>}
+        {type === 'pie' && <>
+          {total > 0 && values.map((value, index) => {
+            const fraction = positiveValues[index] / total
+            const length = fraction * pieCircumference
+            const offset = pieOffset
+            pieOffset += length
+            return <circle
+              key={index}
+              cx="148"
+              cy="96"
+              r={pieRadius}
+              fill="none"
+              stroke={colors[index % colors.length]}
+              strokeWidth="42"
+              strokeDasharray={length + ' ' + (pieCircumference - length)}
+              strokeDashoffset={-offset}
+              transform="rotate(-90 148 96)"
+            />
+          })}
+          {values.slice(0, 8).map((value, index) => <g key={index}>
+            <rect x="236" y={28 + index * 19} width="9" height="9" fill={colors[index % colors.length]} />
+            <text x="250" y={36 + index * 19} fontSize="9" fill="#334155">{String(labels[index] || index + 1).slice(0, 10)}: {positiveValues[index]}</text>
+          </g>)}
+        </>}
       </svg>
     </div>
   )
@@ -500,12 +568,12 @@ function openFormatCellsDialog(univerAPI) {
   }
 }
 
-function insertBasicChart(univerAPI) {
+function insertChartOverlay(univerAPI, chartType = 'column') {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
   if (!sheet || !range || typeof sheet.addFloatDomToRange !== 'function') {
-    univerAPI.showMessage({ content: 'Select a two-column data range to insert a chart.', type: 'warning' })
-    return
+    univerAPI.showMessage({ content: 'Select a two-column data range to insert a chart overlay.', type: 'warning' })
+    return false
   }
   const rows = range.getValues()
   const dataRows = rows.map((row, index) => ({
@@ -514,20 +582,41 @@ function insertBasicChart(univerAPI) {
   })).filter((row) => Number.isFinite(row.value))
   if (!dataRows.length) {
     univerAPI.showMessage({ content: 'The selected range needs labels in the first column and numbers in the second column.', type: 'warning' })
-    return
+    return false
+  }
+  if (chartType === 'pie' && dataRows.some((row) => row.value < 0)) {
+    univerAPI.showMessage({ content: 'Pie chart overlays require non-negative values.', type: 'warning' })
+    return false
   }
   const id = 'gridnova-chart-' + (globalThis.crypto?.randomUUID?.() || Date.now())
   const chart = sheet.addFloatDomToRange(
     range,
-    { componentKey: 'gridnova-bar-chart', data: { labels: dataRows.map((row) => row.label), values: dataRows.map((row) => row.value) }, allowTransform: true },
-    { width: 360, height: 220 },
+    {
+      componentKey: 'gridnova-data-chart',
+      data: {
+        type: chartType,
+        title: chartType[0].toUpperCase() + chartType.slice(1) + ' Chart',
+        labels: dataRows.map((row) => row.label),
+        values: dataRows.map((row) => row.value),
+      },
+      allowTransform: true,
+    },
+    { width: 420, height: 260 },
     id,
   )
   if (!chart) {
-    univerAPI.showMessage({ content: 'The chart could not be inserted.', type: 'error' })
-    return
+    univerAPI.showMessage({ content: 'The chart overlay could not be inserted.', type: 'error' })
+    return false
   }
-  univerAPI.showMessage({ content: 'Bar chart inserted over the selected data range.', type: 'success' })
+  univerAPI.showMessage({
+    content: chartType[0].toUpperCase() + chartType.slice(1) + ' chart overlay inserted. It is a GridNova drawing object, not a native editable Excel chart.',
+    type: 'success',
+  })
+  return true
+}
+
+function insertBasicChart(univerAPI) {
+  return insertChartOverlay(univerAPI, 'bar')
 }
 
 function GridNovaRectangleShape({ data }) {
@@ -553,7 +642,8 @@ function registerDrawingComponents(univerAPI) {
     univerAPI.registerComponent('gridnova-draw-rectangle', GridNovaRectangleShape),
     univerAPI.registerComponent('gridnova-draw-ellipse', GridNovaEllipseShape),
     univerAPI.registerComponent('gridnova-draw-line', GridNovaLineShape),
-    univerAPI.registerComponent('gridnova-bar-chart', GridNovaBarChart),
+    univerAPI.registerComponent('gridnova-bar-chart', GridNovaDataChart),
+    univerAPI.registerComponent('gridnova-data-chart', GridNovaDataChart),
     univerAPI.registerComponent('gridnova-text-box', GridNovaTextBox),
     univerAPI.registerComponent('gridnova-symbol', GridNovaSymbol),
     univerAPI.registerComponent('gridnova-ink-canvas', (props) => <GridNovaInkCanvas {...props} univerAPI={univerAPI} />),
@@ -1632,8 +1722,11 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
-        { id: 'insert-chart', title: 'Insert Bar Chart Overlay', icon: 'table', run: insertBasicChart },
-        { id: 'native-charts-unavailable', title: 'Column / Line / Pie / Area Charts (Unavailable)', action: 'insert-charts-unavailable' },
+        { id: 'insert-bar-chart', title: 'Bar Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'bar') },
+        { id: 'insert-column-chart', title: 'Column Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'column') },
+        { id: 'insert-line-chart', title: 'Line Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'line') },
+        { id: 'insert-pie-chart', title: 'Pie Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'pie') },
+        { id: 'insert-area-chart', title: 'Area Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'area') },
         { id: 'chart-pivot-tools', title: 'Chart & Pivot Summary Tools', icon: 'table', action: 'insert-tools' },
       ],
     },
