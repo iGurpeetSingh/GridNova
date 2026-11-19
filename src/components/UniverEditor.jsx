@@ -249,6 +249,36 @@ function GridNovaBarChart({ data }) {
   )
 }
 
+function applyCellStylePreset(univerAPI, presetName) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!range) {
+    univerAPI.showMessage({ content: 'Select a cell or range before applying a Cell Style.', type: 'warning' })
+    return false
+  }
+
+  const presets = {
+    title: { background: '#217346', color: '#ffffff', weight: 'bold', size: 14, horizontal: 'center', vertical: 'middle' },
+    heading: { background: '#d9ead3', color: '#274e13', weight: 'bold', size: 11 },
+    input: { background: '#fff2cc', color: '#7f6000', weight: 'normal', size: 11 },
+    good: { background: '#d9ead3', color: '#38761d', weight: 'bold', size: 11 },
+    bad: { background: '#f4cccc', color: '#990000', weight: 'bold', size: 11 },
+    neutral: { background: '#eeeeee', color: '#444444', weight: 'normal', size: 11 },
+  }
+  const preset = presets[presetName]
+  if (!preset) return false
+
+  range.setBackgroundColor(preset.background)
+  range.setFontColor(preset.color)
+  range.setFontWeight(preset.weight)
+  range.setFontSize(preset.size)
+  if (preset.horizontal) range.setHorizontalAlignment(preset.horizontal)
+  if (preset.vertical) range.setVerticalAlignment(preset.vertical)
+
+  univerAPI.showMessage({ content: presetName[0].toUpperCase() + presetName.slice(1) + ' style applied to the selected range.', type: 'success' })
+  return true
+}
+
 function insertBasicChart(univerAPI) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
@@ -824,7 +854,12 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       id: 'styles', title: 'Styles', order: 5, items: [
         { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', gridLayout: { row: 1, column: 1 }, command: 'sheet.operation.open.conditional.formatting.panel', params: { value: 3 } },
         { id: 'format-as-table', title: 'Format as Table', icon: 'table', gridLayout: { row: 1, column: 2 }, run: formatSelectionAsTable },
-        { id: 'cell-styles', title: 'Cell Styles (Unavailable)', icon: 'paint', action: 'cell-styles-unavailable' },
+        { id: 'cell-style-title', title: 'Title Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'title') },
+        { id: 'cell-style-heading', title: 'Heading Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'heading') },
+        { id: 'cell-style-input', title: 'Input Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'input') },
+        { id: 'cell-style-good', title: 'Good Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'good') },
+        { id: 'cell-style-bad', title: 'Bad Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'bad') },
+        { id: 'cell-style-neutral', title: 'Neutral Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'neutral') },
         { id: 'format-cells', title: 'Format Cells (Unavailable)', icon: 'layout', action: 'format-cells-unavailable' },
       ],
     },
