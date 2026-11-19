@@ -588,6 +588,10 @@ function insertChartOverlay(univerAPI, chartType = 'column') {
     univerAPI.showMessage({ content: 'Pie chart overlays require non-negative values.', type: 'warning' })
     return false
   }
+  if (chartType === 'pie' && dataRows.every((row) => row.value === 0)) {
+    univerAPI.showMessage({ content: 'Pie charts require at least one value greater than zero.', type: 'warning' })
+    return false
+  }
   const id = 'gridnova-chart-' + (globalThis.crypto?.randomUUID?.() || Date.now())
   const chart = sheet.addFloatDomToRange(
     range,
