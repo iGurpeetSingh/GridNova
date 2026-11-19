@@ -182,7 +182,7 @@ async function executeRibbonItem(univerAPI, item, onRibbonAction) {
   }
 }
 
-function addRibbonTab(univerAPI, tab, onRibbonAction) {
+function addRibbonTab(univerAPI, tab, onRibbonAction, ribbonType) {
   const root = univerAPI.createSubmenu({
     // Separate localized tab keys from their group keys. LocaleService resolves
     // dotted paths, so a tab label cannot also be the parent of a group object.
@@ -197,7 +197,7 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
       title: group.title,
     })
 
-    withRibbonGridLayouts(group.items).forEach((item) => {
+    withRibbonGridLayouts(group.items, ribbonType).forEach((item) => {
       const action = () => executeRibbonItem(univerAPI, item, onRibbonAction)
       const menu = univerAPI.createMenu({
         id: 'gridnova.ribbon.commands.' + tab.id + '.' + item.id,
@@ -1512,7 +1512,7 @@ function splitTextToColumns(univerAPI) {
   univerAPI.showMessage({ content: 'Split ' + output.length + ' row(s) into ' + outputColumnCount + ' column(s).', type: 'success' })
 }
 
-function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
+function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   const icons = registerRibbonIcons(univerAPI)
   const drawingComponents = registerDrawingComponents(univerAPI)
   const tabs = [
@@ -1623,7 +1623,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
   ]
 
   // Univer's Facade supports adding groups to built-in tabs and root tabs via appendTo('ribbon').
-  const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction))
+  const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction, ribbonType))
 
   const clipboardGroup = univerAPI.createSubmenu({
     id: 'gridnova.ribbon.home.clipboard',
@@ -1881,7 +1881,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       title: group.title,
       order: group.order,
     })
-    withRibbonGridLayouts(group.items).forEach((item) => {
+    withRibbonGridLayouts(group.items, ribbonType).forEach((item) => {
       groupMenu.addSubmenu(univerAPI.createMenu({
         id: 'gridnova.ribbon.' + group.id + '.' + item.id,
         title: item.title,
@@ -2159,7 +2159,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
       univerAPI.createWorkbook(workbookData)
       applySavedWorkbookPrintSettings(univerAPI)
       addColumnHeaderDeleteAction(univerAPI)
-      ribbonDisposables = addMicrosoftInspiredRibbonTabs(univerAPI, (action) => onRibbonActionRef.current?.(action))
+      ribbonDisposables = addMicrosoftInspiredRibbonTabs(univerAPI, (action) => onRibbonActionRef.current?.(action), config.ribbonType)
 
       const editorApi = {
         getSnapshot() {
