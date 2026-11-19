@@ -41,6 +41,7 @@ export const HOME_RIBBON_ICON_OVERRIDES = Object.freeze({
 export const HOME_VALUE_SELECTOR_IDS = Object.freeze([
   'sheet.command.set-range-font-family',
   'sheet.command.set-range-fontsize',
+  'sheet.operation.open.numfmt.panel',
 ])
 
 export const HOME_COMPACT_SELECTOR_IDS = Object.freeze([
