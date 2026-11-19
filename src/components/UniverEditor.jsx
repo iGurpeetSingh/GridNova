@@ -616,6 +616,18 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'page-setup', title: 'Page Setup', items: [
           { id: 'print-layout', title: 'Page Setup', icon: 'layout', command: 'sheet.operation.open-print-grid-sidebar' },
           { id: 'print', title: 'Print', icon: 'print', action: 'print' },
+          { id: 'orientation', title: 'Page Orientation (Unavailable)', action: 'page-layout-unavailable' },
+          { id: 'paper-size', title: 'Paper Size (Unavailable)', action: 'page-layout-unavailable' },
+          { id: 'margins', title: 'Margins (Unavailable)', action: 'page-layout-unavailable' },
+          { id: 'print-area', title: 'Print Area (Unavailable)', action: 'page-layout-unavailable' },
+          { id: 'page-breaks', title: 'Page Breaks (Unavailable)', action: 'page-layout-unavailable' },
+        ] },
+        { id: 'scale-to-fit', title: 'Scale to Fit', items: [
+          { id: 'fit-width', title: 'Fit to Width (Unavailable)', action: 'page-layout-unavailable' },
+          { id: 'fit-height', title: 'Fit to Height (Unavailable)', action: 'page-layout-unavailable' },
+        ] },
+        { id: 'sheet-background', title: 'Sheet Background', items: [
+          { id: 'background-image', title: 'Background Image (Unavailable)', action: 'page-layout-unavailable' },
         ] },
       ],
     },
@@ -625,10 +637,12 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
           { id: 'new-comment', title: 'New Comment', icon: 'review', command: 'sheet.operation.show-comment-modal' },
           { id: 'new-note', title: 'New Note', action: 'open-note' },
           { id: 'comment-panel', title: 'Comment Management', command: 'sheet.operation.toggle-comment-panel' },
+          { id: 'spelling', title: 'Spelling (Unavailable)', action: 'review-tools-unavailable' },
         ] },
         { id: 'protection', title: 'Protection', items: [
           { id: 'protect-range', title: 'Protect Selected Range', command: 'sheet.command.add-range-protection-from-toolbar' },
-          { id: 'protect-sheet-workbook-unavailable', title: 'Sheet / Workbook Protection (Unavailable)', action: 'sheet-protection-unavailable' },
+          { id: 'protect-sheet-workbook-unavailable', title: 'Protect Sheet / Workbook (Unavailable)', action: 'sheet-protection-unavailable' },
+          { id: 'show-changes', title: 'Show Changes (Unavailable)', action: 'review-tools-unavailable' },
         ] },
         { id: 'history', title: 'History', items: [
           { id: 'edit-history', title: 'Edit History', command: 'univer.operation.toggle-edit-history' },
@@ -678,6 +692,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut', gridLayout: { row: 1, column: 2 } },
     { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy', gridLayout: { row: 2, column: 2 } },
     { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: 'sheet.command.set-once-format-painter', gridLayout: { row: 1, column: 3 } },
+    { id: 'paste-special', title: 'Paste Special (Unavailable)', icon: 'paste', action: 'paste-special-unavailable', gridLayout: { row: 2, column: 3 } },
   ].forEach((item) => {
     clipboardGroup.addSubmenu(univerAPI.createMenu({
       id: 'gridnova.ribbon.home.clipboard.' + item.id,
@@ -695,6 +710,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       id: 'styles', title: 'Styles', order: 5, items: [
         { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', gridLayout: { row: 1, column: 1 }, command: 'sheet.operation.open.conditional.formatting.panel' },
         { id: 'format-as-table', title: 'Format as Table', icon: 'table', gridLayout: { row: 1, column: 2 }, run: formatSelectionAsTable },
+        { id: 'cell-styles', title: 'Cell Styles (Unavailable)', icon: 'paint', action: 'cell-styles-unavailable' },
+        { id: 'format-cells', title: 'Format Cells (Unavailable)', icon: 'layout', action: 'format-cells-unavailable' },
       ],
     },
     {
@@ -849,6 +866,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       path: 'ribbon.view', id: 'show', title: 'Show', order: 0, items: [
         { id: 'toggle-gridlines', title: 'Gridlines', icon: 'layout', run: toggleGridlines },
         { id: 'formula-bar-unavailable', title: 'Formula Bar (Unavailable)', action: 'formula-bar-unavailable' },
+        { id: 'normal-view', title: 'Normal View (Current)', action: 'normal-view-current' },
+        { id: 'page-layout-view', title: 'Page Layout View (Unavailable)', action: 'view-tools-unavailable' },
       ],
     },
     {
