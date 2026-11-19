@@ -5,6 +5,7 @@ import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import '@univerjs/ui/facade'
 import '@univerjs/sheets/facade'
 import { withRibbonGridLayouts } from '../utils/ribbonLayout.js'
+import { getRibbonPresentationMode } from '../utils/ribbonMode.js'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
 import { UniverSheetsDrawingPreset } from '@univerjs/preset-sheets-drawing'
 import UniverPresetSheetsDrawingEnUS from '@univerjs/preset-sheets-drawing/locales/en-US'
@@ -1983,24 +1984,6 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     'sheet.command.add-range-protection-from-toolbar': { icon: 'gridnova-icon-review' },
   })
 
-  if (ribbonType === 'classic') {
-    const iconOnlyCommands = [
-      'univer.command.undo','univer.command.redo','sheet.command.cut','sheet.command.copy','sheet.command.paste',
-      'sheet.command.set-range-bold','sheet.command.set-range-italic','sheet.command.set-range-underline','sheet.command.set-range-stroke',
-      'sheet.command.set-range-text-color','sheet.command.set-background-color','sheet.command.set-border-basic',
-      'sheet.command.set-horizontal-text-align','sheet.command.set-vertical-text-align','sheet.command.set-text-wrap',
-      'sheet.command.add-worksheet-merge','sheet.command.add-worksheet-merge-all','sheet.command.add-worksheet-merge-vertical',
-      'sheet.command.add-worksheet-merge-horizontal','sheet.command.remove-worksheet-merge',
-      'sheet.command.set-range-font-increase','sheet.command.set-range-font-decrease',
-      'sheet.command.numfmt.set.currency','sheet.command.numfmt.set.percent',
-      'sheet.command.numfmt.add.decimal.command','sheet.command.numfmt.subtract.decimal.command',
-      'sheet.command.smart-toggle-filter','sheet.command.sort-range-asc','sheet.command.sort-range-desc',
-      'ui.operation.open-find-dialog','sheet.command.insert-row-before','sheet.command.insert-col-before',
-      'sheet.command.remove-row-confirm','sheet.command.remove-col-confirm',
-    ]
-    const menuConfig = Object.fromEntries(iconOnlyCommands.map((id) => [id, { title: '', showLabel: false }]))
-    univerAPI.updateMenuConfig(menuConfig)
-  }
 
   return [...icons, ...drawingComponents, ...menus, clipboardGroup, ...homeGroupMenus, ...nativeTabGroupMenus]
 }
@@ -2053,7 +2036,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
 
     try {
       const config = initialConfigRef.current
-      containerRef.current?.setAttribute('data-gridnova-ribbon-mode', config.ribbonType === 'classic' ? 'single-line' : 'classic')
+      containerRef.current?.setAttribute('data-gridnova-ribbon-mode', getRibbonPresentationMode(config.ribbonType))
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
@@ -2210,7 +2193,11 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
           return univerAPI.executeCommand(commandId, params)
         },
         setRibbonType(type) {
+          if (type !== 'classic' && type !== 'grid') {
+            throw new Error('Unsupported GridNova ribbon mode.')
+          }
           univerAPI.setRibbonType(type)
+          containerRef.current?.setAttribute('data-gridnova-ribbon-mode', getRibbonPresentationMode(type))
         },
         setFormulaBarVisible(visible) {
           const formulaBar = containerRef.current?.querySelector('[data-u-comp="formula-bar"]')
