@@ -762,6 +762,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         title: item.title,
         tooltip: item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
+        gridLayout: item.gridLayout,
         action: () => item.run ? item.run(univerAPI) : item.action ? onRibbonAction?.(item.action) : univerAPI.executeCommand(item.command),
       }))
     })
