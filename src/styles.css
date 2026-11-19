@@ -1587,3 +1587,73 @@ img, svg { max-width: 100%; }
   height: 18px !important;
   flex: 0 0 18px !important;
 }
+
+
+/* Mirror compact selector widths in Univer's off-screen More-menu measurement. */
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [aria-hidden="true"] :is(
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.set-shrink-to-fit"],
+  [data-u-command="sheet.command.set-text-rotation"],
+  [data-u-command="sheet.command.add-worksheet-merge"]
+) {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  width: 46px !important;
+  min-width: 42px !important;
+  max-width: 52px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1px !important;
+  padding: 0 2px !important;
+  overflow: visible !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [aria-hidden="true"] :is(
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.set-shrink-to-fit"],
+  [data-u-command="sheet.command.set-text-rotation"],
+  [data-u-command="sheet.command.add-worksheet-merge"]
+) > svg {
+  display: block !important;
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [aria-hidden="true"] :is(
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.set-shrink-to-fit"],
+  [data-u-command="sheet.command.set-text-rotation"],
+  [data-u-command="sheet.command.add-worksheet-merge"]
+) > .univer-toolbar-selector-trigger {
+  display: inline-flex !important;
+  flex: 0 0 14px !important;
+  width: 14px !important;
+  min-width: 14px !important;
+  max-width: 14px !important;
+  height: 28px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [aria-hidden="true"] [data-u-command="sheet.command.set-range-font-family"] {
+  width: 158px !important;
+  min-width: 150px !important;
+  max-width: 180px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [aria-hidden="true"] [data-u-command="sheet.command.set-range-fontsize"] {
+  width: 72px !important;
+  min-width: 66px !important;
+  max-width: 78px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [aria-hidden="true"] [data-u-command="sheet.operation.open.numfmt.panel"] {
+  width: 104px !important;
+  min-width: 96px !important;
+  max-width: 116px !important;
+}
