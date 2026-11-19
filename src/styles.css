@@ -1175,3 +1175,101 @@ img, svg { max-width: 100%; }
     overflow-y: visible !important;
   }
 }
+
+
+/* Normal Univer SELECTOR items (alignment, wrap, rotation and merge) render
+   an icon plus a div-based dropdown trigger, not two <button> elements.
+   Exclude these roots from the generic 30px icon-button rule and size them
+   as compact icon + arrow selectors. */
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command]:not(:has(> button)):not([data-u-command="sheet.command.set-horizontal-text-align"]):not([data-u-command="sheet.command.set-vertical-text-align"]):not([data-u-command="sheet.command.set-text-wrap"]):not([data-u-command="sheet.command.set-shrink-to-fit"]):not([data-u-command="sheet.command.set-text-rotation"]):not([data-u-command="sheet.command.add-worksheet-merge"]) {
+  display: inline-flex !important;
+  flex: 0 0 30px !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px !important;
+  overflow: visible !important;
+  border-radius: 5px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command]:not(:has(> button)):not([data-u-command="sheet.command.set-horizontal-text-align"]):not([data-u-command="sheet.command.set-vertical-text-align"]):not([data-u-command="sheet.command.set-text-wrap"]):not([data-u-command="sheet.command.set-shrink-to-fit"]):not([data-u-command="sheet.command.set-text-rotation"]):not([data-u-command="sheet.command.add-worksheet-merge"]) > span {
+  display: none !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.set-shrink-to-fit"],
+  [data-u-command="sheet.command.set-text-rotation"],
+  [data-u-command="sheet.command.add-worksheet-merge"]
+) {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  width: 46px !important;
+  min-width: 42px !important;
+  max-width: 52px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1px !important;
+  padding: 0 2px !important;
+  overflow: visible !important;
+  border-radius: 5px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.set-shrink-to-fit"],
+  [data-u-command="sheet.command.set-text-rotation"],
+  [data-u-command="sheet.command.add-worksheet-merge"]
+) > svg {
+  display: block !important;
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.set-shrink-to-fit"],
+  [data-u-command="sheet.command.set-text-rotation"],
+  [data-u-command="sheet.command.add-worksheet-merge"]
+) > .univer-toolbar-selector-trigger {
+  display: inline-flex !important;
+  flex: 0 0 14px !important;
+  width: 14px !important;
+  min-width: 14px !important;
+  max-width: 14px !important;
+  height: 28px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.set-shrink-to-fit"],
+  [data-u-command="sheet.command.set-text-rotation"],
+  [data-u-command="sheet.command.add-worksheet-merge"]
+) > .univer-toolbar-selector-trigger svg {
+  width: 12px !important;
+  height: 12px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] :is(
+  [data-u-command="sheet.command.set-horizontal-text-align"],
+  [data-u-command="sheet.command.set-vertical-text-align"],
+  [data-u-command="sheet.command.set-text-wrap"],
+  [data-u-command="sheet.command.set-shrink-to-fit"],
+  [data-u-command="sheet.command.set-text-rotation"],
+  [data-u-command="sheet.command.add-worksheet-merge"]
+):hover {
+  background: #edf5ef !important;
+}
