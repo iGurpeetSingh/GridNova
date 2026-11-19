@@ -578,7 +578,13 @@ function setGridNovaShapeFill(univerAPI) {
     univerAPI.showMessage({ content: 'Enter a valid CSS color.', type: 'warning' })
     return false
   }
-  const data = { ...(selected.item.data || {}), fill: value, background: value }
+  const current = selected.item.data || {}
+  const componentKey = selected.item.componentKey || ''
+  const data = componentKey === 'gridnova-text-box'
+    ? { ...current, background: value }
+    : componentKey === 'gridnova-symbol'
+      ? { ...current, color: value }
+      : { ...current, fill: value }
   selected.sheet.updateFloatDom(selected.item.id, { data })
   univerAPI.showMessage({ content: 'Shape fill updated.', type: 'success' })
   return true
@@ -594,7 +600,15 @@ function setGridNovaShapeOutline(univerAPI) {
     univerAPI.showMessage({ content: 'Enter a valid CSS color.', type: 'warning' })
     return false
   }
-  const data = { ...(selected.item.data || {}), stroke: value, border: '2px solid ' + value }
+  const current = selected.item.data || {}
+  const componentKey = selected.item.componentKey || ''
+  if (componentKey === 'gridnova-symbol') {
+    univerAPI.showMessage({ content: 'Symbols support Color, but not a separate Outline.', type: 'info' })
+    return false
+  }
+  const data = componentKey === 'gridnova-text-box'
+    ? { ...current, border: '2px solid ' + value }
+    : { ...current, stroke: value }
   selected.sheet.updateFloatDom(selected.item.id, { data })
   univerAPI.showMessage({ content: 'Shape outline updated.', type: 'success' })
   return true
