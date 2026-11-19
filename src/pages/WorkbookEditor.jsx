@@ -500,10 +500,21 @@ export default function WorkbookEditor() {
       'insert-text-unavailable': 'Text Boxes and Icons',
       'data-outline-unavailable': 'Group, Ungroup and Subtotal',
       'formula-bar-unavailable': 'Formula Bar visibility',
+      'paste-special-unavailable': 'Paste Special',
+      'cell-styles-unavailable': 'Cell Styles',
+      'format-cells-unavailable': 'Format Cells',
+      'page-layout-unavailable': 'Page Layout settings',
+      'review-tools-unavailable': 'Spelling / Show Changes',
+      'view-tools-unavailable': 'Page Layout View',
     }
     if (unavailableActions[action]) {
       setNoticeType('error')
       setNotice(unavailableActions[action] + ' is not implemented in this GridNova build.')
+      return
+    }
+    if (action === 'normal-view-current') {
+      setNoticeType('success')
+      setNotice('Normal spreadsheet view is already active.')
       return
     }
     if (action === 'open-shortcuts') {
