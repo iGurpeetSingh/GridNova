@@ -176,6 +176,7 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
         title: item.title,
         tooltip: item.tooltip || item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
+        gridLayout: item.gridLayout,
         action,
       })
       groupMenu.addSubmenu(menu)
@@ -451,6 +452,15 @@ function setSheetZoom(univerAPI, requestedPercentage) {
   sheet.zoom(percentage / 100)
 }
 
+async function toggleFullscreen(univerAPI) {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen()
+    else await document.documentElement.requestFullscreen()
+  } catch {
+    showFeatureUnavailable(univerAPI, 'Fullscreen', 'The browser did not grant fullscreen access.')
+  }
+}
+
 function unfreezePanes(univerAPI) {
   univerAPI.getActiveWorkbook()?.getActiveSheet()?.cancelFreeze()
 }
@@ -650,8 +660,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         ] },
       ],
     },
-  ]e supports adding groups to built-in tabs, not creating top-level tabs via appendTo('ribbon').
-  // Keep the supported Home/Insert tabs and place workbook/share actions inside Home groups.
+  ]
+
+  // Univer's Facade supports adding groups to built-in tabs and root tabs via appendTo('ribbon').
   const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction))
 
   const clipboardGroup = univerAPI.createSubmenu({
@@ -853,7 +864,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'fullscreen', title: 'Fullscreen', run: toggleFullscreen },
       ],
     },
-  ]s = nativeTabGroups.map((group) => {
+  ]
+
+  const nativeTabGroupMenus = nativeTabGroups.map((group) => {
     const groupMenu = univerAPI.createSubmenu({
       id: 'gridnova.ribbon.' + group.path.replaceAll('.', '-') + '.' + group.id,
       title: group.title,
