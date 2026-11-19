@@ -1192,6 +1192,9 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
         executeCommand(commandId, params) {
           return univerAPI.executeCommand(commandId, params)
         },
+        setRibbonType(type) {
+          univerAPI.setRibbonType(type)
+        },
         onCommandExecuted(callback) {
           return univerAPI.addEvent(univerAPI.Event.CommandExecuted, callback)
         },
