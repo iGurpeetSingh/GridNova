@@ -719,6 +719,133 @@ function clearLatestInkCanvas(univerAPI) {
   return true
 }
 
+const PRINT_PAPER_SIZES = ['A3', 'A4', 'A5', 'Letter', 'Legal', 'Tabloid']
+
+function getWorkbookPrintSettings(univerAPI) {
+  const workbookId = univerAPI.getActiveWorkbook()?.getId?.()
+  if (!workbookId) return null
+  const defaults = { orientation: 'portrait', paperSize: 'A4', margin: 12, scale: 100, printBackground: true }
+  try {
+    const saved = JSON.parse(window.localStorage.getItem('gridnova:print-settings:' + workbookId) || '{}')
+    return {
+      ...defaults,
+      orientation: saved.orientation === 'landscape' ? 'landscape' : 'portrait',
+      paperSize: PRINT_PAPER_SIZES.includes(saved.paperSize) ? saved.paperSize : 'A4',
+      margin: Number.isFinite(Number(saved.margin)) ? Math.min(40, Math.max(5, Number(saved.margin))) : 12,
+      scale: Number.isFinite(Number(saved.scale)) ? Math.min(150, Math.max(40, Number(saved.scale))) : 100,
+      printBackground: saved.printBackground !== false,
+    }
+  } catch {
+    return defaults
+  }
+}
+
+function applyWorkbookPrintSettings(univerAPI, patch = {}) {
+  const workbookId = univerAPI.getActiveWorkbook()?.getId?.()
+  if (!workbookId) return false
+  const current = getWorkbookPrintSettings(univerAPI)
+  if (!current) return false
+  const next = { ...current, ...patch }
+  next.orientation = next.orientation === 'landscape' ? 'landscape' : 'portrait'
+  next.paperSize = PRINT_PAPER_SIZES.includes(next.paperSize) ? next.paperSize : 'A4'
+  next.margin = Math.min(40, Math.max(5, Number(next.margin) || 12))
+  next.scale = Math.min(150, Math.max(40, Number(next.scale) || 100))
+  next.printBackground = next.printBackground !== false
+
+  try {
+    window.localStorage.setItem('gridnova:print-settings:' + workbookId, JSON.stringify(next))
+  } catch {
+    univerAPI.showMessage({ content: 'Print preferences could not be saved in this browser.', type: 'warning' })
+  }
+
+  const styleId = 'gridnova-print-settings-' + workbookId.replace(/[^a-zA-Z0-9_-]/g, '')
+  let style = document.getElementById(styleId)
+  if (!style) {
+    style = document.createElement('style')
+    style.id = styleId
+    document.head.appendChild(style)
+  }
+  style.textContent = `
+    @media print {
+      @page { size: ${next.paperSize} ${next.orientation}; margin: ${next.margin}mm; }
+      .univer-mount {
+        zoom: ${next.scale / 100};
+        -webkit-print-color-adjust: ${next.printBackground ? 'exact' : 'economy'} !important;
+        print-color-adjust: ${next.printBackground ? 'exact' : 'economy'} !important;
+      }
+    }
+  `
+  univerAPI.showMessage({
+    content: 'Print layout saved: ' + next.paperSize + ' ' + next.orientation + ', ' + next.margin + ' mm margins, ' + next.scale + '% scale.',
+    type: 'success',
+  })
+  return true
+}
+
+function setPrintOrientation(univerAPI) {
+  const current = getWorkbookPrintSettings(univerAPI)
+  if (!current) return false
+  const value = window.prompt('Page orientation: portrait or landscape.', current.orientation)
+  if (value == null) return false
+  const orientation = value.trim().toLowerCase()
+  if (!['portrait', 'landscape'].includes(orientation)) {
+    univerAPI.showMessage({ content: 'Enter portrait or landscape.', type: 'warning' })
+    return false
+  }
+  return applyWorkbookPrintSettings(univerAPI, { orientation })
+}
+
+function setPrintPaperSize(univerAPI) {
+  const current = getWorkbookPrintSettings(univerAPI)
+  if (!current) return false
+  const value = window.prompt('Paper size: ' + PRINT_PAPER_SIZES.join(', '), current.paperSize)
+  if (value == null) return false
+  const paperSize = PRINT_PAPER_SIZES.find((item) => item.toLowerCase() === value.trim().toLowerCase())
+  if (!paperSize) {
+    univerAPI.showMessage({ content: 'Choose A3, A4, A5, Letter, Legal or Tabloid.', type: 'warning' })
+    return false
+  }
+  return applyWorkbookPrintSettings(univerAPI, { paperSize })
+}
+
+function setPrintMargins(univerAPI) {
+  const current = getWorkbookPrintSettings(univerAPI)
+  if (!current) return false
+  const value = window.prompt('Print margins in millimeters (5–40).', String(current.margin))
+  if (value == null) return false
+  const margin = Number(value)
+  if (!Number.isFinite(margin) || margin < 5 || margin > 40) {
+    univerAPI.showMessage({ content: 'Margins must be from 5 to 40 millimeters.', type: 'warning' })
+    return false
+  }
+  return applyWorkbookPrintSettings(univerAPI, { margin })
+}
+
+function setPrintScale(univerAPI) {
+  const current = getWorkbookPrintSettings(univerAPI)
+  if (!current) return false
+  const value = window.prompt('Print scale percentage (40–150).', String(current.scale))
+  if (value == null) return false
+  const scale = Number(value)
+  if (!Number.isFinite(scale) || scale < 40 || scale > 150) {
+    univerAPI.showMessage({ content: 'Print scale must be from 40% to 150%.', type: 'warning' })
+    return false
+  }
+  return applyWorkbookPrintSettings(univerAPI, { scale })
+}
+
+function togglePrintBackground(univerAPI) {
+  const current = getWorkbookPrintSettings(univerAPI)
+  if (!current) return false
+  return applyWorkbookPrintSettings(univerAPI, { printBackground: !current.printBackground })
+}
+
+function applySavedWorkbookPrintSettings(univerAPI) {
+  const current = getWorkbookPrintSettings(univerAPI)
+  if (!current) return false
+  return applyWorkbookPrintSettings(univerAPI, current)
+}
+
 function insertTextBox(univerAPI) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   if (!sheet || typeof sheet.addFloatDomToRange !== 'function') {
@@ -1175,18 +1302,20 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'page-setup', title: 'Page Setup', items: [
           { id: 'print-layout', title: 'Page Setup / Print Preview (Unavailable)', icon: 'layout', action: 'page-layout-unavailable' },
           { id: 'print', title: 'Print via Browser Dialog', icon: 'print', action: 'print' },
-          { id: 'orientation', title: 'Page Orientation (Unavailable)', action: 'page-layout-unavailable' },
-          { id: 'paper-size', title: 'Paper Size (Unavailable)', action: 'page-layout-unavailable' },
-          { id: 'margins', title: 'Margins (Unavailable)', action: 'page-layout-unavailable' },
+          { id: 'orientation', title: 'Page Orientation', icon: 'layout', run: setPrintOrientation },
+          { id: 'paper-size', title: 'Paper Size', icon: 'layout', run: setPrintPaperSize },
+          { id: 'margins', title: 'Margins', icon: 'layout', run: setPrintMargins },
           { id: 'print-area', title: 'Print Area (Unavailable)', action: 'page-layout-unavailable' },
-          { id: 'page-breaks', title: 'Page Breaks (Unavailable)', action: 'page-layout-unavailable' },
+          { id: 'page-breaks', title: 'Manual Page Breaks (Unavailable)', action: 'page-layout-unavailable' },
         ] },
         { id: 'scale-to-fit', title: 'Scale to Fit', items: [
+          { id: 'print-scale', title: 'Print Scale', icon: 'layout', run: setPrintScale },
           { id: 'fit-width', title: 'Fit to Width (Unavailable)', action: 'page-layout-unavailable' },
           { id: 'fit-height', title: 'Fit to Height (Unavailable)', action: 'page-layout-unavailable' },
         ] },
         { id: 'sheet-background', title: 'Sheet Background', items: [
-          { id: 'background-image', title: 'Background Image (Unavailable)', action: 'page-layout-unavailable' },
+          { id: 'print-background', title: 'Print Background Colors', icon: 'paint', run: togglePrintBackground },
+          { id: 'background-image', title: 'Sheet Background Image (Unavailable)', action: 'page-layout-unavailable' },
         ] },
       ],
     },
@@ -1342,9 +1471,6 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
         { id: 'insert-picture', title: 'Pictures', icon: 'image', command: 'sheet.command.insert-float-image' },
-        { id: 'insert-rectangle', title: 'Rectangle Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
-        { id: 'insert-ellipse', title: 'Ellipse Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
-        { id: 'insert-line', title: 'Line Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
         { id: 'insert-rectangle', title: 'Rectangle Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
         { id: 'insert-ellipse', title: 'Ellipse Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
         { id: 'insert-line', title: 'Line Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
@@ -1777,6 +1903,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
         : createBlankWorkbookSnapshot(config.workbookId, config.title)
 
       univerAPI.createWorkbook(workbookData)
+      applySavedWorkbookPrintSettings(univerAPI)
       addColumnHeaderDeleteAction(univerAPI)
       ribbonDisposables = addMicrosoftInspiredRibbonTabs(univerAPI, (action) => onRibbonActionRef.current?.(action))
 
