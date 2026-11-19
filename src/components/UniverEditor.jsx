@@ -2238,7 +2238,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
         console.error('GridNova editor cleanup failed:', disposeError)
       }
     }
-  }, [workbookId, initialSnapshot, ribbonType])
+  }, [workbookId, initialSnapshot])
 
   return (
     <div className="univer-shell">
