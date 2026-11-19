@@ -153,6 +153,35 @@ function registerRibbonIcons(univerAPI) {
   return disposables
 }
 
+async function executeRibbonItem(univerAPI, item, onRibbonAction) {
+  try {
+    let result
+    if (typeof item.run === 'function') {
+      result = await item.run(univerAPI)
+    } else if (item.action) {
+      result = await onRibbonAction?.(item.action)
+    } else if (item.command) {
+      result = await univerAPI.executeCommand(item.command, item.params)
+    } else {
+      return false
+    }
+
+    if (result === false) {
+      univerAPI.showMessage({
+        content: item.title + ' could not run. Check the active selection or required workbook context.',
+        type: 'warning',
+      })
+    }
+    return result
+  } catch (error) {
+    univerAPI.showMessage({
+      content: item.title + ' failed: ' + (error instanceof Error ? error.message : 'Unknown command error.'),
+      type: 'error',
+    })
+    return false
+  }
+}
+
 function addRibbonTab(univerAPI, tab, onRibbonAction) {
   const root = univerAPI.createSubmenu({
     // Separate localized tab keys from their group keys. LocaleService resolves
@@ -169,11 +198,7 @@ function addRibbonTab(univerAPI, tab, onRibbonAction) {
     })
 
     withRibbonGridLayouts(group.items).forEach((item) => {
-      const action = item.run
-        ? () => item.run(univerAPI)
-        : item.command
-          ? () => univerAPI.executeCommand(item.command, item.params)
-          : () => onRibbonAction?.(item.action)
+      const action = () => executeRibbonItem(univerAPI, item, onRibbonAction)
       const menu = univerAPI.createMenu({
         id: 'gridnova.ribbon.commands.' + tab.id + '.' + item.id,
         title: item.title,
@@ -789,9 +814,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
       tooltip: item.title,
       icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
       gridLayout: item.gridLayout,
-      action: () => item.command
-        ? univerAPI.executeCommand(item.command)
-        : onRibbonAction?.(item.action),
+      action: () => executeRibbonItem(univerAPI, item, onRibbonAction),
     }))
   })
   clipboardGroup.appendTo('ribbon.start')
@@ -1022,11 +1045,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         tooltip: item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
         gridLayout: item.gridLayout,
-        action: () => item.run
-          ? item.run(univerAPI)
-          : item.action
-            ? onRibbonAction?.(item.action)
-            : univerAPI.executeCommand(item.command, item.params),
+        action: () => executeRibbonItem(univerAPI, item, onRibbonAction),
       }))
     })
     groupMenu.appendTo(group.path)
@@ -1046,11 +1065,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         tooltip: item.title,
         icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
         gridLayout: item.gridLayout,
-        action: () => item.run
-          ? item.run(univerAPI)
-          : item.action
-            ? onRibbonAction?.(item.action)
-            : univerAPI.executeCommand(item.command, item.params),
+        action: () => executeRibbonItem(univerAPI, item, onRibbonAction),
       }))
     })
     groupMenu.appendTo('ribbon.start')
