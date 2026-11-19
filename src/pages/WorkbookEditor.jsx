@@ -383,7 +383,7 @@ export default function WorkbookEditor() {
       return
     }
     if (action === 'open-catch-up') {
-      await handleTopBarCommand('univer.operation.toggle-edit-history', 'activity')
+      setReviewPanelMode('activity')
       return
     }
     if (action === 'share-workbook') {
@@ -443,12 +443,9 @@ export default function WorkbookEditor() {
       return
     }
     if (action === 'print') {
-      try {
-        const opened = await editorApi?.executeCommand('sheet.operation.print-open')
-        if (opened === false) window.print()
-      } catch {
-        window.print()
-      }
+      // Univer 1.5.2 does not ship a native print-preview command in the
+      // installed presets; use the browser's real print pipeline instead.
+      window.print()
       return
     }
     if (action === 'copy-workbook-id') {
@@ -539,7 +536,7 @@ export default function WorkbookEditor() {
         <div className="editor-appbar-spacer" />
         <div className="editor-cloud-actions">
           <button type="button" onClick={() => handleTopBarCommand('sheet.operation.toggle-comment-panel', 'comments')}><CommentRegular /> <span>Comments</span></button>
-          <button type="button" onClick={() => handleTopBarCommand('univer.operation.toggle-edit-history', 'activity')}><BookOpenRegular /> <span>Catch up</span></button>
+          <button type="button" onClick={() => setReviewPanelMode('activity')}><BookOpenRegular /> <span>Catch up</span></button>
           <button type="button" className="editor-mode-indicator" onClick={handleToggleEditingMode} aria-pressed={isReadOnly} title="Switch between editing and viewing">{isReadOnly ? 'Viewing' : 'Editing'} ▾</button>
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
