@@ -661,7 +661,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'workbook', title: 'Workbook', items: [
           { id: 'new-workbook', title: 'New Workbook', icon: 'home', action: 'new-workbook' },
           { id: 'open-workbook', title: 'Browse Workbooks', icon: 'home', action: 'browse-workbooks' },
-          { id: 'import-workbook', title: 'Import Excel File', icon: 'import', action: 'import' },
+          { id: 'import-workbook', title: 'Import XLSX / CSV', icon: 'import', action: 'import' },
           { id: 'save', title: 'Save', icon: 'save', action: 'save' },
           { id: 'save-as', title: 'Save As', icon: 'copy', action: 'save-as' },
           { id: 'export-xlsx', title: 'Export Excel', icon: 'export', action: 'export-xlsx' },
@@ -845,6 +845,9 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
         { id: 'insert-picture', title: 'Pictures', icon: 'image', command: 'sheet.command.insert-float-image' },
+        { id: 'insert-rectangle', title: 'Rectangle Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
+        { id: 'insert-ellipse', title: 'Ellipse Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
+        { id: 'insert-line', title: 'Line Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
         { id: 'insert-rectangle', title: 'Rectangle Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
         { id: 'insert-ellipse', title: 'Ellipse Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
         { id: 'insert-line', title: 'Line Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
@@ -1065,7 +1068,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     'sheet.command.set-range-text-color': { icon: 'gridnova-icon-textColor', gridLayout: { row: 1, column: 4, showLabel: true } },
     'sheet.command.set-background-color': { icon: 'gridnova-icon-fillColor', gridLayout: { row: 2, column: 4, showLabel: true } },
     'sheet.command.set-border-basic': { icon: 'gridnova-icon-border', gridLayout: { row: 1, column: 5, showLabel: true } },
-    'sheet.command.set-horizontal-text-align': { icon: 'gridnova-icon-alignLeft', gridLayout: { row: 1, column: 1 } },
+    'sheet.command.set-horizontal-text-align': { icon: 'gridnova-icon-alignLeft', gridLayout: { row: 1, column: 1, showLabel: true } },
     'sheet.command.set-vertical-text-align': { icon: 'gridnova-icon-alignCenter', gridLayout: { row: 2, column: 1, showLabel: true } },
     'sheet.command.set-text-wrap': { icon: 'gridnova-icon-alignRight', gridLayout: { row: 1, column: 2, showLabel: true } },
     'sheet.command.copy': { icon: 'gridnova-icon-copy' },
