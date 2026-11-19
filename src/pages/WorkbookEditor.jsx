@@ -463,7 +463,7 @@ export default function WorkbookEditor() {
       try {
         await navigator.clipboard.writeText(window.location.href)
         setNoticeType('success')
-        setNotice('Workbook link copied.')
+        setNotice('Local workbook link copied. This workbook is stored in this browser only; the link does not sync it to other devices.')
       } catch {
         setNoticeType('error')
         setNotice('Clipboard access is unavailable in this browser.')
@@ -485,7 +485,8 @@ export default function WorkbookEditor() {
       'review-tools-unavailable': 'Spelling / Show Changes',
       'view-tools-unavailable': 'Page Layout View',
       'fill-unavailable': 'Fill commands',
-      'formula-feature-unavailable': 'Defined Names, Formula Auditing and Calculation Options',
+      'formula-feature-unavailable': 'Formula Auditing and Calculation Options',
+      'insert-charts-unavailable': 'Native editable Column, Line, Pie and Area charts',
     }
     if (unavailableActions[action]) {
       setNoticeType('error')
