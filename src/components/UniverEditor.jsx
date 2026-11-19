@@ -452,6 +452,54 @@ function applyCellStylePreset(univerAPI, presetName) {
   return true
 }
 
+function openFormatCellsDialog(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) {
+    univerAPI.showMessage({ content: 'Select a cell or range before opening Format Cells.', type: 'warning' })
+    return false
+  }
+
+  const currentFormat = range.getNumberFormat?.() || 'General'
+  const choice = window.prompt(
+    'FORMAT CELLS — choose a format:\n1 General\n2 Number (2 decimals)\n3 Integer\n4 Percentage\n5 Currency (₹)\n6 Date\n7 Text\n8 Custom format pattern',
+    '1',
+  )
+  if (choice == null) return false
+
+  const presets = {
+    '1': 'General',
+    '2': '#,##0.00',
+    '3': '#,##0',
+    '4': '0.00%',
+    '5': '₹#,##0.00',
+    '6': 'dd-mmm-yyyy',
+    '7': '@',
+  }
+  let pattern = presets[choice.trim()]
+  if (choice.trim() === '8') {
+    pattern = window.prompt('Enter a Univer/Excel number format pattern.', currentFormat)
+    if (pattern == null) return false
+  }
+  if (!pattern) {
+    univerAPI.showMessage({ content: 'Choose a listed format or enter option 8 for a custom pattern.', type: 'warning' })
+    return false
+  }
+
+  try {
+    if (typeof range.setNumberFormat !== 'function') {
+      showFeatureUnavailable(univerAPI, 'Format Cells number format', 'The installed Number Format Facade is not available in this preset.')
+      return false
+    }
+    range.setNumberFormat(pattern)
+    univerAPI.showMessage({ content: 'Number format applied to the selected range: ' + pattern, type: 'success' })
+    return true
+  } catch (error) {
+    univerAPI.showMessage({ content: error instanceof Error ? error.message : 'Could not apply the number format.', type: 'error' })
+    return false
+  }
+}
+
 function insertBasicChart(univerAPI) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
@@ -1523,7 +1571,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         { id: 'cell-style-bad', title: 'Bad Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'bad') },
         { id: 'cell-style-neutral', title: 'Neutral Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'neutral') },
         { id: 'number-format-settings', title: 'Number Format Settings', icon: 'calculator', command: 'sheet.operation.open.numfmt.panel' },
-        { id: 'format-cells', title: 'Full Format Cells Dialog (Unavailable)', icon: 'layout', action: 'format-cells-unavailable' },
+        { id: 'format-cells', title: 'Format Cells / Number Format', icon: 'layout', run: openFormatCellsDialog },
       ],
     },
     {
