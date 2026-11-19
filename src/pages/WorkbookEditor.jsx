@@ -487,6 +487,8 @@ export default function WorkbookEditor() {
       'page-layout-unavailable': 'Page Layout settings',
       'review-tools-unavailable': 'Spelling / Show Changes',
       'view-tools-unavailable': 'Page Layout View',
+      'fill-unavailable': 'Fill commands',
+      'formula-feature-unavailable': 'Defined Names, Formula Auditing and Calculation Options',
     }
     if (unavailableActions[action]) {
       setNoticeType('error')
