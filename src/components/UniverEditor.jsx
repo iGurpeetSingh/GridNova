@@ -617,6 +617,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
           { id: 'save', title: 'Save', icon: 'save', action: 'save' },
           { id: 'save-as', title: 'Save As', icon: 'copy', action: 'save-as' },
           { id: 'export-xlsx', title: 'Export Excel', icon: 'export', action: 'export-xlsx' },
+          { id: 'export-csv', title: 'Export Active Sheet CSV', icon: 'export', action: 'export-csv' },
         ] },
         { id: 'information', title: 'Workbook Information', items: [
           { id: 'copy-id', title: 'Copy Workbook ID', action: 'copy-workbook-id' },
@@ -638,8 +639,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     {
       id: 'page-layout', title: 'Page Layout', order: 5, groups: [
         { id: 'page-setup', title: 'Page Setup', items: [
-          { id: 'print-layout', title: 'Page Setup', icon: 'layout', command: 'sheet.operation.open-print-grid-sidebar' },
-          { id: 'print', title: 'Print', icon: 'print', action: 'print' },
+          { id: 'print-layout', title: 'Page Setup / Print Preview (Unavailable)', icon: 'layout', action: 'page-layout-unavailable' },
+          { id: 'print', title: 'Print Worksheet', icon: 'print', action: 'print' },
           { id: 'orientation', title: 'Page Orientation (Unavailable)', action: 'page-layout-unavailable' },
           { id: 'paper-size', title: 'Paper Size (Unavailable)', action: 'page-layout-unavailable' },
           { id: 'margins', title: 'Margins (Unavailable)', action: 'page-layout-unavailable' },
@@ -665,11 +666,12 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
         ] },
         { id: 'protection', title: 'Protection', items: [
           { id: 'protect-range', title: 'Protect Selected Range', command: 'sheet.command.add-range-protection-from-toolbar' },
-          { id: 'protect-sheet-workbook-unavailable', title: 'Protect Sheet / Workbook (Unavailable)', action: 'sheet-protection-unavailable' },
+          { id: 'sheet-permissions', title: 'Sheet Permission Settings', command: 'sheet-permission.operation.openDialog' },
+          { id: 'protect-workbook-unavailable', title: 'Protect Workbook (Unavailable)', action: 'sheet-protection-unavailable' },
           { id: 'show-changes', title: 'Show Changes (Unavailable)', action: 'review-tools-unavailable' },
         ] },
         { id: 'history', title: 'History', items: [
-          { id: 'edit-history', title: 'Edit History', command: 'univer.operation.toggle-edit-history' },
+          { id: 'edit-history', title: 'Local Activity Feed', action: 'open-catch-up' },
         ] },
       ],
     },
@@ -865,7 +867,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction) {
     },
     {
       path: 'ribbon.formulas', id: 'defined-names', title: 'Defined Names', order: 8, items: [
-        { id: 'manage-names-unavailable', title: 'Name Manager (Unavailable)', action: 'formula-feature-unavailable' },
+        { id: 'manage-names', title: 'Name Manager', command: 'sidebar.operation.defined-name', params: { value: 'open' } },
       ],
     },
     {
