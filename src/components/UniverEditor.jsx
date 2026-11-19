@@ -1071,6 +1071,8 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
                     },
                     'page-layout': {
                       'page-setup': 'Page Setup',
+                      'scale-to-fit': 'Scale to Fit',
+                      'sheet-background': 'Sheet Background',
                     },
                     review: {
                       comments: 'Comments & Notes',
