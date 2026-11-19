@@ -5,6 +5,7 @@ import {
   normalizeRibbonType,
   RIBBON_MODE_STORAGE_PREFIX,
   RIBBON_TYPE,
+  getRibbonPresentationMode,
 } from '../src/utils/ribbonMode.js'
 
 test('Single Line keeps the tab strip visible with Univer classic toolbar', () => {
@@ -78,4 +79,15 @@ test('Single Line mode preserves commands and callbacks used across ribbon tabs'
     { id: 'sort-ascending', command: 'sheet.command.sort-range-asc', action: undefined },
     { id: 'toggle-formula-bar', command: undefined, action: 'toggle-formula-bar' },
   ])
+})
+
+
+test('Single Line and expanded Classic apply their own CSS presentation state', () => {
+  assert.equal(getRibbonPresentationMode(RIBBON_TYPE.SINGLE_LINE), 'single-line')
+  assert.equal(getRibbonPresentationMode(RIBBON_TYPE.CLASSIC), 'classic')
+})
+
+test('The Single Line layout uses Univer classic to keep tabs above a separate toolbar row', () => {
+  assert.equal(RIBBON_TYPE.SINGLE_LINE, 'classic')
+  assert.equal(RIBBON_TYPE.CLASSIC, 'grid')
 })
