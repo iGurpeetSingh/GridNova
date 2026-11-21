@@ -753,11 +753,20 @@ function GridNovaLineShape({ data }) {
   </svg>
 }
 
+function GridNovaArrowShape({ data }) {
+  const stroke = data?.stroke || '#7c3aed'
+  return <svg viewBox="0 0 180 100" width="100%" height="100%" aria-label="Arrow shape">
+    <defs><marker id="gridnova-insert-arrow-head" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill={stroke} /></marker></defs>
+    <line x1="10" y1="88" x2="166" y2="12" stroke={stroke} strokeWidth={Number(data?.strokeWidth) || 4} strokeLinecap="round" markerEnd="url(#gridnova-insert-arrow-head)" />
+  </svg>
+}
+
 function registerDrawingComponents(univerAPI) {
   return [
     univerAPI.registerComponent('gridnova-draw-rectangle', GridNovaRectangleShape),
     univerAPI.registerComponent('gridnova-draw-ellipse', GridNovaEllipseShape),
     univerAPI.registerComponent('gridnova-draw-line', GridNovaLineShape),
+    univerAPI.registerComponent('gridnova-draw-arrow', GridNovaArrowShape),
     univerAPI.registerComponent('gridnova-bar-chart', GridNovaDataChart),
     univerAPI.registerComponent('gridnova-data-chart', (props) => <GridNovaDataChart {...props} univerAPI={univerAPI} />),
     univerAPI.registerComponent('gridnova-cell-control', (props) => <GridNovaCellControl {...props} univerAPI={univerAPI} />),
@@ -781,6 +790,7 @@ function insertDrawingShape(univerAPI, shapeType) {
     rectangle: { fill: '#dbeafe', stroke: '#2563eb', fillOpacity: '.55', strokeWidth: 3 },
     ellipse: { fill: '#dcfce7', stroke: '#16834b', fillOpacity: '.55', strokeWidth: 3 },
     line: { stroke: '#d97706', strokeWidth: 4 },
+    arrow: { stroke: '#7c3aed', strokeWidth: 4 },
   }
   const shape = sheet.addFloatDomToRange(
     range,
