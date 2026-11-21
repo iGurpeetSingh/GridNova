@@ -1838,38 +1838,49 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
       ],
     },
     {
-      path: 'ribbon.insert', id: 'tables', title: 'Tables', order: 0, items: [
-        { id: 'insert-table', title: 'Format as Table', icon: 'table', run: formatSelectionAsTable },
-        { id: 'insert-pivot-summary', title: 'Pivot Summary Tools', action: 'insert-tools' },
+      path: 'ribbon.insert', id: 'insert-tables', title: 'Tables', order: 0, items: [
+        { id: 'format-as-table', title: 'Format as Table', icon: 'table', run: formatSelectionAsTable },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
-        { id: 'insert-picture', title: 'Pictures', icon: 'image', command: 'sheet.command.insert-float-image' },
+      path: 'ribbon.insert', id: 'insert-cells', title: 'Cells', order: 1, items: [
+        { id: 'insert-row-above', title: 'Insert Row Above', icon: 'insertRow', run: (api) => insertRowFromSelection(api, 'above') },
+        { id: 'insert-row-below', title: 'Insert Row Below', icon: 'insertRow', run: (api) => insertRowFromSelection(api, 'below') },
+        { id: 'insert-column-left', title: 'Insert Column Left', icon: 'insertColumn', run: (api) => insertColumnFromSelection(api, 'left') },
+        { id: 'insert-column-right', title: 'Insert Column Right', icon: 'insertColumn', run: (api) => insertColumnFromSelection(api, 'right') },
+      ],
+    },
+    {
+      path: 'ribbon.insert', id: 'insert-illustrations', title: 'Illustrations', order: 2, items: [
+        { id: 'insert-image', title: 'Insert Image', icon: 'image', run: insertImageOverlay },
         { id: 'insert-rectangle', title: 'Rectangle Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
-        { id: 'insert-ellipse', title: 'Ellipse Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
-        { id: 'insert-line', title: 'Line Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
+        { id: 'insert-arrow', title: 'Arrow Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'arrow') },
+        { id: 'insert-text-box', title: 'Text Box', icon: 'text', run: insertTextBox },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
-        { id: 'insert-bar-chart', title: 'Bar Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'bar') },
-        { id: 'insert-column-chart', title: 'Column Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'column') },
-        { id: 'insert-line-chart', title: 'Line Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'line') },
-        { id: 'insert-pie-chart', title: 'Pie Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'pie') },
-        { id: 'insert-area-chart', title: 'Area Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'area') },
-        { id: 'chart-pivot-tools', title: 'Chart & Pivot Summary Tools', icon: 'table', action: 'insert-tools' },
+      path: 'ribbon.insert', id: 'insert-charts', title: 'Charts', order: 3, items: [
+        { id: 'insert-column-chart', title: 'Column Chart', icon: 'table', run: (api) => insertChartOverlay(api, 'column') },
+        { id: 'insert-bar-chart', title: 'Bar Chart', icon: 'table', run: (api) => insertChartOverlay(api, 'bar') },
+        { id: 'insert-line-chart', title: 'Line Chart', icon: 'table', run: (api) => insertChartOverlay(api, 'line') },
+        { id: 'insert-pie-chart', title: 'Pie Chart', icon: 'table', run: (api) => insertChartOverlay(api, 'pie') },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'links', title: 'Links', order: 3, items: [
+      path: 'ribbon.insert', id: 'insert-links', title: 'Links', order: 4, items: [
         { id: 'insert-link', title: 'Hyperlink', icon: 'link', command: 'sheet.operation.insert-hyper-link-toolbar' },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'text-symbols', title: 'Text & Symbols', order: 4, items: [
-        { id: 'insert-text-box', title: 'Text Box', icon: 'text', run: insertTextBox },
-        { id: 'insert-symbol', title: 'Symbol', icon: 'text', run: insertSymbol },
+      path: 'ribbon.insert', id: 'insert-comments', title: 'Comments', order: 5, items: [
+        { id: 'insert-comment', title: 'New Comment', icon: 'review', command: 'sheet.operation.show-comment-modal' },
+        { id: 'insert-note', title: 'New Note', icon: 'review', command: 'sheet.operation.add-note-popup' },
+      ],
+    },
+    {
+      path: 'ribbon.insert', id: 'insert-controls', title: 'Controls', order: 6, items: [
+        { id: 'insert-checkbox', title: 'Checkbox', icon: 'table', run: (api) => insertCellControl(api, 'checkbox') },
+        { id: 'insert-date-picker', title: 'Date Picker', icon: 'calculator', run: (api) => insertCellControl(api, 'date') },
       ],
     },
     {
@@ -2222,6 +2233,13 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
                     charts: 'Charts',
                     links: 'Links',
                     'text-symbols': 'Text & Symbols',
+                    'insert-tables': 'Tables',
+                    'insert-cells': 'Cells',
+                    'insert-illustrations': 'Illustrations',
+                    'insert-charts': 'Charts',
+                    'insert-links': 'Links',
+                    'insert-comments': 'Comments',
+                    'insert-controls': 'Controls',
                   },
                   'ribbon-formulas': {
                     'function-library': 'Function Library',
