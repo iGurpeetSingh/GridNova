@@ -527,6 +527,77 @@ function GridNovaInkCanvas({ data, univerAPI }) {
   )
 }
 
+
+function insertRowFromSelection(univerAPI, position) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return false
+  if (position === 'below') sheet.insertRowAfter(range.getLastRow())
+  else sheet.insertRowBefore(range.getRow())
+  return true
+}
+
+function insertColumnFromSelection(univerAPI, position) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return false
+  if (position === 'right') sheet.insertColumnAfter(range.getLastColumn())
+  else sheet.insertColumnBefore(range.getColumn())
+  return true
+}
+
+function GridNovaCellControl({ data, univerAPI }) {
+  const sheet = univerAPI?.getActiveWorkbook?.()?.getActiveSheet?.()
+  const cell = sheet && sheet.getRange(data.row, data.column)
+  const style = { width: '100%', height: '100%', display: 'grid', placeItems: 'center', background: '#fff', border: '1px solid #93c5aa', borderRadius: 4 }
+  if (data.type === 'checkbox') return <div style={style}><input type="checkbox" checked={Boolean(data.value)} aria-label="Worksheet checkbox" onChange={(event) => cell?.setValue(event.target.checked)} /></div>
+  return <div style={style}><input type="date" value={String(data.value || '')} aria-label="Worksheet date picker" onChange={(event) => { if (cell) { cell.setValue(event.target.value); cell.setNumberFormat('yyyy-mm-dd') } }} style={{ width: '100%', border: 0, fontSize: 11 }} /></div>
+}
+
+function insertCellControl(univerAPI, type) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const selected = sheet?.getActiveRange()
+  if (!sheet || !selected || typeof sheet.addFloatDomToRange !== 'function') return false
+  const row = selected.getRow()
+  const column = selected.getColumn()
+  const cell = sheet.getRange(row, column)
+  const value = type === 'checkbox' ? Boolean(cell.getValue()) : ''
+  if (type === 'checkbox') cell.setValue(value)
+  const id = 'gridnova-control-' + type + '-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+  return Boolean(sheet.addFloatDomToRange(cell, { componentKey: 'gridnova-cell-control', data: { id, type, row, column, value }, allowTransform: true }, { width: type === 'checkbox' ? 34 : 142, height: 28 }, id))
+}
+
+function GridNovaImageOverlay({ data, univerAPI }) {
+  const sheet = univerAPI?.getActiveWorkbook?.()?.getActiveSheet?.()
+  return <div style={{ position: 'relative', width: '100%', height: '100%', background: '#fff', border: '1px solid #d8e1dc', overflow: 'hidden' }}>
+    <img src={data?.src} alt={data?.name || 'Worksheet image'} draggable="false" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+    <button type="button" aria-label="Remove image" title="Remove image" onMouseDown={(event) => event.preventDefault()} onClick={() => sheet?.removeFloatDom(data.id)} style={{ position: 'absolute', top: 4, right: 4, zIndex: 50, border: 0, borderRadius: 12, color: '#fff', background: '#b42318' }}>×</button>
+  </div>
+}
+
+function insertImageOverlay(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range || typeof sheet.addFloatDomToRange !== 'function') return false
+  const picker = document.createElement('input')
+  picker.type = 'file'
+  picker.accept = 'image/png,image/jpeg,image/webp,image/gif'
+  picker.onchange = () => {
+    const file = picker.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { univerAPI.showMessage({ content: 'Choose an image smaller than 5 MB.', type: 'warning' }); return }
+    const reader = new FileReader()
+    reader.onload = () => {
+      const id = 'gridnova-image-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+      const result = sheet.addFloatDomToRange(range, { componentKey: 'gridnova-image-overlay', data: { id, src: String(reader.result), name: file.name }, allowTransform: true }, { width: 320, height: 220 }, id)
+      univerAPI.showMessage({ content: result ? 'Image inserted. Drag or resize it on the worksheet.' : 'Image insertion failed.', type: result ? 'success' : 'error' })
+    }
+    reader.readAsDataURL(file)
+  }
+  picker.click()
+  return true
+}
+
 function applyCellStylePreset(univerAPI, presetName) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
