@@ -2003,3 +2003,13 @@ img, svg { max-width: 100%; }
   width: 19px !important;
   height: 19px !important;
 }
+
+
+/* Insert-related Univer dialogs, menus and popovers must stay above the grid. */
+.univer-mount [role="dialog"],
+.univer-mount [role="menu"],
+.univer-mount [data-u-comp*="popup"],
+.univer-mount [data-u-comp*="popover"],
+.univer-mount [data-u-comp*="dropdown"] {
+  z-index: 50 !important;
+}
