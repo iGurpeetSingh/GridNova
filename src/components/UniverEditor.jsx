@@ -552,9 +552,24 @@ function insertColumnFromSelection(univerAPI, position) {
 function GridNovaCellControl({ data, univerAPI }) {
   const sheet = univerAPI?.getActiveWorkbook?.()?.getActiveSheet?.()
   const cell = sheet && sheet.getRange(data.row, data.column)
-  const style = { width: '100%', height: '100%', display: 'grid', placeItems: 'center', background: '#fff', border: '1px solid #93c5aa', borderRadius: 4 }
-  if (data.type === 'checkbox') return <div style={style}><input type="checkbox" checked={Boolean(data.value)} aria-label="Worksheet checkbox" onChange={(event) => cell?.setValue(event.target.checked)} /></div>
-  return <div style={style}><input type="date" value={String(data.value || '')} aria-label="Worksheet date picker" onChange={(event) => { if (cell) { cell.setValue(event.target.value); cell.setNumberFormat('yyyy-mm-dd') } }} style={{ width: '100%', border: 0, fontSize: 11 }} /></div>
+  const [checked, setChecked] = useState(Boolean(data.value))
+  const [dateValue, setDateValue] = useState(String(data.value || ''))
+  const style = { width: '100%', height: '100%', display: 'grid', placeItems: 'center', background: '#fff', border: '1px solid #93c5aa', borderRadius: 4, boxSizing: 'border-box' }
+  function persist(value) {
+    if (!cell) return
+    cell.setValue(value)
+    sheet.updateFloatDom?.(data.id, { data: { ...data, value } })
+  }
+  if (data.type === 'checkbox') return <div style={style}>
+    <input type="checkbox" checked={checked} aria-label="Worksheet checkbox"
+      onChange={(event) => { const next = event.target.checked; setChecked(next); persist(next) }}
+      style={{ width: 18, height: 18, accentColor: '#107c41', cursor: 'pointer' }} />
+  </div>
+  return <div style={style}>
+    <input type="date" value={dateValue} aria-label="Worksheet date picker"
+      onChange={(event) => { const next = event.target.value; setDateValue(next); if (cell) { cell.setValue(next); cell.setNumberFormat('yyyy-mm-dd'); sheet.updateFloatDom?.(data.id, { data: { ...data, value: next } }) } }}
+      style={{ width: '100%', minWidth: 0, border: 0, fontSize: 11, background: 'transparent' }} />
+  </div>
 }
 
 function insertCellControl(univerAPI, type) {
@@ -2173,6 +2188,13 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
     try {
       const config = initialConfigRef.current
       containerRef.current?.setAttribute('data-gridnova-ribbon-mode', getRibbonPresentationMode(config.ribbonType))
+      const preserveInsertSelection = (event) => {
+        if (event.target instanceof Element && event.target.closest('[data-u-command^="gridnova.ribbon.insert-"]')) {
+          event.preventDefault()
+        }
+      }
+      containerRef.current.addEventListener('mousedown', preserveInsertSelection, true)
+
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
@@ -2419,6 +2441,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
 
     return () => {
       disposed = true
+      containerRef.current?.removeEventListener('mousedown', preserveInsertSelection, true)
       onReadyRef.current?.(null)
       try {
         ribbonDisposables?.forEach((item) => item?.dispose?.())
