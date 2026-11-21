@@ -21,10 +21,17 @@
     "@univerjs/preset-sheets-table": "^1.0.2",
     "@univerjs/preset-sheets-thread-comment": "^1.0.2",
     "@univerjs/preset-sheets-note": "^1.2.0",
-    "@univerjs/preset-sheets-data-validation": "^1.2.0"
+    "@univerjs/preset-sheets-data-validation": "^1.2.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.9",
+    "papaparse": "^5.7.1",
+    "pdfjs-dist": "^6.5.438"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
     "vite": "^6.3.5"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }
