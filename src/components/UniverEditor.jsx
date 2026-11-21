@@ -572,7 +572,7 @@ function GridNovaCellControl({ data, univerAPI }) {
   </div>
   return <div style={style}>
     <input type="date" value={dateValue} aria-label="Worksheet date picker"
-      onChange={(event) => { const next = event.target.value; setDateValue(next); if (cell) { cell.setValue(next); cell.setNumberFormat('yyyy-mm-dd'); sheet.updateFloatDom?.(data.id, { data: { ...data, value: next } }) } }}
+      onChange={(event) => { const next = event.target.value; setDateValue(next); if (cell) { const parts = next.split('-').map(Number); const serial = next ? (Date.UTC(parts[0], parts[1] - 1, parts[2]) - Date.UTC(1899, 11, 30)) / 86400000 : ''; cell.setValue(serial); cell.setNumberFormat('yyyy-mm-dd'); sheet.updateFloatDom?.(data.id, { data: { ...data, value: next } }) } }}
       style={{ width: '100%', minWidth: 0, border: 0, fontSize: 11, background: 'transparent' }} />
   </div>
 }
