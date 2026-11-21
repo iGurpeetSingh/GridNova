@@ -25,7 +25,8 @@
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.9",
     "papaparse": "^5.7.1",
-    "pdfjs-dist": "^6.5.438"
+    "pdfjs-dist": "^6.5.438",
+    "chart.js": "^4.4.9"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
