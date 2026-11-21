@@ -132,6 +132,10 @@ const RIBBON_ICONS = {
   currency: CurrencyDollarRupeeRegular,
   percent: CalculatorRegular,
   image: ImageRegular,
+  shapes: DrawShapeRegular,
+  chart: TableRegular,
+  text: TextAlignCenterRegular,
+  symbol: CalculatorRegular,
   link: LinkRegular,
   paint: PaintBrushRegular,
   fontIncrease: CalculatorRegular,
@@ -1740,37 +1744,46 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     },
     {
       path: 'ribbon.insert', id: 'tables', title: 'Tables', order: 0, items: [
+        { id: 'insert-pivot-table', title: 'PivotTable Tools', icon: 'table', action: 'insert-tools' },
         { id: 'insert-table', title: 'Format as Table', icon: 'table', run: formatSelectionAsTable },
-        { id: 'insert-pivot-summary', title: 'Pivot Summary Tools', action: 'insert-tools' },
       ],
     },
     {
       path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
-        { id: 'insert-picture', title: 'Pictures', icon: 'image', command: 'sheet.command.insert-float-image' },
-        { id: 'insert-rectangle', title: 'Rectangle Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
-        { id: 'insert-ellipse', title: 'Ellipse Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
-        { id: 'insert-line', title: 'Line Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
+        { id: 'insert-picture', title: 'Picture', icon: 'image', command: 'sheet.command.insert-float-image' },
+        { id: 'insert-rectangle', title: 'Rectangle', icon: 'shapes', run: (api) => insertDrawingShape(api, 'rectangle') },
+        { id: 'insert-ellipse', title: 'Ellipse', icon: 'shapes', run: (api) => insertDrawingShape(api, 'ellipse') },
+        { id: 'insert-line', title: 'Line', icon: 'shapes', run: (api) => insertDrawingShape(api, 'line') },
       ],
     },
     {
       path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
-        { id: 'insert-bar-chart', title: 'Bar Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'bar') },
-        { id: 'insert-column-chart', title: 'Column Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'column') },
-        { id: 'insert-line-chart', title: 'Line Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'line') },
-        { id: 'insert-pie-chart', title: 'Pie Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'pie') },
-        { id: 'insert-area-chart', title: 'Area Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'area') },
-        { id: 'chart-pivot-tools', title: 'Chart & Pivot Summary Tools', icon: 'table', action: 'insert-tools' },
+        { id: 'recommended-charts', title: 'Recommended Charts & Pivot Tools', icon: 'chart', action: 'insert-tools' },
+        { id: 'insert-column-chart', title: 'Column Chart', icon: 'chart', run: (api) => insertChartOverlay(api, 'column') },
+        { id: 'insert-line-chart', title: 'Line Chart', icon: 'chart', run: (api) => insertChartOverlay(api, 'line') },
+        { id: 'insert-pie-chart', title: 'Pie Chart', icon: 'chart', run: (api) => insertChartOverlay(api, 'pie') },
+        { id: 'insert-bar-chart', title: 'Bar Chart', icon: 'chart', run: (api) => insertChartOverlay(api, 'bar') },
+        { id: 'insert-area-chart', title: 'Area Chart', icon: 'chart', run: (api) => insertChartOverlay(api, 'area') },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'links', title: 'Links', order: 3, items: [
+      path: 'ribbon.insert', id: 'filters', title: 'Filters', order: 3, items: [
+        { id: 'insert-filter', title: 'Toggle Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
+      ],
+    },
+    {
+      path: 'ribbon.insert', id: 'links', title: 'Links', order: 4, items: [
         { id: 'insert-link', title: 'Hyperlink', icon: 'link', command: 'sheet.operation.insert-hyper-link-toolbar' },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'text-symbols', title: 'Text & Symbols', order: 4, items: [
+      path: 'ribbon.insert', id: 'text', title: 'Text', order: 5, items: [
         { id: 'insert-text-box', title: 'Text Box', icon: 'text', run: insertTextBox },
-        { id: 'insert-symbol', title: 'Symbol', icon: 'text', run: insertSymbol },
+      ],
+    },
+    {
+      path: 'ribbon.insert', id: 'symbols', title: 'Symbols', order: 6, items: [
+        { id: 'insert-symbol', title: 'Symbol', icon: 'symbol', run: insertSymbol },
       ],
     },
     {
