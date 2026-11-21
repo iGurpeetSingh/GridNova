@@ -318,8 +318,9 @@ export default function WorkbookEditor() {
     }
   }
 
-  function handleExportCsv() {
+  async function handleExportCsv() {
     try {
+      await editorApi?.recalculateValues?.()
       const { calculatedValues } = getActiveSheetExportPayload()
       downloadCsvFile(calculatedValues, safeFileName(title) + '.csv')
       setNoticeType('success')
@@ -334,6 +335,7 @@ export default function WorkbookEditor() {
     setPdfExportBusy(true)
     await new Promise((resolve) => window.requestAnimationFrame(resolve))
     try {
+      await editorApi?.recalculateValues?.()
       const payload = getActiveSheetExportPayload()
       exportPdfFile({
         ...payload,
