@@ -6,4 +6,11 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
   },
+  build: {
+    // Limit simultaneous file reads/transforms to reduce peak memory usage on
+    // Vercel's standard build container. This does not change app output.
+    rollupOptions: {
+      maxParallelFileOps: 5,
+    },
+  },
 })
