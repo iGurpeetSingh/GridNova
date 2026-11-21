@@ -69,7 +69,7 @@ export default function WorkbookEditor() {
   const [ribbonMode, setRibbonMode] = useState(() => {
     try {
       return normalizeRibbonType(window.localStorage.getItem(RIBBON_MODE_STORAGE_PREFIX + workbookId))
-    } catch { return RIBBON_TYPE.SINGLE_LINE }
+    } catch { return RIBBON_TYPE.CLASSIC }
   })
   const [formulaBarVisible, setFormulaBarVisible] = useState(() => {
     try { return window.localStorage.getItem('gridnova:formula-bar:' + workbookId) !== 'false' } catch { return true }
