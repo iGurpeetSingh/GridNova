@@ -1,5 +1,3 @@
-import ExcelJS from 'exceljs'
-
 const DEFAULT_ROWS = 1000
 const DEFAULT_COLUMNS = 26
 
@@ -130,7 +128,6 @@ export async function importExcelFile(file) {
   if (!file) throw new Error('Choose an Excel or CSV file first.')
   const fileName = file.name || 'Imported workbook.xlsx'
   const lowerName = fileName.toLowerCase()
-  const workbook = new ExcelJS.Workbook()
   const buffer = await file.arrayBuffer()
 
   if (lowerName.endsWith('.csv') || lowerName.endsWith('.tsv')) {
@@ -158,6 +155,9 @@ export async function importExcelFile(file) {
     }
   }
 
+  // ExcelJS is a large dependency; load it only for actual XLSX imports.
+  const { default: ExcelJS } = await import('exceljs')
+  const workbook = new ExcelJS.Workbook()
   await workbook.xlsx.load(buffer)
   const sheetOrder = []
   const sheets = {}
@@ -266,6 +266,8 @@ function toColumnLetters(number) {
 
 export async function exportExcelFile(snapshot, fileName = 'GridNova Workbook.xlsx', options = {}) {
   if (!snapshot?.sheetOrder?.length) throw new Error('There is no workbook data to export.')
+  // Keep ExcelJS out of the initial workbook bundle until an XLSX export is requested.
+  const { default: ExcelJS } = await import('exceljs')
   const workbook = new ExcelJS.Workbook()
   workbook.creator = 'GridNova'
   workbook.created = new Date()
