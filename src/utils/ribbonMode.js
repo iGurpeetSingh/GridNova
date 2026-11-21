@@ -1,4 +1,4 @@
-export const RIBBON_MODE_STORAGE_PREFIX = 'gridnova:ribbon-mode-v7:'
+export const RIBBON_MODE_STORAGE_PREFIX = 'gridnova:ribbon-mode-v8:'
 
 /**
  * GridNova's Single Line mode uses Univer's classic layout: the full tab strip
@@ -12,9 +12,8 @@ export const RIBBON_TYPE = Object.freeze({
 })
 
 export function normalizeRibbonType(savedValue) {
-  return savedValue === RIBBON_TYPE.CLASSIC
-    ? RIBBON_TYPE.CLASSIC
-    : RIBBON_TYPE.SINGLE_LINE
+  if (savedValue === RIBBON_TYPE.SINGLE_LINE) return RIBBON_TYPE.SINGLE_LINE
+  return RIBBON_TYPE.CLASSIC
 }
 
 /**
