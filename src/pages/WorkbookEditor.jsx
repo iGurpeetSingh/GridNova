@@ -4,7 +4,10 @@ import { ArrowRedoRegular, ArrowUndoRegular, BookOpenRegular, CommentRegular, Gr
 import UniverEditor from '../components/UniverEditor.jsx'
 import InsertToolsPanel from '../components/InsertToolsPanel.jsx'
 import ReviewPanel from '../components/ReviewPanel.jsx'
-import { exportCsvFile, exportExcelFile, importExcelFile } from '../services/excelFileService.js'
+import DataFileImportModal from '../components/DataFileImportModal.jsx'
+import PdfExportDialog from '../components/PdfExportDialog.jsx'
+import { downloadCsvFile, exportPdfFile } from '../services/dataFileService.js'
+import { exportExcelFile, importExcelFile } from '../services/excelFileService.js'
 import { getWorkbook, saveWorkbook } from '../services/workbookStorage.js'
 import { isRibbonType, normalizeRibbonType, RIBBON_MODE_STORAGE_PREFIX, RIBBON_TYPE } from '../utils/ribbonMode.js'
 
@@ -77,6 +80,10 @@ export default function WorkbookEditor() {
   const [saveState, setSaveState] = useState('Loading workbook')
   const [savedAt, setSavedAt] = useState(null)
   const [toolsOpen, setToolsOpen] = useState(false)
+  const [dataImportType, setDataImportType] = useState(null)
+  const [pdfExportOpen, setPdfExportOpen] = useState(false)
+  const [pdfExportBusy, setPdfExportBusy] = useState(false)
+  const importAnchorRef = useRef({ row: 0, column: 0 })
   const [reviewPanelMode, setReviewPanelMode] = useState(null)
   const [activity, setActivity] = useState(() => {
     try {
@@ -280,18 +287,98 @@ export default function WorkbookEditor() {
     }
   }
 
+  function getActiveSheetExportPayload() {
+    const sheet = editorApi?.getActiveSheet()
+    const snapshot = editorApi?.getSnapshot()
+    if (!sheet || !snapshot) throw new Error('The workbook is not ready yet.')
+
+    const sheetId = sheet.getSheetId()
+    const source = snapshot.sheets?.[sheetId]
+    if (!source) throw new Error('The active worksheet data could not be found.')
+    const cellData = source.cellData || {}
+    const rowIndexes = Object.keys(cellData).map(Number).filter(Number.isFinite)
+    const maxRow = Math.max(-1, ...rowIndexes)
+    const maxColumn = Math.max(
+      -1,
+      ...rowIndexes.flatMap((row) => Object.keys(cellData[row] || {}).map(Number).filter(Number.isFinite)),
+    )
+    if (maxRow < 0 || maxColumn < 0) throw new Error('The active worksheet has no data to export.')
+
+    // getDisplayValues() resolves formula results and number formats in Univer,
+    // unlike the saved snapshot's formula expression.
+    const values = sheet.getRange(0, 0, maxRow + 1, maxColumn + 1).getDisplayValues()
+    return {
+      values,
+      cellData,
+      styles: snapshot.styles || {},
+      sheetName: source.name || sheet.getSheetName?.() || 'Sheet1',
+    }
+  }
+
   function handleExportCsv() {
     try {
-      const snapshot = editorApi?.getSnapshot()
-      if (!snapshot) throw new Error('The workbook is not ready yet.')
-      const sheetId = editorApi.getActiveSheet()?.getSheetId()
-      exportCsvFile(snapshot, safeFileName(title) + '.csv', sheetId)
+      const { values } = getActiveSheetExportPayload()
+      downloadCsvFile(values, safeFileName(title) + '.csv')
       setNoticeType('success')
-      setNotice('Active worksheet exported as CSV.')
+      setNotice('Active worksheet calculated values exported as CSV.')
     } catch (error) {
       setNoticeType('error')
       setNotice(error instanceof Error ? error.message : 'Could not export CSV.')
     }
+  }
+
+  async function handleExportPdf(orientation) {
+    setPdfExportBusy(true)
+    await new Promise((resolve) => window.requestAnimationFrame(resolve))
+    try {
+      const payload = getActiveSheetExportPayload()
+      exportPdfFile({
+        ...payload,
+        fileName: safeFileName(title) + '.pdf',
+        orientation,
+      })
+      setPdfExportOpen(false)
+      setNoticeType('success')
+      setNotice('Active worksheet exported as a formatted PDF.')
+    } catch (error) {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'Could not export PDF.')
+    } finally {
+      setPdfExportBusy(false)
+    }
+  }
+
+  function openDataImport(type) {
+    if (isReadOnly) {
+      setNoticeType('error')
+      setNotice('Switch to Editing mode before importing data.')
+      return
+    }
+    const range = editorApi?.getActiveSheet()?.getActiveRange?.()
+    importAnchorRef.current = {
+      row: Math.max(0, range?.getRow?.() ?? 0),
+      column: Math.max(0, range?.getColumn?.() ?? 0),
+    }
+    setDataImportType(type)
+  }
+
+  async function handleDataFileImport(rows, options) {
+    if (!editorApi?.importMatrix) throw new Error('The spreadsheet import API is not ready.')
+    if (isReadOnly) throw new Error('Switch to Editing mode before importing data.')
+    const result = editorApi.importMatrix(rows, {
+      mode: options.mode,
+      anchor: importAnchorRef.current,
+    })
+    const saved = await saveNow({ force: true })
+    if (!saved) throw new Error('The data was imported, but GridNova could not save the workbook in this browser.')
+    setNoticeType('success')
+    setNotice(
+      (options.fileName || 'File') + ' imported: ' +
+      result.rows.toLocaleString() + ' rows × ' + result.columns.toLocaleString() +
+      ' columns ' + (result.replaced ? 'replaced the active sheet.' : 'inserted at the selected cell.'),
+    )
+    setSaveState('Saved in this browser')
+    return result
   }
 
   function handleEditorReady(api) {
@@ -440,6 +527,14 @@ export default function WorkbookEditor() {
       fileInputRef.current?.click()
       return
     }
+    if (action === 'import-csv') {
+      openDataImport('csv')
+      return
+    }
+    if (action === 'import-pdf') {
+      openDataImport('pdf')
+      return
+    }
     if (action === 'save-as') {
       try {
         const snapshot = editorApi?.getSnapshot()
@@ -463,6 +558,10 @@ export default function WorkbookEditor() {
     }
     if (action === 'export-csv') {
       handleExportCsv()
+      return
+    }
+    if (action === 'export-pdf') {
+      setPdfExportOpen(true)
       return
     }
     if (action === 'print') {
@@ -624,6 +723,20 @@ export default function WorkbookEditor() {
       </div>
 
       {toolsOpen && <InsertToolsPanel api={editorApi} onClose={() => setToolsOpen(false)} />}
+      {dataImportType && (
+        <DataFileImportModal
+          fileType={dataImportType}
+          onClose={() => setDataImportType(null)}
+          onImport={handleDataFileImport}
+        />
+      )}
+      {pdfExportOpen && (
+        <PdfExportDialog
+          busy={pdfExportBusy}
+          onClose={() => { if (!pdfExportBusy) setPdfExportOpen(false) }}
+          onExport={handleExportPdf}
+        />
+      )}
       {reviewPanelMode && <ReviewPanel workbookId={workbookId} api={editorApi} mode={reviewPanelMode} activity={activity} onClose={() => setReviewPanelMode(null)} />}
     </main>
   )
