@@ -82,7 +82,7 @@ function textItemMetrics(item) {
   const x = Number(transform[4]) || 0
   const y = Number(transform[5]) || 0
   const fontHeight = Math.max(5, Math.abs(Number(transform[3]) || Number(item.height) || 10))
-  return { x, y, fontHeight, text: String(item.str || '').replace(/\u0000/g, '') }
+  return { x, y, width: Math.max(0, Number(item.width) || 0), fontHeight, text: String(item.str || '').replace(/\u0000/g, '') }
 }
 
 export function groupPdfTextItems(items, yTolerance = 3) {
@@ -185,7 +185,6 @@ export function buildCsvContent(values) {
   return Papa.unparse(rows, {
     delimiter: ',',
     newline: '\r\n',
-    quotes: false,
     escapeFormulae: true,
   })
 }
