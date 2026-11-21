@@ -182,10 +182,12 @@ export async function parsePdfFile(file, options = {}) {
 
 export function buildCsvContent(values) {
   const rows = normalizeRows(values)
-  return Papa.unparse(rows, {
+  const safeRows = rows.map((row) => row.map((value) =>
+    typeof value === 'string' && /^[=+\\-@\\t\\r]/.test(value) ? "'" + value : value,
+  ))
+  return Papa.unparse(safeRows, {
     delimiter: ',',
     newline: '\r\n',
-    escapeFormulae: true,
   })
 }
 
