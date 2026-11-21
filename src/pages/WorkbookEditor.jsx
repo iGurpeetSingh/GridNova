@@ -306,9 +306,12 @@ export default function WorkbookEditor() {
 
     // getDisplayValues() resolves formula results and number formats in Univer,
     // unlike the saved snapshot's formula expression.
-    const values = sheet.getRange(0, 0, maxRow + 1, maxColumn + 1).getDisplayValues()
+    const range = sheet.getRange(0, 0, maxRow + 1, maxColumn + 1)
+    const values = range.getDisplayValues()
+    const calculatedValues = range.getValues()
     return {
       values,
+      calculatedValues,
       cellData,
       styles: snapshot.styles || {},
       sheetName: source.name || sheet.getSheetName?.() || 'Sheet1',
@@ -317,8 +320,8 @@ export default function WorkbookEditor() {
 
   function handleExportCsv() {
     try {
-      const { values } = getActiveSheetExportPayload()
-      downloadCsvFile(values, safeFileName(title) + '.csv')
+      const { calculatedValues } = getActiveSheetExportPayload()
+      downloadCsvFile(calculatedValues, safeFileName(title) + '.csv')
       setNoticeType('success')
       setNotice('Active worksheet calculated values exported as CSV.')
     } catch (error) {
