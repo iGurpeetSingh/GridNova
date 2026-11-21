@@ -1972,3 +1972,34 @@ img, svg { max-width: 100%; }
   .data-file-meta { flex-direction: column; gap: 4px; }
   .pdf-export-options { padding: 17px 16px 20px; }
 }
+
+
+/* Insert ribbon polish: Excel-green active tab, no blue side rails or focus seams. */
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tab"][aria-selected="true"],
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tab"][data-state="active"] {
+  border: 0 !important;
+  border-bottom: 3px solid #107c41 !important;
+  border-inline: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  color: #107c41 !important;
+  background: #fff !important;
+}
+
+/* Insert menu items are direct actions, not nested selectors. Suppress empty
+   selector chevrons that Univer may append to the custom Insert command roots. */
+.univer-mount [data-u-comp="ribbon-toolbar"] [data-u-command^="gridnova.ribbon.insert-"] .univer-toolbar-selector-trigger,
+.univer-mount [data-u-comp="ribbon-toolbar"] [data-u-command^="gridnova.ribbon.insert-"] [data-u-comp="toolbar-selector-trigger"] {
+  display: none !important;
+}
+.univer-mount [data-u-comp="ribbon-toolbar"] [data-u-command^="gridnova.ribbon.insert-"] {
+  border-inline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Keep Insert groups visually distinct with restrained Excel-style dividers. */
+.univer-mount [data-u-comp="ribbon-toolbar"] [data-u-command^="gridnova.ribbon.insert-"] svg {
+  width: 19px !important;
+  height: 19px !important;
+}
