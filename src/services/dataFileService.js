@@ -1,10 +1,7 @@
 import Papa from 'papaparse'
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist'
-import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
-
-GlobalWorkerOptions.workerSrc = pdfWorkerUrl
 
 const CSV_DELIMITERS = [',', ';', '\t']
 
@@ -136,6 +133,12 @@ export function groupPdfTextItems(items, yTolerance = 3) {
 }
 
 export async function parsePdfFile(file, options = {}) {
+  // Vite turns this worker asset into a URL at build time. Keep it lazy so
+  // Node's test runner can import the parser without trying to resolve ?url.
+  if (!GlobalWorkerOptions.workerSrc) {
+    const workerAsset = await import('pdfjs-dist/build/pdf.worker.min.mjs?url')
+    GlobalWorkerOptions.workerSrc = workerAsset.default
+  }
   if (!file) throw new Error('Choose a PDF file first.')
   if (!String(file.name || '').toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
     throw new Error('Unsupported file type. Choose a .pdf file.')
