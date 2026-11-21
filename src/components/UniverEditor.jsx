@@ -132,6 +132,7 @@ const RIBBON_ICONS = {
   currency: CurrencyDollarRupeeRegular,
   percent: CalculatorRegular,
   image: ImageRegular,
+  text: TextColorRegular,
   link: LinkRegular,
   paint: PaintBrushRegular,
   fontIncrease: CalculatorRegular,
@@ -156,7 +157,7 @@ const RIBBON_ICON_COLORS = {
 
   // Insert and drawing tools — purple charts, pink images, sky-blue links.
   draw: '#ec4899', layout: '#8b5cf6', home: '#3b82f6', table: '#14b8a6',
-  guide: '#0ea5e9', image: '#ec4899', link: '#0ea5e9',
+  guide: '#0ea5e9', image: '#ec4899', text: '#ec4899', link: '#0ea5e9',
 
   // Clipboard and editing.
   undo: '#64748b', redo: '#64748b', paste: '#3b82f6',
