@@ -155,7 +155,7 @@ const RIBBON_ICONS = {
 
 const RIBBON_ICON_COLORS = {
   save: '#217346', share: '#107C41', review: '#7B2CBF', help: '#0078D4',
-  draw: '#C65911', image: '#0078D4', table: '#217346', filter: '#0078D4',
+  draw: '#C65911', shapes: '#7030A0', image: '#0078D4', chart: '#4472C4', text: '#00A6A6', symbol: '#8064A2', table: '#217346', filter: '#0078D4',
   sort: '#0078D4', currency: '#107C41', percent: '#0078D4', paint: '#EAA300',
   fillColor: '#F2C811', textColor: '#C50F1F', paste: '#0078D4',
   cut: '#D83B01', copy: '#0078D4', border: '#64748B',
