@@ -337,7 +337,7 @@ export default function WorkbookEditor() {
     try {
       await editorApi?.recalculateValues?.()
       const payload = getActiveSheetExportPayload()
-      exportPdfFile({
+      await exportPdfFile({
         ...payload,
         fileName: safeFileName(title) + '.pdf',
         orientation,
