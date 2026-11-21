@@ -14,15 +14,16 @@ function normalizeRows(rows) {
 }
 
 function validateCsvResult(result) {
-  const fatal = (result.errors || []).filter((error) =>
-    error.type === 'Quotes' || error.code === 'UndetectableDelimiter',
-  )
-  if (fatal.length) {
-    throw new Error('The CSV file contains invalid quoting or an unreadable delimiter: ' + fatal[0].message)
-  }
   const rows = normalizeRows(result.data)
   if (!rows.length || !rows.some((row) => row.some((value) => value.trim() !== ''))) {
     throw new Error('The CSV file is empty or does not contain readable rows.')
+  }
+
+  // Papa Parse reports UndetectableDelimiter for valid single-column CSV files;
+  // it falls back to comma in that case, so only malformed quote errors are fatal.
+  const fatal = (result.errors || []).filter((error) => error.type === 'Quotes')
+  if (fatal.length) {
+    throw new Error('The CSV file contains invalid quoting: ' + fatal[0].message)
   }
   return {
     rows,
@@ -184,11 +185,15 @@ export async function parsePdfFile(file, options = {}) {
 }
 
 export function buildCsvContent(values) {
-  const rows = normalizeRows(values)
+  const sourceRows = (Array.isArray(values) ? values : []).map((row) =>
+    (Array.isArray(row) ? row : [row]).map((value) => value ?? ''),
+  )
+  while (sourceRows.length && sourceRows.at(-1).every((value) => value === '')) sourceRows.pop()
   const formulaPrefixes = ['=', '+', '-', '@', '\t', '\r']
-  const safeRows = rows.map((row) => row.map((value) =>
-    typeof value === 'string' && formulaPrefixes.includes(value[0]) ? "'" + value : value,
-  ))
+  const safeRows = sourceRows.map((row) => row.map((value) => {
+    if (typeof value === 'string' && formulaPrefixes.includes(value[0])) return "'" + value
+    return value
+  }))
   return Papa.unparse(safeRows, {
     delimiter: ',',
     newline: '\r\n',
