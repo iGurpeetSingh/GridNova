@@ -1,7 +1,4 @@
 import Papa from 'papaparse'
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist'
-import { jsPDF } from 'jspdf'
-import { autoTable } from 'jspdf-autotable'
 
 const CSV_DELIMITERS = [',', ';', '\t']
 
@@ -134,8 +131,14 @@ export function groupPdfTextItems(items, yTolerance = 3) {
 }
 
 export async function parsePdfFile(file, options = {}) {
-  // Vite turns this worker asset into a URL at build time. Keep it lazy so
-  // Node's test runner can import the parser without trying to resolve ?url.
+  if (!file) throw new Error('Choose a PDF file first.')
+  if (!String(file.name || '').toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+    throw new Error('Unsupported file type. Choose a .pdf file.')
+  }
+
+  // Load PDF.js only for PDF imports so its parser and worker are not part of
+  // the normal workbook startup bundle.
+  const { getDocument, GlobalWorkerOptions } = await import('pdfjs-dist')
   if (!GlobalWorkerOptions.workerSrc) {
     const workerAsset = await import('pdfjs-dist/build/pdf.worker.min.mjs?url')
     GlobalWorkerOptions.workerSrc = workerAsset.default
@@ -271,7 +274,7 @@ export function createPdfAutoTableOptions({ values, cellData = {}, styles = {}, 
   }
 }
 
-export function exportPdfFile({
+export async function exportPdfFile({
   values,
   cellData = {},
   styles = {},
@@ -282,6 +285,15 @@ export function exportPdfFile({
   if (!Array.isArray(values) || !values.length || !values.some((row) => row?.some((value) => value !== ''))) {
     throw new Error('The active worksheet has no data to export as PDF.')
   }
+
+  // Load the PDF generator only when an export is requested.
+  const [{ jsPDF }, autoTableModule] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
+  const autoTable = autoTableModule.autoTable || autoTableModule.default
+  if (typeof autoTable !== 'function') throw new Error('The PDF table exporter could not be loaded.')
+
   const doc = new jsPDF({ orientation: orientation === 'landscape' ? 'landscape' : 'portrait', unit: 'pt', format: 'a4' })
   autoTable(doc, createPdfAutoTableOptions({ values, cellData, styles, sheetName }))
   doc.save(fileName)
