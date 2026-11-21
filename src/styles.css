@@ -1657,3 +1657,318 @@ img, svg { max-width: 100%; }
   min-width: 96px !important;
   max-width: 116px !important;
 }
+
+
+/* CSV / PDF import preview and PDF export dialogs */
+.data-file-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  overflow-y: auto;
+  background: rgba(15, 23, 42, .48);
+  backdrop-filter: blur(3px);
+}
+.data-file-modal {
+  display: flex;
+  width: min(780px, 100%);
+  max-height: min(850px, calc(100vh - 44px));
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e4e9e6;
+  border-radius: 15px;
+  color: #263445;
+  background: #fff;
+  box-shadow: 0 25px 80px rgba(13, 31, 22, .24);
+}
+.data-file-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 23px 25px 18px;
+  border-bottom: 1px solid #edf0ed;
+}
+.data-file-eyebrow {
+  color: #21804a;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.25px;
+}
+.data-file-modal-header h2 {
+  margin: 7px 0 0;
+  color: #1d2a22;
+  font-size: 21px;
+  font-weight: 740;
+  letter-spacing: -.55px;
+}
+.data-file-modal-header p {
+  margin: 7px 0 0;
+  color: #768276;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.data-file-close {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #e8ece8;
+  border-radius: 7px;
+  color: #6d786f;
+  background: #fff;
+  font-size: 21px;
+  line-height: 1;
+}
+.data-file-close:hover { background: #f4f7f4; }
+.data-file-dropzone {
+  display: flex;
+  min-height: 230px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 22px 25px;
+  padding: 24px;
+  border: 1px dashed #a9cbb5;
+  border-radius: 12px;
+  background: #fbfefc;
+  text-align: center;
+  transition: border-color .15s ease, background .15s ease;
+}
+.data-file-dropzone.is-dragging {
+  border-color: #16834b;
+  background: #eef8f1;
+}
+.data-file-upload-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 4px;
+  place-items: center;
+  border-radius: 12px;
+  color: #187346;
+  background: #e8f4ec;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .2px;
+}
+.data-file-dropzone strong { color: #2c3a30; font-size: 13px; }
+.data-file-dropzone > span { color: #829087; font-size: 10px; }
+.data-file-choose {
+  min-height: 34px;
+  margin-top: 6px;
+  padding: 0 15px;
+  border: 1px solid #16834b;
+  border-radius: 7px;
+  color: white;
+  background: #16834b;
+  font-size: 10px;
+  font-weight: 700;
+}
+.data-file-choose:hover, .data-file-confirm:hover { background: #116b3d; }
+.data-file-dropzone small { margin-top: 5px; color: #98a29a; font-size: 9px; }
+.data-file-preview {
+  min-height: 0;
+  padding: 18px 25px 4px;
+  overflow: auto;
+}
+.data-file-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.data-file-preview-heading > div { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+.data-file-preview-heading strong {
+  overflow: hidden;
+  color: #344236;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.data-file-preview-heading span { color: #8a958d; font-size: 9px; }
+.data-file-preview-heading button {
+  padding: 6px 9px;
+  border: 1px solid #e3ebe5;
+  border-radius: 6px;
+  color: #287448;
+  background: white;
+  font-size: 9px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.data-file-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0 7px;
+  color: #7c8a80;
+  font-size: 9px;
+}
+.data-file-table-wrap {
+  max-height: 250px;
+  overflow: auto;
+  border: 1px solid #e5ebe6;
+  border-radius: 8px;
+}
+.data-file-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 10px;
+}
+.data-file-table th, .data-file-table td {
+  max-width: 260px;
+  min-width: 72px;
+  padding: 8px 10px;
+  overflow: hidden;
+  border-right: 1px solid #edf0ed;
+  border-bottom: 1px solid #edf0ed;
+  color: #3b493f;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.data-file-table th {
+  width: 34px;
+  min-width: 34px;
+  color: #879388;
+  background: #f7faf7;
+  text-align: right;
+  font-size: 9px;
+  font-weight: 600;
+}
+.data-file-table tr:last-child th, .data-file-table tr:last-child td { border-bottom: 0; }
+.data-file-table td:last-child { border-right: 0; }
+.data-file-import-mode {
+  display: grid;
+  gap: 9px;
+  margin: 15px 0 12px;
+  padding: 0;
+  border: 0;
+}
+.data-file-import-mode legend {
+  margin-bottom: 6px;
+  color: #526157;
+  font-size: 10px;
+  font-weight: 750;
+}
+.data-file-import-mode label {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 11px;
+  border: 1px solid #e7ece8;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+.data-file-import-mode label:has(input:checked) {
+  border-color: #a8d2b5;
+  background: #f4faf5;
+}
+.data-file-import-mode input { margin: 2px 0 0; accent-color: #16834b; }
+.data-file-import-mode label span { display: flex; flex-direction: column; gap: 3px; }
+.data-file-import-mode strong { color: #334239; font-size: 10px; }
+.data-file-import-mode small { color: #87938a; font-size: 9px; }
+.data-file-progress {
+  display: flex;
+  min-height: 155px;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  padding: 28px;
+}
+.data-file-progress > div { display: flex; flex-direction: column; gap: 5px; }
+.data-file-progress strong { color: #39483d; font-size: 11px; }
+.data-file-progress span:not(.loading-spinner) { color: #849087; font-size: 9px; }
+.data-file-error {
+  margin: 0 25px 12px;
+  padding: 10px 12px;
+  border: 1px solid #f0d2d2;
+  border-radius: 7px;
+  color: #963e3e;
+  background: #fff8f8;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.data-file-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: auto;
+  padding: 15px 25px;
+  border-top: 1px solid #edf0ed;
+  background: #fcfdfc;
+}
+.data-file-modal-footer > span { color: #8b968d; font-size: 9px; }
+.data-file-modal-footer > div { display: flex; gap: 8px; }
+.data-file-cancel, .data-file-confirm {
+  min-height: 34px;
+  padding: 0 13px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.data-file-cancel {
+  border: 1px solid #e1e7e2;
+  color: #58675d;
+  background: #fff;
+}
+.data-file-confirm {
+  border: 1px solid #16834b;
+  color: #fff;
+  background: #16834b;
+}
+.data-file-choose:disabled, .data-file-cancel:disabled, .data-file-confirm:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+.data-file-export-modal { width: min(560px, 100%); }
+.pdf-export-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 22px 25px 25px; }
+.pdf-export-label { grid-column: 1 / -1; color: #56655b; font-size: 10px; font-weight: 750; }
+.pdf-export-options label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid #e5ebe6;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.pdf-export-options label.selected {
+  border-color: #a8d2b5;
+  background: #f4faf5;
+}
+.pdf-export-options input { accent-color: #16834b; }
+.pdf-export-options label > span:last-child { display: flex; flex-direction: column; gap: 4px; }
+.pdf-export-options strong { color: #334239; font-size: 10px; }
+.pdf-export-options small { color: #87938a; font-size: 9px; }
+.pdf-paper-preview {
+  display: block;
+  flex: 0 0 auto;
+  border: 1px solid #aab7ad;
+  border-radius: 2px;
+  background: repeating-linear-gradient(to bottom, #eff4f0 0 2px, transparent 2px 6px);
+  box-shadow: 0 2px 4px rgba(24, 42, 30, .08);
+}
+.pdf-paper-preview.portrait { width: 31px; height: 43px; }
+.pdf-paper-preview.landscape { width: 43px; height: 31px; }
+@media (max-width: 600px) {
+  .data-file-modal-backdrop { padding: 10px; }
+  .data-file-modal { max-height: calc(100vh - 20px); border-radius: 11px; }
+  .data-file-modal-header { padding: 18px 16px 14px; }
+  .data-file-preview { padding: 14px 16px 3px; }
+  .data-file-modal-footer { align-items: flex-start; flex-direction: column; padding: 12px 16px; }
+  .data-file-modal-footer > div { width: 100%; }
+  .data-file-modal-footer > div button { flex: 1; }
+  .data-file-error { margin-inline: 16px; }
+  .data-file-dropzone { margin: 16px; padding: 18px; }
+  .data-file-meta { flex-direction: column; gap: 4px; }
+  .pdf-export-options { padding: 17px 16px 20px; }
+}
