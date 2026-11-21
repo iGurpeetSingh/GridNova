@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Chart as ChartJS, registerables } from 'chart.js'
 import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
 import { createUniver, LocaleType } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
@@ -24,6 +25,8 @@ import '@univerjs/preset-sheets-table/lib/index.css'
 import '@univerjs/preset-sheets-thread-comment/lib/index.css'
 import '@univerjs/preset-sheets-note/lib/index.css'
 import '@univerjs/preset-sheets-data-validation/lib/index.css'
+
+ChartJS.register(...registerables)
 
 const DEFAULT_ROW_COUNT = 1000
 const DEFAULT_COLUMN_COUNT = 26
@@ -132,6 +135,7 @@ const RIBBON_ICONS = {
   currency: CurrencyDollarRupeeRegular,
   percent: CalculatorRegular,
   image: ImageRegular,
+  text: TextColorRegular,
   link: LinkRegular,
   paint: PaintBrushRegular,
   fontIncrease: CalculatorRegular,
@@ -147,16 +151,42 @@ const RIBBON_ICONS = {
   insertColumn: TableRegular,
   deleteRow: CutRegular,
   deleteColumn: CutRegular,
+  chartColumn: TableRegular,
+  chartBar: TableRegular,
+  chartLine: TableRegular,
+  chartPie: TableRegular,
 }
 
 const RIBBON_ICON_COLORS = {
-  save: '#217346', share: '#107C41', review: '#7B2CBF', help: '#0078D4',
-  draw: '#C65911', image: '#0078D4', table: '#217346', filter: '#0078D4',
-  sort: '#0078D4', currency: '#107C41', percent: '#0078D4', paint: '#EAA300',
-  fillColor: '#F2C811', textColor: '#C50F1F', paste: '#0078D4',
-  cut: '#D83B01', copy: '#0078D4', border: '#64748B',
-  alignLeft: '#0078D4', alignCenter: '#0078D4', alignRight: '#0078D4',
-  calculator: '#0078D4', print: '#475569', layout: '#0078D4',
+  // File and workbook actions — emerald, rose and Apple blue.
+  save: '#10b981', import: '#10b981', export: '#ef4444', print: '#64748b',
+  share: '#007aff', review: '#8b5cf6', help: '#0ea5e9',
+
+  // Insert and drawing tools — purple charts, pink images, sky-blue links.
+  draw: '#ec4899', layout: '#8b5cf6', home: '#3b82f6', table: '#14b8a6',
+  guide: '#0ea5e9', image: '#ec4899', text: '#ec4899', link: '#0ea5e9',
+
+  // Clipboard and editing.
+  undo: '#64748b', redo: '#64748b', paste: '#3b82f6',
+  cut: '#f97316', copy: '#2563eb',
+
+  // Home formatting — indigo type, blue alignment, amber fill, teal numbers.
+  bold: '#6366f1', italic: '#6366f1', underline: '#6366f1', strike: '#6366f1',
+  fontIncrease: '#6366f1', fontDecrease: '#6366f1',
+  alignLeft: '#3b82f6', alignCenter: '#3b82f6', alignRight: '#3b82f6',
+  alignLeftCompact: '#3b82f6', alignCenterCompact: '#3b82f6',
+  textColor: '#6366f1', fillColor: '#f59e0b', paint: '#f59e0b',
+  border: '#0ea5e9', merge: '#3b82f6', wrap: '#14b8a6', rotate: '#14b8a6',
+
+  // Data and formulas.
+  filter: '#14b8a6', sort: '#0ea5e9', search: '#8b5cf6',
+  calculator: '#f97316', currency: '#14b8a6', percent: '#14b8a6',
+  decimalIncrease: '#14b8a6', decimalDecrease: '#14b8a6',
+
+  // Row and column operations.
+  insertRow: '#14b8a6', insertColumn: '#0ea5e9',
+  deleteRow: '#ef4444', deleteColumn: '#ef4444',
+  chartColumn: '#7c3aed', chartBar: '#f97316', chartLine: '#2563eb', chartPie: '#db2777',
 }
 
 function registerRibbonIcons(univerAPI) {
@@ -234,102 +264,64 @@ function addRibbonTab(univerAPI, tab, onRibbonAction, ribbonType) {
 
 
 
-function GridNovaDataChart({ data }) {
+function GridNovaDataChart({ data, univerAPI }) {
+  const canvasRef = useRef(null)
+  const chartRef = useRef(null)
   const labels = Array.isArray(data?.labels) ? data.labels : []
   const values = Array.isArray(data?.values) ? data.values.map((value) => Number(value) || 0) : []
-  const type = ['bar', 'column', 'line', 'pie', 'area'].includes(data?.type) ? data.type : 'bar'
-  const colors = ['#217346', '#4472c4', '#ed7d31', '#70ad47', '#a5a5a5', '#ffc000', '#5b9bd5', '#8064a2', '#c0504d', '#4bacc6']
-  const positiveValues = values.map((value) => Math.max(0, value))
-  const maxValue = Math.max(1, ...positiveValues)
-  const total = positiveValues.reduce((sum, value) => sum + value, 0)
-  const chartTitle = String(data?.title || (type[0].toUpperCase() + type.slice(1) + ' Chart'))
-  const plotLeft = 34
-  const plotTop = 24
-  const plotWidth = 306
-  const plotHeight = 132
-  const chartBottom = plotTop + plotHeight
-  const points = positiveValues.map((value, index) => ({
-    x: positiveValues.length <= 1 ? plotLeft + plotWidth / 2 : plotLeft + index * plotWidth / (positiveValues.length - 1),
-    y: chartBottom - value / maxValue * (plotHeight - 8),
-    value,
-    label: String(labels[index] || index + 1),
-  }))
-  const pieRadius = 58
-  const pieCircumference = 2 * Math.PI * pieRadius
-  let pieOffset = 0
+  const type = ['bar', 'column', 'line', 'pie'].includes(data?.type) ? data.type : 'column'
+  const palette = ['#7c3aed', '#f97316', '#2563eb', '#db2777', '#0d9488', '#d97706', '#4f46e5', '#16a34a']
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return undefined
+    chartRef.current?.destroy()
+    const chartType = type === 'pie' ? 'pie' : type === 'line' ? 'line' : 'bar'
+    chartRef.current = new ChartJS(canvas, {
+      type: chartType,
+      data: {
+        labels,
+        datasets: [{
+          label: String(data?.title || 'GridNova chart'),
+          data: values,
+          backgroundColor: type === 'line' ? 'rgba(37,99,235,.16)' : palette,
+          borderColor: type === 'line' ? '#2563eb' : palette,
+          borderWidth: type === 'line' ? 2.5 : 1,
+          pointBackgroundColor: '#2563eb',
+          tension: .28,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: type === 'bar' ? 'y' : 'x',
+        animation: false,
+        plugins: {
+          legend: { display: type === 'pie', position: 'right' },
+          title: { display: false },
+        },
+        scales: type === 'pie' ? {} : {
+          x: { grid: { color: '#edf1f4' }, ticks: { color: '#64748b' } },
+          y: { beginAtZero: true, grid: { color: '#edf1f4' }, ticks: { color: '#64748b' } },
+        },
+      },
+    })
+    return () => {
+      chartRef.current?.destroy()
+      chartRef.current = null
+    }
+  }, [data, labels.join('|'), values.join('|'), type])
 
-  return (
-    <div style={{ width: '100%', height: '100%', padding: 8, boxSizing: 'border-box', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, fontFamily: 'Arial,sans-serif' }}>
-      <div style={{ height: 18, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontSize: 12, fontWeight: 700, color: '#243342' }}>{chartTitle}</div>
-      <svg viewBox="0 0 360 205" width="100%" height="calc(100% - 18px)" role="img" aria-label={'GridNova ' + type + ' chart'}>
-        {(type === 'bar') && values.map((value, index) => {
-          const numeric = positiveValues[index]
-          const y = 26 + index * Math.max(15, 145 / Math.max(1, values.length))
-          const height = Math.max(8, Math.min(22, 140 / Math.max(1, values.length) - 3))
-          return (
-            <g key={index}>
-              <text x="4" y={y + height * .78} fontSize="9" fill="#475569">{String(labels[index] || index + 1).slice(0, 7)}</text>
-              <rect x="72" y={y} width={numeric / maxValue * 250} height={height} rx="3" fill={colors[index % colors.length]} />
-              <text x={Math.min(336, 76 + numeric / maxValue * 250)} y={y + height * .78} fontSize="9" fill="#334155">{numeric}</text>
-            </g>
-          )
-        })}
-        {type === 'column' && <>
-          <line x1={plotLeft} y1={chartBottom} x2="348" y2={chartBottom} stroke="#94a3b8" strokeWidth="1" />
-          {values.map((value, index) => {
-            const numeric = positiveValues[index]
-            const width = Math.max(7, Math.min(32, plotWidth / Math.max(1, values.length) - 5))
-            const x = plotLeft + index * (plotWidth / Math.max(1, values.length)) + 2
-            const height = numeric / maxValue * (plotHeight - 8)
-            const y = chartBottom - height
-            return <g key={index}>
-              <rect x={x} y={y} width={width} height={height} rx="2" fill={colors[index % colors.length]} />
-              <text x={x + width / 2} y="177" textAnchor="middle" fontSize="8" fill="#475569">{String(labels[index] || '').slice(0, 6)}</text>
-              <text x={x + width / 2} y={Math.max(18, y - 4)} textAnchor="middle" fontSize="8" fill="#334155">{numeric}</text>
-            </g>
-          })}
-        </>}
-        {type === 'line' && <>
-          <line x1={plotLeft} y1={chartBottom} x2="348" y2={chartBottom} stroke="#94a3b8" strokeWidth="1" />
-          <polyline points={points.map((point) => point.x + ',' + point.y).join(' ')} fill="none" stroke="#217346" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
-          {points.map((point, index) => <g key={index}>
-            <circle cx={point.x} cy={point.y} r="4" fill="#217346" />
-            <text x={point.x} y="177" textAnchor="middle" fontSize="8" fill="#475569">{point.label.slice(0, 6)}</text>
-          </g>)}
-        </>}
-        {type === 'area' && <>
-          <line x1={plotLeft} y1={chartBottom} x2="348" y2={chartBottom} stroke="#94a3b8" strokeWidth="1" />
-          <polygon points={[plotLeft + ',' + chartBottom, ...points.map((point) => point.x + ',' + point.y), points.at(-1)?.x + ',' + chartBottom].join(' ')} fill="#70ad47" fillOpacity=".28" stroke="none" />
-          <polyline points={points.map((point) => point.x + ',' + point.y).join(' ')} fill="none" stroke="#217346" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-          {points.map((point, index) => <text key={index} x={point.x} y="177" textAnchor="middle" fontSize="8" fill="#475569">{point.label.slice(0, 6)}</text>)}
-        </>}
-        {type === 'pie' && <>
-          {total > 0 && values.map((value, index) => {
-            const fraction = positiveValues[index] / total
-            const length = fraction * pieCircumference
-            const offset = pieOffset
-            pieOffset += length
-            return <circle
-              key={index}
-              cx="148"
-              cy="96"
-              r={pieRadius}
-              fill="none"
-              stroke={colors[index % colors.length]}
-              strokeWidth="42"
-              strokeDasharray={length + ' ' + (pieCircumference - length)}
-              strokeDashoffset={-offset}
-              transform="rotate(-90 148 96)"
-            />
-          })}
-          {values.slice(0, 8).map((value, index) => <g key={index}>
-            <rect x="236" y={28 + index * 19} width="9" height="9" fill={colors[index % colors.length]} />
-            <text x="250" y={36 + index * 19} fontSize="9" fill="#334155">{String(labels[index] || index + 1).slice(0, 10)}: {positiveValues[index]}</text>
-          </g>)}
-        </>}
-      </svg>
+  return <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', padding: 8, background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, fontFamily: 'Arial,sans-serif' }}>
+    <div style={{ height: 24, flex: '0 0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, fontSize: 12, fontWeight: 700, color: '#243342' }}>
+      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(data?.title || (type[0].toUpperCase() + type.slice(1) + ' Chart'))}</span>
+      <button type="button" aria-label="Delete chart" title="Delete chart" onMouseDown={(event) => event.preventDefault()}
+        onClick={() => univerAPI?.getActiveWorkbook?.()?.getActiveSheet?.()?.removeFloatDom(data?.id)}
+        style={{ flex: '0 0 22px', width: 22, height: 22, border: 0, borderRadius: 5, color: '#fff', background: '#dc4c4c', cursor: 'pointer' }}>×</button>
     </div>
-  )
+    <div style={{ position: 'relative', minHeight: 0, flex: 1 }}>
+      <canvas ref={canvasRef} aria-label={'GridNova ' + type + ' chart'} role="img" />
+    </div>
+  </div>
 }
 
 function GridNovaTextBox({ data }) {
@@ -505,6 +497,92 @@ function GridNovaInkCanvas({ data, univerAPI }) {
   )
 }
 
+
+function insertRowFromSelection(univerAPI, position) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return false
+  if (position === 'below') sheet.insertRowAfter(range.getLastRow())
+  else sheet.insertRowBefore(range.getRow())
+  return true
+}
+
+function insertColumnFromSelection(univerAPI, position) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return false
+  if (position === 'right') sheet.insertColumnAfter(range.getLastColumn())
+  else sheet.insertColumnBefore(range.getColumn())
+  return true
+}
+
+function GridNovaCellControl({ data, univerAPI }) {
+  const sheet = univerAPI?.getActiveWorkbook?.()?.getActiveSheet?.()
+  const cell = sheet && sheet.getRange(data.row, data.column)
+  const [checked, setChecked] = useState(Boolean(data.value))
+  const [dateValue, setDateValue] = useState(String(data.value || ''))
+  const style = { width: '100%', height: '100%', display: 'grid', placeItems: 'center', background: '#fff', border: '1px solid #93c5aa', borderRadius: 4, boxSizing: 'border-box' }
+  function persist(value) {
+    if (!cell) return
+    cell.setValue(value)
+    sheet.updateFloatDom?.(data.id, { data: { ...data, value } })
+  }
+  if (data.type === 'checkbox') return <div style={style}>
+    <input type="checkbox" checked={checked} aria-label="Worksheet checkbox"
+      onChange={(event) => { const next = event.target.checked; setChecked(next); persist(next) }}
+      style={{ width: 18, height: 18, accentColor: '#107c41', cursor: 'pointer' }} />
+  </div>
+  return <div style={style}>
+    <input type="date" value={dateValue} aria-label="Worksheet date picker"
+      onChange={(event) => { const next = event.target.value; setDateValue(next); if (cell) { const parts = next.split('-').map(Number); const serial = next ? (Date.UTC(parts[0], parts[1] - 1, parts[2]) - Date.UTC(1899, 11, 30)) / 86400000 : ''; cell.setValue(serial); cell.setNumberFormat('yyyy-mm-dd'); sheet.updateFloatDom?.(data.id, { data: { ...data, value: next } }) } }}
+      style={{ width: '100%', minWidth: 0, border: 0, fontSize: 11, background: 'transparent' }} />
+  </div>
+}
+
+function insertCellControl(univerAPI, type) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const selected = sheet?.getActiveRange()
+  if (!sheet || !selected || typeof sheet.addFloatDomToRange !== 'function') return false
+  const row = selected.getRow()
+  const column = selected.getColumn()
+  const cell = sheet.getRange(row, column)
+  const value = type === 'checkbox' ? Boolean(cell.getValue()) : ''
+  if (type === 'checkbox') cell.setValue(value)
+  const id = 'gridnova-control-' + type + '-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+  return Boolean(sheet.addFloatDomToRange(cell, { componentKey: 'gridnova-cell-control', data: { id, type, row, column, value }, allowTransform: true }, { width: type === 'checkbox' ? 34 : 142, height: 28 }, id))
+}
+
+function GridNovaImageOverlay({ data, univerAPI }) {
+  const sheet = univerAPI?.getActiveWorkbook?.()?.getActiveSheet?.()
+  return <div style={{ position: 'relative', width: '100%', height: '100%', background: '#fff', border: '1px solid #d8e1dc', overflow: 'hidden' }}>
+    <img src={data?.src} alt={data?.name || 'Worksheet image'} draggable="false" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+    <button type="button" aria-label="Remove image" title="Remove image" onMouseDown={(event) => event.preventDefault()} onClick={() => sheet?.removeFloatDom(data.id)} style={{ position: 'absolute', top: 4, right: 4, zIndex: 50, border: 0, borderRadius: 12, color: '#fff', background: '#b42318' }}>×</button>
+  </div>
+}
+
+function insertImageOverlay(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range || typeof sheet.addFloatDomToRange !== 'function') return false
+  const picker = document.createElement('input')
+  picker.type = 'file'
+  picker.accept = 'image/png,image/jpeg,image/webp,image/gif'
+  picker.onchange = () => {
+    const file = picker.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { univerAPI.showMessage({ content: 'Choose an image smaller than 5 MB.', type: 'warning' }); return }
+    const reader = new FileReader()
+    reader.onload = () => {
+      const id = 'gridnova-image-' + (globalThis.crypto?.randomUUID?.() || Date.now())
+      const result = sheet.addFloatDomToRange(range, { componentKey: 'gridnova-image-overlay', data: { id, src: String(reader.result), name: file.name }, allowTransform: true }, { width: 320, height: 220 }, id)
+      univerAPI.showMessage({ content: result ? 'Image inserted. Drag or resize it on the worksheet.' : 'Image insertion failed.', type: result ? 'success' : 'error' })
+    }
+    reader.readAsDataURL(file)
+  }
+  picker.click()
+  return true
+}
+
 function applyCellStylePreset(univerAPI, presetName) {
   const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
   const range = sheet?.getActiveRange()
@@ -613,6 +691,7 @@ function insertChartOverlay(univerAPI, chartType = 'column') {
     {
       componentKey: 'gridnova-data-chart',
       data: {
+        id,
         type: chartType,
         title: chartType[0].toUpperCase() + chartType.slice(1) + ' Chart',
         labels: dataRows.map((row) => row.label),
@@ -656,13 +735,24 @@ function GridNovaLineShape({ data }) {
   </svg>
 }
 
+function GridNovaArrowShape({ data }) {
+  const stroke = data?.stroke || '#7c3aed'
+  return <svg viewBox="0 0 180 100" width="100%" height="100%" aria-label="Arrow shape">
+    <defs><marker id="gridnova-insert-arrow-head" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill={stroke} /></marker></defs>
+    <line x1="10" y1="88" x2="166" y2="12" stroke={stroke} strokeWidth={Number(data?.strokeWidth) || 4} strokeLinecap="round" markerEnd="url(#gridnova-insert-arrow-head)" />
+  </svg>
+}
+
 function registerDrawingComponents(univerAPI) {
   return [
     univerAPI.registerComponent('gridnova-draw-rectangle', GridNovaRectangleShape),
     univerAPI.registerComponent('gridnova-draw-ellipse', GridNovaEllipseShape),
     univerAPI.registerComponent('gridnova-draw-line', GridNovaLineShape),
+    univerAPI.registerComponent('gridnova-draw-arrow', GridNovaArrowShape),
     univerAPI.registerComponent('gridnova-bar-chart', GridNovaDataChart),
-    univerAPI.registerComponent('gridnova-data-chart', GridNovaDataChart),
+    univerAPI.registerComponent('gridnova-data-chart', (props) => <GridNovaDataChart {...props} univerAPI={univerAPI} />),
+    univerAPI.registerComponent('gridnova-cell-control', (props) => <GridNovaCellControl {...props} univerAPI={univerAPI} />),
+    univerAPI.registerComponent('gridnova-image-overlay', (props) => <GridNovaImageOverlay {...props} univerAPI={univerAPI} />),
     univerAPI.registerComponent('gridnova-text-box', GridNovaTextBox),
     univerAPI.registerComponent('gridnova-symbol', GridNovaSymbol),
     univerAPI.registerComponent('gridnova-ink-canvas', (props) => <GridNovaInkCanvas {...props} univerAPI={univerAPI} />),
@@ -682,6 +772,7 @@ function insertDrawingShape(univerAPI, shapeType) {
     rectangle: { fill: '#dbeafe', stroke: '#2563eb', fillOpacity: '.55', strokeWidth: 3 },
     ellipse: { fill: '#dcfce7', stroke: '#16834b', fillOpacity: '.55', strokeWidth: 3 },
     line: { stroke: '#d97706', strokeWidth: 4 },
+    arrow: { stroke: '#7c3aed', strokeWidth: 4 },
   }
   const shape = sheet.addFloatDomToRange(
     range,
@@ -1739,38 +1830,49 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
       ],
     },
     {
-      path: 'ribbon.insert', id: 'tables', title: 'Tables', order: 0, items: [
-        { id: 'insert-table', title: 'Format as Table', icon: 'table', run: formatSelectionAsTable },
-        { id: 'insert-pivot-summary', title: 'Pivot Summary Tools', action: 'insert-tools' },
+      path: 'ribbon.insert', id: 'insert-tables', title: 'Tables', order: 0, items: [
+        { id: 'format-as-table', title: 'Format as Table', icon: 'table', run: formatSelectionAsTable },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'illustrations', title: 'Illustrations', order: 1, items: [
-        { id: 'insert-picture', title: 'Pictures', icon: 'image', command: 'sheet.command.insert-float-image' },
+      path: 'ribbon.insert', id: 'insert-cells', title: 'Cells', order: 1, items: [
+        { id: 'insert-row-above', title: 'Insert Row Above', icon: 'insertRow', run: (api) => insertRowFromSelection(api, 'above') },
+        { id: 'insert-row-below', title: 'Insert Row Below', icon: 'insertRow', run: (api) => insertRowFromSelection(api, 'below') },
+        { id: 'insert-column-left', title: 'Insert Column Left', icon: 'insertColumn', run: (api) => insertColumnFromSelection(api, 'left') },
+        { id: 'insert-column-right', title: 'Insert Column Right', icon: 'insertColumn', run: (api) => insertColumnFromSelection(api, 'right') },
+      ],
+    },
+    {
+      path: 'ribbon.insert', id: 'insert-illustrations', title: 'Illustrations', order: 2, items: [
+        { id: 'insert-image', title: 'Insert Image', icon: 'image', run: insertImageOverlay },
         { id: 'insert-rectangle', title: 'Rectangle Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'rectangle') },
-        { id: 'insert-ellipse', title: 'Ellipse Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'ellipse') },
-        { id: 'insert-line', title: 'Line Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'line') },
+        { id: 'insert-arrow', title: 'Arrow Shape', icon: 'draw', run: (api) => insertDrawingShape(api, 'arrow') },
+        { id: 'insert-text-box', title: 'Text Box', icon: 'text', run: insertTextBox },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'charts', title: 'Charts', order: 2, items: [
-        { id: 'insert-bar-chart', title: 'Bar Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'bar') },
-        { id: 'insert-column-chart', title: 'Column Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'column') },
-        { id: 'insert-line-chart', title: 'Line Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'line') },
-        { id: 'insert-pie-chart', title: 'Pie Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'pie') },
-        { id: 'insert-area-chart', title: 'Area Chart Overlay', icon: 'table', run: (api) => insertChartOverlay(api, 'area') },
-        { id: 'chart-pivot-tools', title: 'Chart & Pivot Summary Tools', icon: 'table', action: 'insert-tools' },
+      path: 'ribbon.insert', id: 'insert-charts', title: 'Charts', order: 3, items: [
+        { id: 'insert-column-chart', title: 'Column Chart', icon: 'chartColumn', run: (api) => insertChartOverlay(api, 'column') },
+        { id: 'insert-bar-chart', title: 'Bar Chart', icon: 'chartBar', run: (api) => insertChartOverlay(api, 'bar') },
+        { id: 'insert-line-chart', title: 'Line Chart', icon: 'chartLine', run: (api) => insertChartOverlay(api, 'line') },
+        { id: 'insert-pie-chart', title: 'Pie Chart', icon: 'chartPie', run: (api) => insertChartOverlay(api, 'pie') },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'links', title: 'Links', order: 3, items: [
+      path: 'ribbon.insert', id: 'insert-links', title: 'Links', order: 4, items: [
         { id: 'insert-link', title: 'Hyperlink', icon: 'link', command: 'sheet.operation.insert-hyper-link-toolbar' },
       ],
     },
     {
-      path: 'ribbon.insert', id: 'text-symbols', title: 'Text & Symbols', order: 4, items: [
-        { id: 'insert-text-box', title: 'Text Box', icon: 'text', run: insertTextBox },
-        { id: 'insert-symbol', title: 'Symbol', icon: 'text', run: insertSymbol },
+      path: 'ribbon.insert', id: 'insert-comments', title: 'Comments', order: 5, items: [
+        { id: 'insert-comment', title: 'New Comment', icon: 'review', command: 'sheet.operation.show-comment-modal' },
+        { id: 'insert-note', title: 'New Note', icon: 'review', command: 'sheet.operation.add-note-popup' },
+      ],
+    },
+    {
+      path: 'ribbon.insert', id: 'insert-controls', title: 'Controls', order: 6, items: [
+        { id: 'insert-checkbox', title: 'Checkbox', icon: 'table', run: (api) => insertCellControl(api, 'checkbox') },
+        { id: 'insert-date-picker', title: 'Date Picker', icon: 'calculator', run: (api) => insertCellControl(api, 'date') },
       ],
     },
     {
@@ -2049,10 +2151,18 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
     let univerInstance
     let ribbonDisposables = []
     let disposed = false
+    let preserveInsertSelection = null
 
     try {
       const config = initialConfigRef.current
       containerRef.current?.setAttribute('data-gridnova-ribbon-mode', getRibbonPresentationMode(config.ribbonType))
+      preserveInsertSelection = (event) => {
+        if (event.target instanceof Element && event.target.closest('[data-u-command^="gridnova.ribbon.insert-"]')) {
+          event.preventDefault()
+        }
+      }
+      containerRef.current.addEventListener('mousedown', preserveInsertSelection, true)
+
       const { univer, univerAPI } = createUniver({
         locale: LocaleType.EN_US,
         locales: {
@@ -2123,6 +2233,13 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
                     charts: 'Charts',
                     links: 'Links',
                     'text-symbols': 'Text & Symbols',
+                    'insert-tables': 'Tables',
+                    'insert-cells': 'Cells',
+                    'insert-illustrations': 'Illustrations',
+                    'insert-charts': 'Charts',
+                    'insert-links': 'Links',
+                    'insert-comments': 'Comments',
+                    'insert-controls': 'Controls',
                   },
                   'ribbon-formulas': {
                     'function-library': 'Function Library',
@@ -2292,6 +2409,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
 
     return () => {
       disposed = true
+      if (preserveInsertSelection) containerRef.current?.removeEventListener('mousedown', preserveInsertSelection, true)
       onReadyRef.current?.(null)
       try {
         ribbonDisposables?.forEach((item) => item?.dispose?.())

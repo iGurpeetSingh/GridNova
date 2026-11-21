@@ -47,3 +47,16 @@ test('Single Line mode preserves command identity while removing captions throug
   assert.ok(items.every((item) => !item.gridLayout))
 })
 
+
+test('Explicitly unavailable commands are hidden in both ribbon layouts', () => {
+  const commands = [
+    { id: 'working', title: 'Working command', command: 'sheet.command.copy' },
+    { id: 'not-ready', title: 'Manage Access (Unavailable)', action: 'manage-access-unavailable' },
+    { id: 'not-ready-2', title: 'Placeholder action', action: 'feature-unavailable' },
+  ]
+
+  for (const mode of ['classic', 'grid']) {
+    const result = withRibbonGridLayouts(commands, mode)
+    assert.deepEqual(result.map((item) => item.id), ['working'])
+  }
+})

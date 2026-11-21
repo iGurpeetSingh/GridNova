@@ -1,20 +1,27 @@
 /**
- * Prepare the same ribbon commands for both GridNova layouts.
+ * Prepare the same working ribbon commands for both GridNova layouts.
  *
  * Univer's "classic" layout renders a single horizontal toolbar and calculates
- * overflow from the real button widths. Grid coordinates must therefore be
- * omitted in this mode; retaining row 1/2 coordinates can hide or mis-order
- * commands in the one-line toolbar.
+ * overflow from real button widths. Grid coordinates must therefore be omitted.
+ * Univer's "grid" layout uses a two-row command grid with visible captions.
  *
- * Univer's "grid" layout uses a two-row command grid, so every item receives
- * an explicit row/column and a visible caption.
+ * Explicitly unsupported commands are filtered at this boundary. A control
+ * advertised as "(Unavailable)" must not appear as a clickable ribbon button.
  */
 export function withRibbonGridLayouts(items = [], ribbonType = 'grid') {
+  const availableItems = items.filter((item) => {
+    const explicitlyUnavailable = typeof item.action === 'string'
+      && item.action.endsWith('-unavailable')
+    const visiblyUnavailable = typeof item.title === 'string'
+      && /\(unavailable\)/i.test(item.title)
+    return !explicitlyUnavailable && !visiblyUnavailable
+  })
+
   if (ribbonType === 'classic') {
-    return items.map(({ gridLayout, ...item }) => item)
+    return availableItems.map(({ gridLayout, ...item }) => item)
   }
 
-  return items.map((item, index) => {
+  return availableItems.map((item, index) => {
     const configured = item.gridLayout || {}
     return {
       ...item,
