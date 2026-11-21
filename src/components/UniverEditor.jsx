@@ -1537,10 +1537,13 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
           { id: 'new-workbook', title: 'New Workbook', icon: 'home', action: 'new-workbook' },
           { id: 'open-workbook', title: 'Browse Workbooks', icon: 'home', action: 'browse-workbooks' },
           { id: 'import-workbook', title: 'Open Workbook (XLSX / CSV)', icon: 'import', action: 'import' },
+          { id: 'import-csv', title: 'Import CSV…', icon: 'import', action: 'import-csv' },
+          { id: 'import-pdf', title: 'Import PDF…', icon: 'import', action: 'import-pdf' },
           { id: 'save', title: 'Save', icon: 'save', action: 'save' },
           { id: 'save-as', title: 'Save As', icon: 'copy', action: 'save-as' },
           { id: 'export-xlsx', title: 'Export Excel', icon: 'export', action: 'export-xlsx' },
           { id: 'export-csv', title: 'Export Active Sheet CSV', icon: 'export', action: 'export-csv' },
+          { id: 'export-pdf', title: 'Export Active Sheet PDF', icon: 'export', action: 'export-pdf' },
         ] },
         { id: 'information', title: 'Workbook Information', items: [
           { id: 'copy-id', title: 'Copy Workbook ID', action: 'copy-workbook-id' },
@@ -1557,6 +1560,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
           { id: 'copy-link', title: 'Copy Workbook Link', icon: 'link', action: 'copy-workbook-link' },
           { id: 'share-comments', title: 'Comments', icon: 'review', action: 'open-comments' },
           { id: 'manage-access', title: 'Manage Access (Unavailable)', action: 'manage-access-unavailable' },
+        ] },
+        { id: 'share-export', title: 'Export', items: [
+          { id: 'export-csv', title: 'Export as CSV', icon: 'export', action: 'export-csv' },
+          { id: 'export-pdf', title: 'Export as PDF', icon: 'export', action: 'export-pdf' },
         ] },
       ],
     },
@@ -1725,6 +1732,12 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   ]
 
   const nativeTabGroups = [
+    {
+      path: 'ribbon.data', id: 'get-data', title: 'Get Data', order: -1, items: [
+        { id: 'get-data-csv', title: 'Get Data from CSV', icon: 'import', action: 'import-csv' },
+        { id: 'get-data-pdf', title: 'Get Data from PDF', icon: 'import', action: 'import-pdf' },
+      ],
+    },
     {
       path: 'ribbon.insert', id: 'tables', title: 'Tables', order: 0, items: [
         { id: 'insert-table', title: 'Format as Table', icon: 'table', run: formatSelectionAsTable },
@@ -2201,6 +2214,46 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
           }
           univerAPI.setRibbonType(type)
           containerRef.current?.setAttribute('data-gridnova-ribbon-mode', getRibbonPresentationMode(type))
+        },
+        importMatrix(matrix, options = {}) {
+          const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+          if (!sheet) throw new Error('There is no active worksheet to import into.')
+          if (!Array.isArray(matrix) || !matrix.length) throw new Error('The selected file contains no rows to import.')
+
+          const rows = matrix.length
+          const columns = Math.max(1, ...matrix.map((row) => Array.isArray(row) ? row.length : 0))
+          if (rows * columns > 2000000) {
+            throw new Error('This import exceeds GridNova’s safe limit of 2,000,000 cells. Split the file into smaller parts and import again.')
+          }
+
+          const normalized = matrix.map((row) =>
+            Array.from({ length: columns }, (_, index) => {
+              const value = Array.isArray(row) ? row[index] : ''
+              return value == null ? '' : String(value)
+            }),
+          )
+
+          const replace = options.mode !== 'insert'
+          const activeRange = sheet.getActiveRange?.()
+          const startRow = replace ? 0 : Math.max(0, Number(options.anchor?.row ?? activeRange?.getRow?.() ?? 0))
+          const startColumn = replace ? 0 : Math.max(0, Number(options.anchor?.column ?? activeRange?.getColumn?.() ?? 0))
+
+          if (replace) sheet.clear()
+          const requiredRows = startRow + rows
+          const requiredColumns = startColumn + columns
+          const currentRows = sheet.getMaxRows()
+          const currentColumns = sheet.getMaxColumns()
+          if (requiredRows > currentRows) {
+            sheet.insertRowsAfter(currentRows - 1, requiredRows - currentRows)
+          }
+          if (requiredColumns > currentColumns) {
+            sheet.insertColumnsAfter(currentColumns - 1, requiredColumns - currentColumns)
+          }
+
+          const target = sheet.getRange(startRow, startColumn, rows, columns)
+          target.setValues(normalized)
+          univerAPI.getActiveWorkbook()?.setActiveRange?.(target)
+          return { rows, columns, startRow, startColumn, replaced: replace }
         },
         setFormulaBarVisible(visible) {
           const formulaBar = containerRef.current?.querySelector('[data-u-comp="formula-bar"]')
