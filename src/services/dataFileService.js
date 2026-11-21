@@ -143,11 +143,6 @@ export async function parsePdfFile(file, options = {}) {
     const workerAsset = await import('pdfjs-dist/build/pdf.worker.min.mjs?url')
     GlobalWorkerOptions.workerSrc = workerAsset.default
   }
-  if (!file) throw new Error('Choose a PDF file first.')
-  if (!String(file.name || '').toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
-    throw new Error('Unsupported file type. Choose a .pdf file.')
-  }
-
   let loadingTask
   let pdf
   try {
