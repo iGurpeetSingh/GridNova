@@ -30,6 +30,11 @@ test('CSV parser recognizes tab-delimited content', () => {
   assert.deepEqual(result.rows, [['A', 'B'], ['1', '2']])
 })
 
+test('CSV parser accepts a valid single-column file', () => {
+  const result = parseCsvText('one value')
+  assert.deepEqual(result.rows, [['one value']])
+})
+
 test('CSV parser rejects empty input', () => {
   assert.throws(() => parseCsvText(''), /empty|readable rows/i)
 })
