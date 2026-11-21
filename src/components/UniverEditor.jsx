@@ -2205,6 +2205,14 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
       addColumnHeaderDeleteAction(univerAPI)
       ribbonDisposables = addMicrosoftInspiredRibbonTabs(univerAPI, (action) => onRibbonActionRef.current?.(action), config.ribbonType)
 
+      // Apply the selected ribbon layout after every custom menu has been
+      // registered. The preset's initial ribbonType can be superseded by menu
+      // registration during startup; re-applying here ensures gridLayout
+      // commands are rendered in the expanded two-row ribbon.
+      if (typeof univerAPI.setRibbonType === 'function') {
+        univerAPI.setRibbonType(config.ribbonType)
+      }
+
       const editorApi = {
         getSnapshot() {
           return univerAPI.getActiveWorkbook()?.save() || null
