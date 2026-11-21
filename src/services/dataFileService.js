@@ -185,8 +185,9 @@ export async function parsePdfFile(file, options = {}) {
 
 export function buildCsvContent(values) {
   const rows = normalizeRows(values)
+  const formulaPrefixes = ['=', '+', '-', '@', '\t', '\r']
   const safeRows = rows.map((row) => row.map((value) =>
-    typeof value === 'string' && /^[=+\\-@\\t\\r]/.test(value) ? "'" + value : value,
+    typeof value === 'string' && formulaPrefixes.includes(value[0]) ? "'" + value : value,
   ))
   return Papa.unparse(safeRows, {
     delimiter: ',',
