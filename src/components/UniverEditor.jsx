@@ -2184,11 +2184,12 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
     let univerInstance
     let ribbonDisposables = []
     let disposed = false
+    let preserveInsertSelection = null
 
     try {
       const config = initialConfigRef.current
       containerRef.current?.setAttribute('data-gridnova-ribbon-mode', getRibbonPresentationMode(config.ribbonType))
-      const preserveInsertSelection = (event) => {
+      preserveInsertSelection = (event) => {
         if (event.target instanceof Element && event.target.closest('[data-u-command^="gridnova.ribbon.insert-"]')) {
           event.preventDefault()
         }
@@ -2441,7 +2442,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
 
     return () => {
       disposed = true
-      containerRef.current?.removeEventListener('mousedown', preserveInsertSelection, true)
+      if (preserveInsertSelection) containerRef.current?.removeEventListener('mousedown', preserveInsertSelection, true)
       onReadyRef.current?.(null)
       try {
         ribbonDisposables?.forEach((item) => item?.dispose?.())
