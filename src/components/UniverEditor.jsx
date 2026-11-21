@@ -256,7 +256,7 @@ function addRibbonTab(univerAPI, tab, onRibbonAction, ribbonType) {
 
 
 
-function GridNovaDataChart({ data }) {
+function GridNovaDataChart({ data, univerAPI }) {
   const labels = Array.isArray(data?.labels) ? data.labels : []
   const values = Array.isArray(data?.values) ? data.values.map((value) => Number(value) || 0) : []
   const type = ['bar', 'column', 'line', 'pie', 'area'].includes(data?.type) ? data.type : 'bar'
@@ -282,8 +282,11 @@ function GridNovaDataChart({ data }) {
 
   return (
     <div style={{ width: '100%', height: '100%', padding: 8, boxSizing: 'border-box', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 8, fontFamily: 'Arial,sans-serif' }}>
-      <div style={{ height: 18, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontSize: 12, fontWeight: 700, color: '#243342' }}>{chartTitle}</div>
-      <svg viewBox="0 0 360 205" width="100%" height="calc(100% - 18px)" role="img" aria-label={'GridNova ' + type + ' chart'}>
+      <div style={{ height: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, overflow: 'hidden', whiteSpace: 'nowrap', fontSize: 12, fontWeight: 700, color: '#243342' }}>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{chartTitle}</span>
+        <button type="button" aria-label="Delete chart" title="Delete chart" onMouseDown={(event) => event.preventDefault()} onClick={() => univerAPI?.getActiveWorkbook?.()?.getActiveSheet?.()?.removeFloatDom(data?.id)} style={{ flex: '0 0 22px', width: 22, height: 22, border: 0, borderRadius: 5, color: '#fff', background: '#dc4c4c', cursor: 'pointer' }}>×</button>
+      </div>
+      <svg viewBox="0 0 360 205" width="100%" height="calc(100% - 24px)" role="img" aria-label={'GridNova ' + type + ' chart'}>
         {(type === 'bar') && values.map((value, index) => {
           const numeric = positiveValues[index]
           const y = 26 + index * Math.max(15, 145 / Math.max(1, values.length))
@@ -706,6 +709,7 @@ function insertChartOverlay(univerAPI, chartType = 'column') {
     {
       componentKey: 'gridnova-data-chart',
       data: {
+        id,
         type: chartType,
         title: chartType[0].toUpperCase() + chartType.slice(1) + ' Chart',
         labels: dataRows.map((row) => row.label),
@@ -755,7 +759,9 @@ function registerDrawingComponents(univerAPI) {
     univerAPI.registerComponent('gridnova-draw-ellipse', GridNovaEllipseShape),
     univerAPI.registerComponent('gridnova-draw-line', GridNovaLineShape),
     univerAPI.registerComponent('gridnova-bar-chart', GridNovaDataChart),
-    univerAPI.registerComponent('gridnova-data-chart', GridNovaDataChart),
+    univerAPI.registerComponent('gridnova-data-chart', (props) => <GridNovaDataChart {...props} univerAPI={univerAPI} />),
+    univerAPI.registerComponent('gridnova-cell-control', (props) => <GridNovaCellControl {...props} univerAPI={univerAPI} />),
+    univerAPI.registerComponent('gridnova-image-overlay', (props) => <GridNovaImageOverlay {...props} univerAPI={univerAPI} />),
     univerAPI.registerComponent('gridnova-text-box', GridNovaTextBox),
     univerAPI.registerComponent('gridnova-symbol', GridNovaSymbol),
     univerAPI.registerComponent('gridnova-ink-canvas', (props) => <GridNovaInkCanvas {...props} univerAPI={univerAPI} />),
