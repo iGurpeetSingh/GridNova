@@ -148,6 +148,10 @@ const RIBBON_ICONS = {
   insertColumn: TableRegular,
   deleteRow: CutRegular,
   deleteColumn: CutRegular,
+  chartColumn: TableRegular,
+  chartBar: TableRegular,
+  chartLine: TableRegular,
+  chartPie: TableRegular,
 }
 
 const RIBBON_ICON_COLORS = {
@@ -179,6 +183,7 @@ const RIBBON_ICON_COLORS = {
   // Row and column operations.
   insertRow: '#14b8a6', insertColumn: '#0ea5e9',
   deleteRow: '#ef4444', deleteColumn: '#ef4444',
+  chartColumn: '#7c3aed', chartBar: '#f97316', chartLine: '#2563eb', chartPie: '#db2777',
 }
 
 function registerRibbonIcons(univerAPI) {
@@ -1885,10 +1890,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     },
     {
       path: 'ribbon.insert', id: 'insert-charts', title: 'Charts', order: 3, items: [
-        { id: 'insert-column-chart', title: 'Column Chart', icon: 'table', run: (api) => insertChartOverlay(api, 'column') },
-        { id: 'insert-bar-chart', title: 'Bar Chart', icon: 'table', run: (api) => insertChartOverlay(api, 'bar') },
-        { id: 'insert-line-chart', title: 'Line Chart', icon: 'table', run: (api) => insertChartOverlay(api, 'line') },
-        { id: 'insert-pie-chart', title: 'Pie Chart', icon: 'table', run: (api) => insertChartOverlay(api, 'pie') },
+        { id: 'insert-column-chart', title: 'Column Chart', icon: 'chartColumn', run: (api) => insertChartOverlay(api, 'column') },
+        { id: 'insert-bar-chart', title: 'Bar Chart', icon: 'chartBar', run: (api) => insertChartOverlay(api, 'bar') },
+        { id: 'insert-line-chart', title: 'Line Chart', icon: 'chartLine', run: (api) => insertChartOverlay(api, 'line') },
+        { id: 'insert-pie-chart', title: 'Pie Chart', icon: 'chartPie', run: (api) => insertChartOverlay(api, 'pie') },
       ],
     },
     {
