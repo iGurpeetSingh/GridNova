@@ -82,5 +82,5 @@ test('PDF AutoTable options map Univer bold, fill, text color and alignment styl
 
 
 test('CSV export keeps numeric negative values numeric while escaping untrusted strings', () => {
-  assert.equal(buildCsvContent([['Text', 'Number'], ['-not a number', -125]]), "'-not a number,-125")
+  assert.equal(buildCsvContent([['Text', 'Number'], ['-not a number', -125]]), "Text,Number\\r\\n'-not a number,-125")
 })
