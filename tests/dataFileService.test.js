@@ -79,3 +79,8 @@ test('PDF AutoTable options map Univer bold, fill, text color and alignment styl
   assert.equal(hook.cell.styles.textColor, '#274E13')
   assert.equal(hook.cell.styles.halign, 'center')
 })
+
+
+test('CSV export keeps numeric negative values numeric while escaping untrusted strings', () => {
+  assert.equal(buildCsvContent([['Text', 'Number'], ['-not a number', -125]]), '"\'-not a number",-125')
+})
