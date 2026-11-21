@@ -2215,6 +2215,12 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
           univerAPI.setRibbonType(type)
           containerRef.current?.setAttribute('data-gridnova-ribbon-mode', getRibbonPresentationMode(type))
         },
+        async recalculateValues() {
+          const formula = univerAPI.getFormula?.()
+          if (typeof formula?.executeCalculation === 'function') {
+            await formula.executeCalculation()
+          }
+        },
         importMatrix(matrix, options = {}) {
           const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
           if (!sheet) throw new Error('There is no active worksheet to import into.')
