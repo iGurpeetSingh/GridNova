@@ -150,13 +150,34 @@ const RIBBON_ICONS = {
 }
 
 const RIBBON_ICON_COLORS = {
-  save: '#217346', share: '#107C41', review: '#7B2CBF', help: '#0078D4',
-  draw: '#C65911', image: '#0078D4', table: '#217346', filter: '#0078D4',
-  sort: '#0078D4', currency: '#107C41', percent: '#0078D4', paint: '#EAA300',
-  fillColor: '#F2C811', textColor: '#C50F1F', paste: '#0078D4',
-  cut: '#D83B01', copy: '#0078D4', border: '#64748B',
-  alignLeft: '#0078D4', alignCenter: '#0078D4', alignRight: '#0078D4',
-  calculator: '#0078D4', print: '#475569', layout: '#0078D4',
+  // File and workbook actions — emerald, rose and Apple blue.
+  save: '#10b981', import: '#10b981', export: '#ef4444', print: '#64748b',
+  share: '#007aff', review: '#8b5cf6', help: '#0ea5e9',
+
+  // Insert and drawing tools — purple charts, pink images, sky-blue links.
+  draw: '#ec4899', layout: '#8b5cf6', home: '#3b82f6', table: '#14b8a6',
+  guide: '#0ea5e9', image: '#ec4899', link: '#0ea5e9',
+
+  // Clipboard and editing.
+  undo: '#64748b', redo: '#64748b', paste: '#3b82f6',
+  cut: '#f97316', copy: '#2563eb',
+
+  // Home formatting — indigo type, blue alignment, amber fill, teal numbers.
+  bold: '#6366f1', italic: '#6366f1', underline: '#6366f1', strike: '#6366f1',
+  fontIncrease: '#6366f1', fontDecrease: '#6366f1',
+  alignLeft: '#3b82f6', alignCenter: '#3b82f6', alignRight: '#3b82f6',
+  alignLeftCompact: '#3b82f6', alignCenterCompact: '#3b82f6',
+  textColor: '#6366f1', fillColor: '#f59e0b', paint: '#f59e0b',
+  border: '#0ea5e9', merge: '#3b82f6', wrap: '#14b8a6', rotate: '#14b8a6',
+
+  // Data and formulas.
+  filter: '#14b8a6', sort: '#0ea5e9', search: '#8b5cf6',
+  calculator: '#f97316', currency: '#14b8a6', percent: '#14b8a6',
+  decimalIncrease: '#14b8a6', decimalDecrease: '#14b8a6',
+
+  // Row and column operations.
+  insertRow: '#14b8a6', insertColumn: '#0ea5e9',
+  deleteRow: '#ef4444', deleteColumn: '#ef4444',
 }
 
 function registerRibbonIcons(univerAPI) {
