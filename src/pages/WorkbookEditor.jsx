@@ -678,7 +678,7 @@ export default function WorkbookEditor() {
             workbookId={workbookId}
             title={title}
             initialSnapshot={initialSnapshot}
-            ribbonType="classic"
+            ribbonType="collapsed"
             onReady={handleEditorReady}
             onRibbonAction={handleRibbonAction}
           />
