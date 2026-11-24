@@ -42,7 +42,7 @@ test('Single Line mode preserves command identity while removing captions throug
     'sheet.command.smart-toggle-filter',
     'sheet.command.insert-row-before',
   ]
-  const items = withRibbonGridLayouts(commands.map((id) => ({ id, command: id })), 'classic')
+  const items = withRibbonGridLayouts(commands.map((id) => ({ id, command: id })), 'collapsed')
   assert.deepEqual(items.map((item) => item.command), commands)
   assert.ok(items.every((item) => !item.gridLayout))
 })
