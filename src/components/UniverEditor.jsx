@@ -2160,7 +2160,7 @@ function addColumnHeaderDeleteAction(univerAPI) {
   return deleteMenu
 }
 
-export default function UniverEditor({ workbookId, title, initialSnapshot, ribbonType = 'collapsed', onReady, onRibbonAction }) {
+export default function UniverEditor({ workbookId, title, initialSnapshot, ribbonType = 'classic', onReady, onRibbonAction }) {
   const containerRef = useRef(null)
   const onReadyRef = useRef(onReady)
   const onRibbonActionRef = useRef(onRibbonAction)
@@ -2347,7 +2347,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
           return univerAPI.executeCommand(commandId, params)
         },
         setRibbonType(type) {
-          if (type !== 'collapsed' && type !== 'grid') {
+          if (type !== 'classic' && type !== 'grid') {
             throw new Error('Unsupported GridNova ribbon mode.')
           }
           univerAPI.setRibbonType(type)
