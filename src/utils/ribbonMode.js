@@ -1,25 +1,26 @@
 export const RIBBON_MODE_STORAGE_PREFIX = 'gridnova:ribbon-mode-v8:'
 
 /**
- * GridNova's Single Line mode uses Univer's classic layout: the full tab strip
- * remains visible while the active tab's controls stay on one horizontal row.
- * GridNova's expanded Classic mode uses Univer's grid layout: each command
- * group gets two rows, visible command captions, group labels and More overflow.
+ * GridNova Single Line uses Univer's collapsed layout: ribbon groups and their
+ * commands share one compact horizontal row below the tab strip.
+ * GridNova's expanded Classic mode uses Univer's grid layout with two command
+ * rows and visible captions.
  */
 export const RIBBON_TYPE = Object.freeze({
-  SINGLE_LINE: 'classic',
+  SINGLE_LINE: 'collapsed',
   CLASSIC: 'grid',
 })
 
 export function normalizeRibbonType(savedValue) {
-  if (savedValue === RIBBON_TYPE.CLASSIC) return RIBBON_TYPE.CLASSIC
+  // "classic" was previously (incorrectly) stored as GridNova's Single Line
+  // mode. Keep old workbook preferences compatible while correcting the
+  // underlying Univer mode to "collapsed".
+  if (savedValue === RIBBON_TYPE.CLASSIC || savedValue === 'grid') return RIBBON_TYPE.CLASSIC
   return RIBBON_TYPE.SINGLE_LINE
 }
 
 /**
  * CSS presentation class for the selected Univer ribbon type.
- * Univer 1.5.2 uses "classic" for a tab row plus a separate toolbar row,
- * and "grid" for the expanded two-row command groups.
  */
 export function getRibbonPresentationMode(value) {
   return value === RIBBON_TYPE.SINGLE_LINE ? 'single-line' : 'classic'
