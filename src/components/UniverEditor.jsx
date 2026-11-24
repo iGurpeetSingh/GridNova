@@ -6,7 +6,7 @@ import '@univerjs/ui/facade'
 import '@univerjs/sheets/facade'
 import { withRibbonGridLayouts } from '../utils/ribbonLayout.js'
 import { getRibbonPresentationMode } from '../utils/ribbonMode.js'
-import { buildHomeRibbonMenuConfig, HOME_FORMAT_PAINTER_MENU_ITEM_ID, HOME_RIBBON_GROUP_CONFIG } from '../utils/homeRibbonConfig.js'
+import { HOME_RIBBON_GROUP_CONFIG } from '../utils/homeRibbonConfig.js'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
 import { UniverSheetsDrawingPreset } from '@univerjs/preset-sheets-drawing'
 import UniverPresetSheetsDrawingEnUS from '@univerjs/preset-sheets-drawing/locales/en-US'
@@ -1792,26 +1792,6 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   // Keep its native Undo/Redo/Paste and paste-special menu, and add only Cut/Copy.
   // Keep only the compact Cells and Editing commands requested for Home.
   // Clipboard, Font, Alignment and Number remain native Univer toolbar groups.
-  const homeGroups = [
-    {
-      id: 'cells', title: 'Cells', order: 5, items: [
-        { id: 'insert-row', title: 'Insert Row', icon: 'insertRow', command: 'sheet.command.insert-row-before' },
-        { id: 'insert-column', title: 'Insert Column', icon: 'insertColumn', command: 'sheet.command.insert-col-before' },
-        { id: 'delete-row', title: 'Delete Row', icon: 'deleteRow', command: 'sheet.command.remove-row-confirm' },
-        { id: 'delete-column', title: 'Delete Column', icon: 'deleteColumn', command: 'sheet.command.remove-col-confirm' },
-      ],
-    },
-    {
-      id: 'editing', title: 'Editing', order: 6, items: [
-        { id: 'auto-sum', title: 'AutoSum', icon: 'calculator', run: insertAutoSum },
-        { id: 'clear-formats', title: 'Clear Formatting', icon: 'eraser', run: (api) => clearSelectedRange(api, 'formats') },
-        { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', command: 'sheet.command.sort-range-asc' },
-        { id: 'filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
-        { id: 'find', title: 'Find', icon: 'search', command: 'ui.operation.open-find-dialog' },
-      ],
-    },
-  ]
-
   const nativeTabGroups = [
     {
       path: 'ribbon.data', id: 'get-data', title: 'Get Data', order: -1, items: [
@@ -2013,28 +1993,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     return groupMenu
   })
 
-  const homeGroupMenus = homeGroups.map((group) => {
-    const groupMenu = univerAPI.createSubmenu({
-      id: 'gridnova.ribbon.home.' + group.id,
-      title: group.title,
-      order: group.order,
-    })
-    withRibbonGridLayouts(group.items, ribbonType).forEach((item) => {
-      groupMenu.addSubmenu(univerAPI.createMenu({
-        id: 'gridnova.ribbon.home.' + item.id,
-        title: item.title,
-        tooltip: item.title,
-        icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
-        gridLayout: item.gridLayout,
-        action: () => executeRibbonItem(univerAPI, item, onRibbonAction),
-      }))
-    })
-    groupMenu.appendTo('ribbon.start')
-    return groupMenu
-  })
-
   univerAPI.updateMenuConfig({
-    ...buildHomeRibbonMenuConfig(),
+    ...HOME_RIBBON_GROUP_CONFIG,
     'ribbon.insert': { title: 'Insert', order: 2, hidden: false },
     'univer.command.undo': { icon: 'gridnova-icon-undo' },
     'univer.command.redo': { icon: 'gridnova-icon-redo' },
@@ -2084,7 +2044,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   })
 
 
-  return [...icons, ...drawingComponents, ...menus, ...homeGroupMenus, ...nativeTabGroupMenus]
+  return [...icons, ...drawingComponents, ...menus, ...nativeTabGroupMenus]
 }
 
 function addColumnHeaderDeleteAction(univerAPI) {
