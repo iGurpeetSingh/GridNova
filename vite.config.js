@@ -10,7 +10,7 @@ export default defineConfig({
     // Limit simultaneous file reads/transforms to reduce peak memory usage on
     // Vercel's standard build container. This does not change app output.
     rollupOptions: {
-      maxParallelFileOps: 5,
+      maxParallelFileOps: 2,
     },
   },
 })
