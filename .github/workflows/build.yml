@@ -24,4 +24,6 @@ jobs:
       - name: Run ribbon mode regression tests
         run: npm test
       - name: Build application
+        env:
+          NODE_OPTIONS: --max-old-space-size=5120
         run: npm run build
