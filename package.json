@@ -10,22 +10,24 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@univerjs/preset-sheets-core": "1.5.2",
-    "@univerjs/presets": "1.5.2",
     "@fluentui/react-icons": "^2.0.345",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.1",
-    "exceljs": "^4.4.0",
+    "@univerjs/preset-sheets-core": "1.5.2",
+    "@univerjs/preset-sheets-data-validation": "^1.2.0",
     "@univerjs/preset-sheets-drawing": "^1.1.0",
+    "@univerjs/preset-sheets-note": "^1.2.0",
     "@univerjs/preset-sheets-table": "^1.0.2",
     "@univerjs/preset-sheets-thread-comment": "^1.0.2",
-    "@univerjs/preset-sheets-note": "^1.2.0",
-    "@univerjs/preset-sheets-data-validation": "^1.2.0",
+    "@univerjs/presets": "1.5.2",
+    "@univerjs/sheets": "1.5.2",
+    "@univerjs/ui": "1.5.2",
+    "exceljs": "^4.4.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.9",
     "papaparse": "^5.7.1",
-    "pdfjs-dist": "^6.5.438"
+    "pdfjs-dist": "^6.5.438",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",

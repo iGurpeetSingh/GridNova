@@ -2,13 +2,13 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { HOME_RIBBON_GROUP_CONFIG } from '../src/utils/homeRibbonConfig.js'
 
-test('The complete native Home tab and its toolbar are hidden', () => {
+test('The native Home tab and its standard workbook formatting toolbar are available', () => {
   assert.deepEqual(HOME_RIBBON_GROUP_CONFIG, {
-    'ribbon.start': { title: 'Home', order: 1, hidden: true },
+    'ribbon.start': { title: 'Home', order: 1, hidden: false },
   })
 })
 
-test('No Home toolbar groups or custom Home commands are injected', async () => {
+test('No duplicate Home groups or custom toolbar commands replace native controls', async () => {
   const { readFile } = await import('node:fs/promises')
   const source = await readFile(new URL('../src/components/UniverEditor.jsx', import.meta.url), 'utf8')
 
@@ -18,7 +18,7 @@ test('No Home toolbar groups or custom Home commands are injected', async () => 
   assert.doesNotMatch(source, /gridnova\.ribbon\.home\./)
 })
 
-test('Home remains hidden in both initial preset setup and runtime menu updates', async () => {
+test('Home remains available in both initial preset setup and runtime menu updates', async () => {
   const { readFile } = await import('node:fs/promises')
   const source = await readFile(new URL('../src/components/UniverEditor.jsx', import.meta.url), 'utf8')
 
@@ -26,7 +26,7 @@ test('Home remains hidden in both initial preset setup and runtime menu updates'
   assert.match(source, /univerAPI\.updateMenuConfig\(\{\s*\.\.\.HOME_RIBBON_GROUP_CONFIG/s)
 })
 
-test('Other workbook tabs are not hidden by the Home removal', async () => {
+test('Other workbook tabs remain available alongside Home', async () => {
   const { readFile } = await import('node:fs/promises')
   const source = await readFile(new URL('../src/components/UniverEditor.jsx', import.meta.url), 'utf8')
 
