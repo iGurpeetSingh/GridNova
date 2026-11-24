@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowRedoRegular, ArrowUndoRegular, BookOpenRegular, CommentRegular, ShareRegular } from '@fluentui/react-icons'
 import UniverEditor from '../components/UniverEditor.jsx'
+import GridNovaLoader from '../components/GridNovaLoader.jsx'
 import InsertToolsPanel from '../components/InsertToolsPanel.jsx'
 import ReviewPanel from '../components/ReviewPanel.jsx'
 import DataFileImportModal from '../components/DataFileImportModal.jsx'
@@ -671,7 +672,7 @@ export default function WorkbookEditor() {
 
       <section className="editor-workspace" aria-label="Spreadsheet editor">
         {loading ? (
-          <div className="editor-loading"><span className="loading-spinner" /> Loading workbook…</div>
+          <GridNovaLoader label="Loading workbook" />
         ) : (
           <UniverEditor
             workbookId={workbookId}

@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Dashboard from './pages/Dashboard.jsx'
+import GridNovaLoader from './components/GridNovaLoader.jsx'
 
 const WorkbookEditor = lazy(() => import('./pages/WorkbookEditor.jsx'))
 
@@ -12,7 +13,7 @@ export default function App() {
         <Route
           path="/workbook/:workbookId"
           element={(
-            <Suspense fallback={<div className="editor-loading" role="status">Loading spreadsheet editor…</div>}>
+            <Suspense fallback={<GridNovaLoader fullScreen label="Loading spreadsheet editor" />}>
               <WorkbookEditor />
             </Suspense>
           )}
