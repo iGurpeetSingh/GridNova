@@ -1787,37 +1787,28 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   // Univer's Facade supports adding groups to built-in tabs and root tabs via appendTo('ribbon').
   const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction, ribbonType))
 
-  const clipboardGroup = univerAPI.createSubmenu({
-    id: 'gridnova.ribbon.home.clipboard',
-    title: 'Clipboard',
-    order: 1,
-  })
-  ;[
-    { id: 'paste', title: 'Paste', icon: 'paste', command: 'sheet.command.paste', gridLayout: { row: 1, column: 1, rowSpan: 2, width: 54, showLabel: true } },
-    { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut', gridLayout: { row: 1, column: 2 } },
-    { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy', gridLayout: { row: 2, column: 2 } },
-    { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: HOME_FORMAT_PAINTER_MENU_ITEM_ID, gridLayout: { row: 1, column: 3 } },
-    { id: 'paste-values', title: 'Paste Values', icon: 'paste', command: 'sheet.command.paste-value', gridLayout: { row: 2, column: 3 } },
-    { id: 'paste-formats', title: 'Paste Formats', icon: 'paint', command: 'sheet.command.paste-format', gridLayout: { row: 2, column: 4 } },
-    { id: 'paste-column-width', title: 'Paste Column Width', icon: 'layout', command: 'sheet.command.paste-col-width', gridLayout: { row: 2, column: 5 } },
-  ].map((item) => ({
-    ...item,
-    gridLayout: { ...item.gridLayout, showLabel: true },
-  })).forEach((item) => {
-    clipboardGroup.addSubmenu(univerAPI.createMenu({
+  // The built-in History group is Univer 1.5.2's actual Clipboard group.
+  // Keep its native Undo/Redo/Paste and paste-special menu, and add only Cut/Copy.
+  const historyMenus = [
+    { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut', order: 5 },
+    { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy', order: 6 },
+  ].map((item) => {
+    const menu = univerAPI.createMenu({
       id: 'gridnova.ribbon.home.clipboard.' + item.id,
       title: item.title,
       tooltip: item.title,
-      icon: item.icon ? 'gridnova-icon-' + item.icon : undefined,
-      gridLayout: item.gridLayout,
+      icon: 'gridnova-icon-' + item.icon,
+      order: item.order,
       action: () => executeRibbonItem(univerAPI, item, onRibbonAction),
-    }))
+    })
+    menu.appendTo('ribbon.start.history')
+    return menu
   })
-  clipboardGroup.appendTo('ribbon.start')
 
   const homeGroups = [
     {
       id: 'styles', title: 'Styles', order: 5, items: [
+        { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', command: 'sheet.operation.open.conditional.formatting.panel', params: { value: 3 } },
         { id: 'format-as-table', title: 'Format as Table', icon: 'table', gridLayout: { row: 1, column: 2 }, run: formatSelectionAsTable },
         { id: 'cell-style-title', title: 'Title Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'title') },
         { id: 'cell-style-heading', title: 'Heading Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'heading') },
@@ -1844,6 +1835,10 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     {
       id: 'editing', title: 'Editing', order: 7, items: [
         { id: 'auto-sum', title: 'AutoSum', icon: 'calculator', run: insertAutoSum },
+        { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', command: 'sheet.command.sort-range-asc' },
+        { id: 'sort-descending', title: 'Sort Z to A', icon: 'sort', command: 'sheet.command.sort-range-desc' },
+        { id: 'filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
+        { id: 'find', title: 'Find & Replace', icon: 'search', command: 'ui.operation.open-find-dialog' },
         { id: 'clear-contents', title: 'Clear Contents', icon: 'table', run: (api) => clearSelectedRange(api, 'contents') },
         { id: 'clear-formats', title: 'Clear Formats', icon: 'paint', run: (api) => clearSelectedRange(api, 'formats') },
         { id: 'clear-all', title: 'Clear All', icon: 'table', run: (api) => clearSelectedRange(api, 'all') },
@@ -2086,14 +2081,8 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   })
 
   univerAPI.updateMenuConfig({
-    'ribbon.start': { title: 'Home', order: 1 },
-    'ribbon.insert': { title: 'Insert', order: 2, hidden: false },
-    'ribbon.start.clipboard': { hidden: true },
-    'ribbon.start.history': { hidden: false, order: 0 },
-    'ribbon.start.format': { title: 'Font', order: 2 },
-    'ribbon.start.layout': { title: 'Alignment', order: 3 },
-    'ribbon.start.others': { title: 'Number & Tools', hidden: false, order: 4 },
     ...buildHomeRibbonMenuConfig(),
+    'ribbon.insert': { title: 'Insert', order: 2, hidden: false },
     'univer.command.undo': { icon: 'gridnova-icon-undo' },
     'univer.command.redo': { icon: 'gridnova-icon-redo' },
     'ui.operation.activate-format-painter': { icon: 'gridnova-icon-paint' },
@@ -2142,7 +2131,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   })
 
 
-  return [...icons, ...drawingComponents, ...menus, clipboardGroup, ...homeGroupMenus, ...nativeTabGroupMenus]
+  return [...icons, ...drawingComponents, ...menus, ...historyMenus, ...homeGroupMenus, ...nativeTabGroupMenus]
 }
 
 function addColumnHeaderDeleteAction(univerAPI) {
@@ -2301,7 +2290,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             ribbonType: config.ribbonType,
             formulaBar: true,
             menu: {
-              'ribbon.start': { title: 'Home', order: 1 },
+              ...HOME_RIBBON_GROUP_CONFIG,
               'ribbon.insert': { title: 'Insert', order: 2, hidden: false },
               'ribbon.formulas': { title: 'Formulas', order: 6 },
               'ribbon.data': { title: 'Data', order: 7 },
