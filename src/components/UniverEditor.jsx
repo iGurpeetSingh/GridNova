@@ -1789,9 +1789,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   const menus = tabs.map((tab) => addRibbonTab(univerAPI, tab, onRibbonAction, ribbonType))
 
   // The built-in History group is Univer 1.5.2's actual Clipboard group.
-  // Keep its native Undo/Redo/Paste and paste-special menu, and add only Cut/Copy.
-  // Keep only the compact Cells and Editing commands requested for Home.
-  // Clipboard, Font, Alignment and Number remain native Univer toolbar groups.
+  // The native Home tab provides the clipboard, font, alignment and number controls.
   const nativeTabGroups = [
     {
       path: 'ribbon.data', id: 'get-data', title: 'Get Data', order: -1, items: [

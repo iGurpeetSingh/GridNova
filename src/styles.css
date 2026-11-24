@@ -2268,3 +2268,69 @@ img, svg { max-width: 100%; }
     -ms-overflow-style: none !important;
   }
 }
+
+.editor-workspace {
+  padding: 10px 12px 0;
+  background: #f3f5f7;
+}
+.univer-shell {
+  border: 1px solid #e2e7eb;
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background: #fff;
+  box-shadow: 0 5px 20px rgba(34, 48, 62, .06);
+}
+.univer-mount [data-u-comp="ribbon-header-menu"] {
+  overflow: hidden;
+  border: 0 !important;
+  border-bottom: 1px solid #edf0f2 !important;
+  border-radius: 12px 12px 0 0 !important;
+  background: #fff !important;
+}
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tablist"] {
+  min-height: 40px;
+  padding-inline: 16px !important;
+  gap: 4px;
+  background: #fff !important;
+}
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tab"] {
+  min-height: 36px;
+  margin-top: 2px;
+  padding-inline: 11px;
+  border-radius: 7px 7px 0 0 !important;
+  transition: color .15s ease, background .15s ease;
+}
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tab"]:hover {
+  background: #f4f7f5 !important;
+}
+.univer-mount [data-u-comp="ribbon-header-menu"] [role="tab"][aria-selected="true"] {
+  border-bottom-color: #107c41 !important;
+  color: #107c41 !important;
+}
+.univer-mount [data-u-comp="ribbon-header-menu"] + div,
+.univer-mount [data-u-comp="ribbon-grid-toolbar"],
+.univer-mount [data-u-comp="formula-bar"] {
+  background: #fff !important;
+}
+.univer-mount [data-u-comp="ribbon-grid-menu"] {
+  min-height: 49px;
+  padding-inline: 16px !important;
+}
+.univer-mount [data-u-comp="ribbon-grid-group-divider"] {
+  height: 28px;
+  margin-inline: 6px;
+  background: #e7ebee;
+}
+.univer-mount [data-u-comp="formula-bar"] {
+  min-height: 38px;
+  border-top: 1px solid #edf0f2;
+  padding-inline: 12px;
+}
+.univer-mount [data-u-comp="formula-bar"] input:focus {
+  border-color: #7ab58d;
+  box-shadow: 0 0 0 2px rgba(16, 124, 65, .12);
+}
+@media (max-width: 760px) {
+  .editor-workspace { padding: 7px 7px 0; }
+  .univer-mount [data-u-comp="ribbon-grid-menu"] { padding-inline: 7px !important; }
+}
