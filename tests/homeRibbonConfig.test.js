@@ -90,3 +90,12 @@ test('Format Painter points to the Univer desktop toolbar menu item ID', () => {
     tooltip: 'Format Painter',
   })
 })
+
+
+test('UniverEditor imports the shared Home Ribbon group configuration before using it', async () => {
+  const { readFile } = await import('node:fs/promises')
+  const source = await readFile(new URL('../src/components/UniverEditor.jsx', import.meta.url), 'utf8')
+  assert.match(source, /import\s*\{[^}]*HOME_RIBBON_GROUP_CONFIG[^}]*\}\s*from\s*['"]\.\.\/utils\/homeRibbonConfig\.js['"]/s)
+  assert.match(source, /menu:\s*\{\s*\.\.\.HOME_RIBBON_GROUP_CONFIG/s)
+  assert.match(source, /\.\.\.buildHomeRibbonMenuConfig\(\)/)
+})
