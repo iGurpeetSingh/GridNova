@@ -7,6 +7,8 @@ export const HOME_RIBBON_GROUP_CONFIG = Object.freeze({
   'ribbon.start.others': { title: 'Number & Tools', hidden: false, order: 4 },
 })
 
+export const HOME_FORMAT_PAINTER_MENU_ITEM_ID = 'ui.operation.activate-format-painter'
+
 export const HOME_RIBBON_ICON_OVERRIDES = Object.freeze({
   'sheet.command.smart-toggle-filter': ['filter', 'Toggle Filter'],
   'sheet.command.sort-range-asc': ['sort', 'Sort A to Z'],

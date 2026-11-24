@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   HOME_COMPACT_SELECTOR_IDS,
+  HOME_FORMAT_PAINTER_MENU_ITEM_ID,
   HOME_RIBBON_GROUP_CONFIG,
   HOME_RIBBON_ICON_OVERRIDES,
   HOME_VALUE_SELECTOR_IDS,
@@ -69,6 +70,5 @@ test('Home Ribbon restores the native History and Number groups in Excel order',
 })
 
 test('Format Painter uses the installed Univer toolbar menu item ID', () => {
-  assert.ok(HOME_RIBBON_ICON_OVERRIDES)
-  assert.equal('ui.operation.activate-format-painter', 'ui.operation.activate-format-painter')
+  assert.equal(HOME_FORMAT_PAINTER_MENU_ITEM_ID, 'ui.operation.activate-format-painter')
 })

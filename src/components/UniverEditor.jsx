@@ -6,7 +6,7 @@ import '@univerjs/ui/facade'
 import '@univerjs/sheets/facade'
 import { withRibbonGridLayouts } from '../utils/ribbonLayout.js'
 import { getRibbonPresentationMode } from '../utils/ribbonMode.js'
-import { buildHomeRibbonMenuConfig } from '../utils/homeRibbonConfig.js'
+import { buildHomeRibbonMenuConfig, HOME_FORMAT_PAINTER_MENU_ITEM_ID } from '../utils/homeRibbonConfig.js'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
 import { UniverSheetsDrawingPreset } from '@univerjs/preset-sheets-drawing'
 import UniverPresetSheetsDrawingEnUS from '@univerjs/preset-sheets-drawing/locales/en-US'
@@ -1267,11 +1267,11 @@ async function insertAutoSum(univerAPI) {
   }
 
   for (let index = 0; index < targetCount; index++) {
-    const sumColumn = horizontal ? sourceStartColumn : sourceStartColumn + index
-    const sumRow = horizontal ? sourceStartRow + index : sourceStartRow
-    const endRow = horizontal ? sourceEndRow : sourceEndRow
-    const endColumn = horizontal ? sourceEndColumn : sourceEndColumn
-    const formula = '=SUM(' + columnIndexToLetters(sumColumn) + (sumRow + 1) + ':' +
+    const startColumn = horizontal ? sourceStartColumn : sourceStartColumn + index
+    const endColumn = horizontal ? sourceEndColumn : sourceStartColumn + index
+    const startRow = horizontal ? sourceStartRow + index : sourceStartRow
+    const endRow = horizontal ? sourceEndRow + index : sourceEndRow
+    const formula = '=SUM(' + columnIndexToLetters(startColumn) + (startRow + 1) + ':' +
       columnIndexToLetters(endColumn) + (endRow + 1) + ')'
     sheet.getRange(targetRow + (horizontal ? index : 0), targetColumn + (horizontal ? 0 : index)).setFormula(formula)
   }
@@ -1796,7 +1796,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     { id: 'paste', title: 'Paste', icon: 'paste', command: 'sheet.command.paste', gridLayout: { row: 1, column: 1, rowSpan: 2, width: 54, showLabel: true } },
     { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut', gridLayout: { row: 1, column: 2 } },
     { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy', gridLayout: { row: 2, column: 2 } },
-    { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: 'ui.operation.activate-format-painter', gridLayout: { row: 1, column: 3 } },
+    { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: HOME_FORMAT_PAINTER_MENU_ITEM_ID, gridLayout: { row: 1, column: 3 } },
     { id: 'paste-values', title: 'Paste Values', icon: 'paste', command: 'sheet.command.paste-value', gridLayout: { row: 2, column: 3 } },
     { id: 'paste-formats', title: 'Paste Formats', icon: 'paint', command: 'sheet.command.paste-format', gridLayout: { row: 2, column: 4 } },
     { id: 'paste-column-width', title: 'Paste Column Width', icon: 'layout', command: 'sheet.command.paste-col-width', gridLayout: { row: 2, column: 5 } },
