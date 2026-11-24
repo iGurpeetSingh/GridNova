@@ -25,5 +25,5 @@ jobs:
         run: npm test
       - name: Build application
         env:
-          NODE_OPTIONS: --max-old-space-size=6144 --max-semi-space-size=16
+          NODE_OPTIONS: --max-old-space-size=10240 --max-semi-space-size=16
         run: npm run build
