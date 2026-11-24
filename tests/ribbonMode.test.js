@@ -10,10 +10,10 @@ import {
 
 test('Single Line keeps the tab strip visible with Univer classic toolbar', () => {
   assert.equal(RIBBON_TYPE.SINGLE_LINE, 'classic')
-  assert.equal(normalizeRibbonType(null), RIBBON_TYPE.CLASSIC)
+  assert.equal(normalizeRibbonType(null), RIBBON_TYPE.SINGLE_LINE)
   assert.equal(normalizeRibbonType('classic'), RIBBON_TYPE.SINGLE_LINE)
-  assert.equal(normalizeRibbonType('collapsed'), RIBBON_TYPE.CLASSIC)
-  assert.equal(normalizeRibbonType('unknown'), RIBBON_TYPE.CLASSIC)
+  assert.equal(normalizeRibbonType('collapsed'), RIBBON_TYPE.SINGLE_LINE)
+  assert.equal(normalizeRibbonType('unknown'), RIBBON_TYPE.SINGLE_LINE)
 })
 
 test('Classic uses Univer grid two-row expanded ribbon', () => {

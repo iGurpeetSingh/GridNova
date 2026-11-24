@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ArrowRedoRegular, ArrowUndoRegular, BookOpenRegular, CommentRegular, GridRegular, ShareRegular, TableRegular } from '@fluentui/react-icons'
+import { ArrowRedoRegular, ArrowUndoRegular, BookOpenRegular, CommentRegular, ShareRegular } from '@fluentui/react-icons'
 import UniverEditor from '../components/UniverEditor.jsx'
 import InsertToolsPanel from '../components/InsertToolsPanel.jsx'
 import ReviewPanel from '../components/ReviewPanel.jsx'
@@ -9,7 +9,6 @@ import PdfExportDialog from '../components/PdfExportDialog.jsx'
 import { downloadCsvFile, exportPdfFile } from '../services/dataFileService.js'
 import { exportExcelFile, importExcelFile } from '../services/excelFileService.js'
 import { getWorkbook, saveWorkbook } from '../services/workbookStorage.js'
-import { isRibbonType, normalizeRibbonType, RIBBON_MODE_STORAGE_PREFIX, RIBBON_TYPE } from '../utils/ribbonMode.js'
 
 function safeFileName(value) {
   return String(value || 'GridNova Workbook').replace(/[\\/:*?"<>|]/g, '-').trim() || 'GridNova Workbook'
@@ -65,11 +64,6 @@ export default function WorkbookEditor() {
   const [title, setTitle] = useState(searchParams.get('title')?.trim() || 'Untitled workbook')
   const [isReadOnly, setIsReadOnly] = useState(() => {
     try { return window.localStorage.getItem('gridnova:editing-mode:' + workbookId) === 'view' } catch { return false }
-  })
-  const [ribbonMode, setRibbonMode] = useState(() => {
-    try {
-      return normalizeRibbonType(window.localStorage.getItem(RIBBON_MODE_STORAGE_PREFIX + workbookId))
-    } catch { return RIBBON_TYPE.CLASSIC }
   })
   const [formulaBarVisible, setFormulaBarVisible] = useState(() => {
     try { return window.localStorage.getItem('gridnova:formula-bar:' + workbookId) !== 'false' } catch { return true }
@@ -390,28 +384,6 @@ export default function WorkbookEditor() {
     setEditorApi(api)
   }
 
-  function handleRibbonModeChange(nextMode) {
-    if (nextMode === ribbonMode || !isRibbonType(nextMode)) return
-    if (!editorApi?.setRibbonType) {
-      setNoticeType('error')
-      setNotice('Ribbon layout switching is unavailable until the spreadsheet engine is ready.')
-      return
-    }
-
-    try {
-      // Switch the layout on the existing Univer instance. This keeps the
-      // active worksheet, current selection, formulas and undo stack intact.
-      editorApi.setRibbonType(nextMode)
-      setRibbonMode(nextMode)
-      try {
-        window.localStorage.setItem(RIBBON_MODE_STORAGE_PREFIX + workbookId, nextMode)
-      } catch { /* preference storage is optional */ }
-    } catch (error) {
-      setNoticeType('error')
-      setNotice(error instanceof Error ? error.message : 'Could not change the ribbon layout.')
-    }
-  }
-
   async function handleQuickAccessCommand(commandId) {
     try {
       const result = await editorApi?.executeCommand(commandId)
@@ -680,14 +652,6 @@ export default function WorkbookEditor() {
           <button type="button" className="editor-mode-indicator" onClick={handleToggleEditingMode} aria-pressed={isReadOnly} title="Switch between editing and viewing">{isReadOnly ? 'Viewing' : 'Editing'} ▾</button>
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
-        <div className="ribbon-mode-switch" role="group" aria-label="Ribbon display mode">
-          <button type="button" className={ribbonMode === RIBBON_TYPE.SINGLE_LINE ? 'active' : ''} aria-pressed={ribbonMode === RIBBON_TYPE.SINGLE_LINE} onClick={() => handleRibbonModeChange(RIBBON_TYPE.SINGLE_LINE)} title="Single Line Ribbon">
-            <TableRegular /> <span>Single Line</span>
-          </button>
-          <button type="button" className={ribbonMode === RIBBON_TYPE.CLASSIC ? 'active' : ''} aria-pressed={ribbonMode === RIBBON_TYPE.CLASSIC} onClick={() => handleRibbonModeChange(RIBBON_TYPE.CLASSIC)} title="Classic Ribbon">
-            <GridRegular /> <span>Classic</span>
-          </button>
-        </div>
         <span className={'storage-notice ' + (saveState === 'Save failed' ? 'storage-error' : '')}>
           <span className="notice-dot" /> {saveState}
           {savedAt ? ' · ' + new Date(savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
@@ -713,7 +677,7 @@ export default function WorkbookEditor() {
             workbookId={workbookId}
             title={title}
             initialSnapshot={initialSnapshot}
-            ribbonType={ribbonMode}
+            ribbonType="classic"
             onReady={handleEditorReady}
             onRibbonAction={handleRibbonAction}
           />

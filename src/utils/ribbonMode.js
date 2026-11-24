@@ -12,8 +12,8 @@ export const RIBBON_TYPE = Object.freeze({
 })
 
 export function normalizeRibbonType(savedValue) {
-  if (savedValue === RIBBON_TYPE.SINGLE_LINE) return RIBBON_TYPE.SINGLE_LINE
-  return RIBBON_TYPE.CLASSIC
+  if (savedValue === RIBBON_TYPE.CLASSIC) return RIBBON_TYPE.CLASSIC
+  return RIBBON_TYPE.SINGLE_LINE
 }
 
 /**
