@@ -1191,14 +1191,150 @@ function showFeatureUnavailable(univerAPI, featureName, reason) {
 }
 
 async function insertAutoSum(univerAPI) {
-  try {
-    const result = await univerAPI.executeCommand('formula-ui.operation.insert-function', { value: 'SUM' })
-    if (result === false) {
-      univerAPI.showMessage({ content: 'Select a cell or numeric range before using AutoSum.', type: 'warning' })
-    }
-  } catch (error) {
-    univerAPI.showMessage({ content: error instanceof Error ? error.message : 'AutoSum could not be inserted.', type: 'error' })
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) {
+    univerAPI.showMessage({ content: 'Select a cell or numeric range before using AutoSum.', type: 'warning' })
+    return false
   }
+
+  const isNumeric = (value) => value !== null && value !== undefined && value !== '' &&
+    Number.isFinite(typeof value === 'number' ? value : Number(String(value).replace(/,/g, '')))
+  const row = range.getRow()
+  const column = range.getColumn()
+  const lastRow = range.getLastRow()
+  const lastColumn = range.getLastColumn()
+  const rowCount = lastRow - row + 1
+  const columnCount = lastColumn - column + 1
+  let sourceStartRow = row
+  let sourceEndRow = lastRow
+  let sourceStartColumn = column
+  let sourceEndColumn = lastColumn
+  let targetRow = row
+  let targetColumn = column
+  let horizontal = false
+
+  if (rowCount === 1 && columnCount === 1) {
+    let firstNumericRow = row
+    for (let candidate = row - 1; candidate >= 0; candidate--) {
+      const value = sheet.getRange(candidate, column).getValues()?.[0]?.[0]
+      if (!isNumeric(value)) break
+      firstNumericRow = candidate
+    }
+
+    if (firstNumericRow < row) {
+      sourceStartRow = firstNumericRow
+      sourceEndRow = row - 1
+      targetRow = row
+    } else {
+      let firstNumericColumn = column
+      for (let candidate = column - 1; candidate >= 0; candidate--) {
+        const value = sheet.getRange(row, candidate).getValues()?.[0]?.[0]
+        if (!isNumeric(value)) break
+        firstNumericColumn = candidate
+      }
+      if (firstNumericColumn === column) {
+        univerAPI.showMessage({ content: 'No contiguous numeric values were found above or to the left of the selected cell.', type: 'warning' })
+        return false
+      }
+      sourceStartColumn = firstNumericColumn
+      sourceEndColumn = column - 1
+      sourceStartRow = row
+      sourceEndRow = row
+      targetColumn = column
+      horizontal = true
+    }
+  } else if (rowCount === 1) {
+    targetColumn = lastColumn + 1
+    horizontal = true
+  } else {
+    targetRow = lastRow + 1
+  }
+
+  const targetMaxRows = sheet.getMaxRows?.() ?? Number.MAX_SAFE_INTEGER
+  const targetMaxColumns = sheet.getMaxColumns?.() ?? Number.MAX_SAFE_INTEGER
+  if (targetRow >= targetMaxRows || targetColumn >= targetMaxColumns) {
+    univerAPI.showMessage({ content: 'There is no empty cell available next to the selected range for the AutoSum result.', type: 'warning' })
+    return false
+  }
+
+  const targetCount = horizontal ? rowCount : columnCount
+  const targetRange = sheet.getRange(targetRow, targetColumn, horizontal ? rowCount : 1, horizontal ? 1 : columnCount)
+  const existing = targetRange.getValues().flat()
+  if (existing.some((value) => value !== null && value !== undefined && value !== '')) {
+    univerAPI.showMessage({ content: 'AutoSum did not overwrite existing data. Select an empty result cell or range.', type: 'warning' })
+    return false
+  }
+
+  for (let index = 0; index < targetCount; index++) {
+    const sumColumn = horizontal ? sourceStartColumn : sourceStartColumn + index
+    const sumRow = horizontal ? sourceStartRow + index : sourceStartRow
+    const endRow = horizontal ? sourceEndRow : sourceEndRow
+    const endColumn = horizontal ? sourceEndColumn : sourceEndColumn
+    const formula = '=SUM(' + columnIndexToLetters(sumColumn) + (sumRow + 1) + ':' +
+      columnIndexToLetters(endColumn) + (endRow + 1) + ')'
+    sheet.getRange(targetRow + (horizontal ? index : 0), targetColumn + (horizontal ? 0 : index)).setFormula(formula)
+  }
+
+  targetRange.activate()
+  univerAPI.showMessage({ content: 'SUM formula inserted.', type: 'success' })
+  return true
+}
+
+function clearSelectedRange(univerAPI, mode) {
+  const range = univerAPI.getActiveWorkbook()?.getActiveSheet()?.getActiveRange()
+  if (!range) {
+    univerAPI.showMessage({ content: 'Select a cell or range first.', type: 'warning' })
+    return false
+  }
+
+  if (mode === 'contents') range.clearContent()
+  else if (mode === 'formats') range.clearFormat()
+  else range.clear()
+
+  const labels = { contents: 'Contents cleared.', formats: 'Formatting cleared.', all: 'Contents and formatting cleared.' }
+  univerAPI.showMessage({ content: labels[mode] || labels.all, type: 'success' })
+  return true
+}
+
+async function fillSelectionDown(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return false
+  const rowCount = range.getLastRow() - range.getRow() + 1
+  const columnCount = range.getLastColumn() - range.getColumn() + 1
+  if (rowCount < 2) {
+    univerAPI.showMessage({ content: 'Select at least two rows for Fill Down.', type: 'warning' })
+    return false
+  }
+
+  const source = sheet.getRange(range.getRow(), range.getColumn(), 1, columnCount)
+  const success = await source.autoFill(range, 'COPY')
+  univerAPI.showMessage({
+    content: success ? 'Top row filled down through the selected range.' : 'Fill Down could not be applied to this selection.',
+    type: success ? 'success' : 'warning',
+  })
+  return success
+}
+
+async function fillSelectionRight(univerAPI) {
+  const sheet = univerAPI.getActiveWorkbook()?.getActiveSheet()
+  const range = sheet?.getActiveRange()
+  if (!sheet || !range) return false
+  const rowCount = range.getLastRow() - range.getRow() + 1
+  const columnCount = range.getLastColumn() - range.getColumn() + 1
+  if (columnCount < 2) {
+    univerAPI.showMessage({ content: 'Select at least two columns for Fill Right.', type: 'warning' })
+    return false
+  }
+
+  const source = sheet.getRange(range.getRow(), range.getColumn(), rowCount, 1)
+  const success = await source.autoFill(range, 'COPY')
+  univerAPI.showMessage({
+    content: success ? 'First column filled right through the selected range.' : 'Fill Right could not be applied to this selection.',
+    type: success ? 'success' : 'warning',
+  })
+  return success
 }
 
 function goToCell(univerAPI) {
@@ -1660,7 +1796,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     { id: 'paste', title: 'Paste', icon: 'paste', command: 'sheet.command.paste', gridLayout: { row: 1, column: 1, rowSpan: 2, width: 54, showLabel: true } },
     { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut', gridLayout: { row: 1, column: 2 } },
     { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy', gridLayout: { row: 2, column: 2 } },
-    { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: 'sheet.command.set-once-format-painter', gridLayout: { row: 1, column: 3 } },
+    { id: 'format-painter', title: 'Format Painter', icon: 'paint', command: 'ui.operation.activate-format-painter', gridLayout: { row: 1, column: 3 } },
     { id: 'paste-values', title: 'Paste Values', icon: 'paste', command: 'sheet.command.paste-value', gridLayout: { row: 2, column: 3 } },
     { id: 'paste-formats', title: 'Paste Formats', icon: 'paint', command: 'sheet.command.paste-format', gridLayout: { row: 2, column: 4 } },
     { id: 'paste-column-width', title: 'Paste Column Width', icon: 'layout', command: 'sheet.command.paste-col-width', gridLayout: { row: 2, column: 5 } },
@@ -1682,7 +1818,6 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   const homeGroups = [
     {
       id: 'styles', title: 'Styles', order: 5, items: [
-        { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', gridLayout: { row: 1, column: 1 }, command: 'sheet.operation.open.conditional.formatting.panel', params: { value: 3 } },
         { id: 'format-as-table', title: 'Format as Table', icon: 'table', gridLayout: { row: 1, column: 2 }, run: formatSelectionAsTable },
         { id: 'cell-style-title', title: 'Title Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'title') },
         { id: 'cell-style-heading', title: 'Heading Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'heading') },
@@ -1690,8 +1825,6 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
         { id: 'cell-style-good', title: 'Good Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'good') },
         { id: 'cell-style-bad', title: 'Bad Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'bad') },
         { id: 'cell-style-neutral', title: 'Neutral Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'neutral') },
-        { id: 'number-format-settings', title: 'Number Format Settings', icon: 'calculator', command: 'sheet.operation.open.numfmt.panel' },
-        { id: 'format-cells', title: 'Format Cells / Number Format', icon: 'layout', run: openFormatCellsDialog },
       ],
     },
     {
@@ -1711,16 +1844,12 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     {
       id: 'editing', title: 'Editing', order: 7, items: [
         { id: 'auto-sum', title: 'AutoSum', icon: 'calculator', run: insertAutoSum },
-        { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', command: 'sheet.command.sort-range-asc' },
-        { id: 'sort-descending', title: 'Sort Z to A', icon: 'sort', command: 'sheet.command.sort-range-desc' },
-        { id: 'filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
-        { id: 'clear-contents', title: 'Clear Contents', icon: 'table', command: 'sheet.command.clear-selection-content' },
-        { id: 'clear-formats', title: 'Clear Formats', icon: 'paint', command: 'sheet.command.clear-selection-format' },
-        { id: 'clear-all', title: 'Clear All', icon: 'table', command: 'sheet.command.clear-selection-all' },
-        { id: 'find', title: 'Find', icon: 'search', command: 'ui.operation.open-find-dialog' },
-        { id: 'replace', title: 'Replace', icon: 'search', command: 'ui.operation.open-find-dialog' },
+        { id: 'clear-contents', title: 'Clear Contents', icon: 'table', run: (api) => clearSelectedRange(api, 'contents') },
+        { id: 'clear-formats', title: 'Clear Formats', icon: 'paint', run: (api) => clearSelectedRange(api, 'formats') },
+        { id: 'clear-all', title: 'Clear All', icon: 'table', run: (api) => clearSelectedRange(api, 'all') },
         { id: 'go-to', title: 'Go To', icon: 'search', run: goToCell },
-        { id: 'fill', title: 'Fill (Unavailable)', icon: 'table', action: 'fill-unavailable' },
+        { id: 'fill-down', title: 'Fill Down', icon: 'table', run: fillSelectionDown },
+        { id: 'fill-right', title: 'Fill Right', icon: 'table', run: fillSelectionRight },
       ],
     },
     {
@@ -1960,15 +2089,14 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     'ribbon.start': { title: 'Home', order: 1 },
     'ribbon.insert': { title: 'Insert', order: 2, hidden: false },
     'ribbon.start.clipboard': { hidden: true },
-    'ribbon.start.history': { hidden: true },
+    'ribbon.start.history': { hidden: false, order: 0 },
     'ribbon.start.format': { title: 'Font', order: 2 },
     'ribbon.start.layout': { title: 'Alignment', order: 3 },
-    'ribbon.start.others': { hidden: true },
+    'ribbon.start.others': { title: 'Number & Tools', hidden: false, order: 4 },
     ...buildHomeRibbonMenuConfig(),
     'univer.command.undo': { icon: 'gridnova-icon-undo' },
     'univer.command.redo': { icon: 'gridnova-icon-redo' },
     'ui.operation.activate-format-painter': { icon: 'gridnova-icon-paint' },
-    'sheet.command.set-once-format-painter': { icon: 'gridnova-icon-paint' },
     'sheet.command.set-range-bold': { icon: 'gridnova-icon-bold', gridLayout: { row: 1, column: 2, showLabel: true } },
     'sheet.command.set-range-font-increase': { gridLayout: { row: 1, column: 6, showLabel: true } },
     'sheet.command.set-range-font-decrease': { gridLayout: { row: 2, column: 6, showLabel: true } },

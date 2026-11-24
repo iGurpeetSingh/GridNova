@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   HOME_COMPACT_SELECTOR_IDS,
+  HOME_RIBBON_GROUP_CONFIG,
   HOME_RIBBON_ICON_OVERRIDES,
   HOME_VALUE_SELECTOR_IDS,
   buildHomeRibbonMenuConfig,
@@ -54,4 +55,20 @@ test('Home tab only overrides icons where commands do not have state-aware nativ
   ]) {
     assert.equal(Object.hasOwn(HOME_RIBBON_ICON_OVERRIDES, commandId), false)
   }
+})
+
+
+test('Home Ribbon restores the native History and Number groups in Excel order', () => {
+  assert.deepEqual(HOME_RIBBON_GROUP_CONFIG['ribbon.start.history'], { hidden: false, order: 0 })
+  assert.deepEqual(HOME_RIBBON_GROUP_CONFIG['ribbon.start.clipboard'], { hidden: true })
+  assert.deepEqual(HOME_RIBBON_GROUP_CONFIG['ribbon.start.format'], { title: 'Font', order: 2 })
+  assert.deepEqual(HOME_RIBBON_GROUP_CONFIG['ribbon.start.layout'], { title: 'Alignment', order: 3 })
+  assert.deepEqual(HOME_RIBBON_GROUP_CONFIG['ribbon.start.others'], {
+    title: 'Number & Tools', hidden: false, order: 4,
+  })
+})
+
+test('Format Painter uses the installed Univer toolbar menu item ID', () => {
+  assert.ok(HOME_RIBBON_ICON_OVERRIDES)
+  assert.equal('ui.operation.activate-format-painter', 'ui.operation.activate-format-painter')
 })

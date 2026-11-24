@@ -1926,3 +1926,84 @@ img, svg { max-width: 100%; }
   .data-file-meta { flex-direction: column; gap: 4px; }
   .pdf-export-options { padding: 17px 16px 20px; }
 }
+
+
+/* Home Ribbon polish: compact Excel-like groups with consistent dividers. */
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-header-menu"] {
+  min-height: 32px !important;
+  border-bottom: 1px solid #e6e9ed !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-header-menu"] [role="tablist"] {
+  min-height: 32px !important;
+  height: 32px !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+  padding-inline: 12px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-header-menu"] [role="tab"] {
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-bottom: 2px solid transparent !important;
+  color: #344054 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  transition: color .12s ease, background .12s ease;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-header-menu"] [role="tab"]:hover {
+  color: #176b3a !important;
+  background: #f5f8f6 !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-header-menu"] [role="tab"][aria-selected="true"] {
+  border-bottom: 2px solid #217346 !important;
+  color: #176b3a !important;
+  background: #fff !important;
+  font-weight: 650 !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] {
+  min-height: 43px !important;
+  height: 43px !important;
+  padding: 4px 9px !important;
+  gap: 2px !important;
+  border-bottom: 1px solid #dfe3e8 !important;
+  background: #fff !important;
+  box-sizing: border-box !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] > div {
+  min-height: 33px !important;
+  gap: 3px !important;
+  padding-inline: 4px !important;
+  align-items: center !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] > div + div {
+  margin-left: 4px !important;
+  padding-left: 8px !important;
+  border-left: 1px solid #e3e7eb !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command] {
+  transition: background .12s ease, color .12s ease, box-shadow .12s ease;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command]:focus-visible {
+  outline: 2px solid #217346 !important;
+  outline-offset: 1px !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command]:not([aria-disabled="true"]):hover {
+  background: #edf5ef !important;
+}
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command][aria-pressed="true"],
+.univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] [data-u-command][data-activated="true"] {
+  color: #176b3a !important;
+  background: #e7f2eb !important;
+}
+@media (max-width: 900px) {
+  .univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"] {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    touch-action: pan-x !important;
+  }
+  .univer-mount[data-gridnova-ribbon-mode="single-line"] [data-u-comp="ribbon-toolbar"]::-webkit-scrollbar {
+    display: none !important;
+  }
+}
