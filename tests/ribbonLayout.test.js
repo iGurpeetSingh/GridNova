@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { withRibbonGridLayouts } from '../src/utils/ribbonLayout.js'
 
-test('Ribbon items use unique positions across the two rows', () => {
+test('Ribbon items use unique positions across the two rows in grid mode', () => {
   const result = withRibbonGridLayouts([
     { id: 'one' },
     { id: 'two' },
@@ -17,7 +17,7 @@ test('Ribbon items use unique positions across the two rows', () => {
   )
 })
 
-test('Custom Ribbon command labels are shown by default', () => {
+test('Custom Ribbon command labels are shown by default in grid mode', () => {
   const result = withRibbonGridLayouts([{ id: 'save' }, { id: 'copy' }])
   assert.ok(result.every((item) => item.gridLayout.showLabel === true))
 })
@@ -32,8 +32,7 @@ test('Existing grid width and icon sizing are retained', () => {
   assert.deepEqual([result.gridLayout.row, result.gridLayout.column], [1, 1])
 })
 
-
-test('Single Line mode preserves command identity while removing captions through menu config', () => {
+test('Single Line mode preserves command identity and removes two-row coordinates', () => {
   const commands = [
     'sheet.command.set-range-bold',
     'sheet.command.set-range-italic',
@@ -42,8 +41,7 @@ test('Single Line mode preserves command identity while removing captions throug
     'sheet.command.smart-toggle-filter',
     'sheet.command.insert-row-before',
   ]
-  const items = withRibbonGridLayouts(commands.map((id) => ({ id, command: id })), 'collapsed')
+  const items = withRibbonGridLayouts(commands.map((id) => ({ id, command: id })), 'classic')
   assert.deepEqual(items.map((item) => item.command), commands)
   assert.ok(items.every((item) => !item.gridLayout))
 })
-
