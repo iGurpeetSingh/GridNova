@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
+import { ArrowDownloadRegular, ArrowRedoRegular, ArrowUndoRegular, ArrowUploadRegular, BookOpenRegular, BorderAllRegular, CalculatorRegular, ClipboardPasteRegular, CurrencyDollarRupeeRegular, CommentRegular, CopyRegular, CutRegular, DrawShapeRegular, Eraser24Regular, FilterRegular, GridRegular, ImageRegular, LinkRegular, PaintBucketRegular, PaintBrushRegular, PrintRegular, QuestionCircleRegular, SaveRegular, SearchRegular, ShareRegular, TableRegular, TextAlignCenterRegular, TextAlignLeftRegular, TextAlignRightRegular, TextBoldRegular, TextColorRegular, TextItalicRegular, TextStrikethroughRegular, TextUnderlineRegular } from '@fluentui/react-icons'
 import { createUniver, LocaleType } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import '@univerjs/ui/facade'
@@ -138,6 +138,7 @@ const RIBBON_ICONS = {
   symbol: CalculatorRegular,
   link: LinkRegular,
   paint: PaintBrushRegular,
+  eraser: Eraser24Regular,
   fontIncrease: CalculatorRegular,
   fontDecrease: CalculatorRegular,
   merge: BorderAllRegular,
@@ -157,7 +158,7 @@ const RIBBON_ICON_COLORS = {
   save: '#217346', share: '#107C41', review: '#7B2CBF', help: '#0078D4',
   draw: '#C65911', shapes: '#7030A0', image: '#0078D4', chart: '#4472C4', text: '#00A6A6', symbol: '#8064A2', table: '#217346', filter: '#0078D4',
   sort: '#0078D4', currency: '#107C41', percent: '#0078D4', paint: '#EAA300',
-  fillColor: '#F2C811', textColor: '#C50F1F', paste: '#0078D4',
+  fillColor: '#F2C811', textColor: '#C50F1F', paste: '#0078D4', eraser: '#7B2CBF',
   cut: '#D83B01', copy: '#0078D4', border: '#64748B',
   alignLeft: '#0078D4', alignCenter: '#0078D4', alignRight: '#0078D4',
   calculator: '#0078D4', print: '#475569', layout: '#0078D4',
@@ -1789,72 +1790,24 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
 
   // The built-in History group is Univer 1.5.2's actual Clipboard group.
   // Keep its native Undo/Redo/Paste and paste-special menu, and add only Cut/Copy.
-  const historyMenus = [
-    { id: 'cut', title: 'Cut', icon: 'cut', command: 'sheet.command.cut', order: 5 },
-    { id: 'copy', title: 'Copy', icon: 'copy', command: 'sheet.command.copy', order: 6 },
-  ].map((item) => {
-    const menu = univerAPI.createMenu({
-      id: 'gridnova.ribbon.home.clipboard.' + item.id,
-      title: item.title,
-      tooltip: item.title,
-      icon: 'gridnova-icon-' + item.icon,
-      order: item.order,
-      action: () => executeRibbonItem(univerAPI, item, onRibbonAction),
-    })
-    menu.appendTo('ribbon.start.history')
-    return menu
-  })
-
+  // Keep only the compact Cells and Editing commands requested for Home.
+  // Clipboard, Font, Alignment and Number remain native Univer toolbar groups.
   const homeGroups = [
     {
-      id: 'styles', title: 'Styles', order: 5, items: [
-        { id: 'conditional-formatting', title: 'Conditional Formatting', icon: 'layout', command: 'sheet.operation.open.conditional.formatting.panel', params: { value: 3 } },
-        { id: 'format-as-table', title: 'Format as Table', icon: 'table', gridLayout: { row: 1, column: 2 }, run: formatSelectionAsTable },
-        { id: 'cell-style-title', title: 'Title Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'title') },
-        { id: 'cell-style-heading', title: 'Heading Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'heading') },
-        { id: 'cell-style-input', title: 'Input Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'input') },
-        { id: 'cell-style-good', title: 'Good Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'good') },
-        { id: 'cell-style-bad', title: 'Bad Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'bad') },
-        { id: 'cell-style-neutral', title: 'Neutral Style', icon: 'paint', run: (api) => applyCellStylePreset(api, 'neutral') },
+      id: 'cells', title: 'Cells', order: 5, items: [
+        { id: 'insert-row', title: 'Insert Row', icon: 'insertRow', command: 'sheet.command.insert-row-before' },
+        { id: 'insert-column', title: 'Insert Column', icon: 'insertColumn', command: 'sheet.command.insert-col-before' },
+        { id: 'delete-row', title: 'Delete Row', icon: 'deleteRow', command: 'sheet.command.remove-row-confirm' },
+        { id: 'delete-column', title: 'Delete Column', icon: 'deleteColumn', command: 'sheet.command.remove-col-confirm' },
       ],
     },
     {
-      id: 'cells', title: 'Cells', order: 6, items: [
-        { id: 'insert-row', title: 'Insert Row', icon: 'table', command: 'sheet.command.insert-row-before' },
-        { id: 'insert-column', title: 'Insert Column', icon: 'table', command: 'sheet.command.insert-col-before' },
-        { id: 'delete-row', title: 'Delete Row', icon: 'cut', command: 'sheet.command.remove-row-confirm' },
-        { id: 'delete-column', title: 'Delete Column', icon: 'cut', command: 'sheet.command.remove-col-confirm' },
-        { id: 'row-height', title: 'Row Height', icon: 'layout', run: setSelectedRowHeight },
-        { id: 'column-width', title: 'Column Width', icon: 'layout', run: setSelectedColumnWidth },
-        { id: 'hide-rows', title: 'Hide Rows', icon: 'layout', run: hideSelectedRows },
-        { id: 'unhide-rows', title: 'Unhide Rows', icon: 'layout', run: showSelectedRows },
-        { id: 'hide-columns', title: 'Hide Columns', icon: 'layout', run: hideSelectedColumns },
-        { id: 'unhide-columns', title: 'Unhide Columns', icon: 'layout', run: showSelectedColumns },
-      ],
-    },
-    {
-      id: 'editing', title: 'Editing', order: 7, items: [
+      id: 'editing', title: 'Editing', order: 6, items: [
         { id: 'auto-sum', title: 'AutoSum', icon: 'calculator', run: insertAutoSum },
+        { id: 'clear-formats', title: 'Clear Formatting', icon: 'eraser', run: (api) => clearSelectedRange(api, 'formats') },
         { id: 'sort-ascending', title: 'Sort A to Z', icon: 'sort', command: 'sheet.command.sort-range-asc' },
-        { id: 'sort-descending', title: 'Sort Z to A', icon: 'sort', command: 'sheet.command.sort-range-desc' },
         { id: 'filter', title: 'Filter', icon: 'filter', command: 'sheet.command.smart-toggle-filter' },
-        { id: 'find', title: 'Find & Replace', icon: 'search', command: 'ui.operation.open-find-dialog' },
-        { id: 'clear-contents', title: 'Clear Contents', icon: 'table', run: (api) => clearSelectedRange(api, 'contents') },
-        { id: 'clear-formats', title: 'Clear Formats', icon: 'paint', run: (api) => clearSelectedRange(api, 'formats') },
-        { id: 'clear-all', title: 'Clear All', icon: 'table', run: (api) => clearSelectedRange(api, 'all') },
-        { id: 'go-to', title: 'Go To', icon: 'search', run: goToCell },
-        { id: 'fill-down', title: 'Fill Down', icon: 'table', run: fillSelectionDown },
-        { id: 'fill-right', title: 'Fill Right', icon: 'table', run: fillSelectionRight },
-      ],
-    },
-    {
-      id: 'sheet', title: 'Sheet', order: 8, items: [
-        { id: 'rename-sheet', title: 'Rename Sheet', icon: 'table', gridLayout: { row: 1, column: 1 }, run: renameActiveSheet },
-        { id: 'duplicate-sheet', title: 'Duplicate Sheet', icon: 'copy', gridLayout: { row: 1, column: 2 }, run: duplicateActiveSheet },
-        { id: 'delete-sheet', title: 'Delete Sheet', icon: 'cut', gridLayout: { row: 1, column: 3 }, run: deleteActiveSheet },
-        { id: 'hide-sheet', title: 'Hide Sheet', icon: 'layout', gridLayout: { row: 1, column: 4 }, run: hideActiveSheet },
-        { id: 'unhide-sheet', title: 'Unhide Sheet', icon: 'layout', gridLayout: { row: 1, column: 5 }, run: unhideWorksheet },
-        { id: 'change-tab-color', title: 'Sheet Tab Color', icon: 'fillColor', gridLayout: { row: 1, column: 6 }, run: setActiveSheetTabColor },
+        { id: 'find', title: 'Find', icon: 'search', command: 'ui.operation.open-find-dialog' },
       ],
     },
   ]
@@ -2131,7 +2084,7 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   })
 
 
-  return [...icons, ...drawingComponents, ...menus, ...historyMenus, ...homeGroupMenus, ...nativeTabGroupMenus]
+  return [...icons, ...drawingComponents, ...menus, ...homeGroupMenus, ...nativeTabGroupMenus]
 }
 
 function addColumnHeaderDeleteAction(univerAPI) {
