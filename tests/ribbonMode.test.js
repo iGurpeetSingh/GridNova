@@ -8,15 +8,15 @@ import {
   getRibbonPresentationMode,
 } from '../src/utils/ribbonMode.js'
 
-test('Single Line keeps the tab strip visible with Univer classic toolbar', () => {
-  assert.equal(RIBBON_TYPE.SINGLE_LINE, 'classic')
+test('Single Line uses Univer collapsed mode with grouped commands on one compact row', () => {
+  assert.equal(RIBBON_TYPE.SINGLE_LINE, 'collapsed')
   assert.equal(normalizeRibbonType(null), RIBBON_TYPE.SINGLE_LINE)
-  assert.equal(normalizeRibbonType('classic'), RIBBON_TYPE.SINGLE_LINE)
   assert.equal(normalizeRibbonType('collapsed'), RIBBON_TYPE.SINGLE_LINE)
+  assert.equal(normalizeRibbonType('classic'), RIBBON_TYPE.SINGLE_LINE)
   assert.equal(normalizeRibbonType('unknown'), RIBBON_TYPE.SINGLE_LINE)
 })
 
-test('Classic uses Univer grid two-row expanded ribbon', () => {
+test('Classic uses Univer grid mode with a two-row expanded ribbon', () => {
   assert.equal(RIBBON_TYPE.CLASSIC, 'grid')
   assert.equal(normalizeRibbonType('grid'), RIBBON_TYPE.CLASSIC)
 })
@@ -24,14 +24,13 @@ test('Classic uses Univer grid two-row expanded ribbon', () => {
 test('Only the two supported GridNova ribbon modes can be selected', () => {
   assert.equal(isRibbonType(RIBBON_TYPE.SINGLE_LINE), true)
   assert.equal(isRibbonType(RIBBON_TYPE.CLASSIC), true)
-  assert.equal(isRibbonType('collapsed'), false)
+  assert.equal(isRibbonType('classic'), false)
   assert.equal(isRibbonType('simple'), false)
 })
 
 test('Ribbon preference key is workbook-scoped and versioned', () => {
   assert.match(RIBBON_MODE_STORAGE_PREFIX, /^gridnova:ribbon-mode-v8:$/)
 })
-
 
 import { withRibbonGridLayouts } from '../src/utils/ribbonLayout.js'
 
@@ -81,13 +80,12 @@ test('Single Line mode preserves commands and callbacks used across ribbon tabs'
   ])
 })
 
-
 test('Single Line and expanded Classic apply their own CSS presentation state', () => {
   assert.equal(getRibbonPresentationMode(RIBBON_TYPE.SINGLE_LINE), 'single-line')
   assert.equal(getRibbonPresentationMode(RIBBON_TYPE.CLASSIC), 'classic')
 })
 
-test('The Single Line layout uses Univer classic to keep tabs above a separate toolbar row', () => {
-  assert.equal(RIBBON_TYPE.SINGLE_LINE, 'classic')
+test('Single Line uses Univer collapsed instead of the classic stacked ribbon mode', () => {
+  assert.equal(RIBBON_TYPE.SINGLE_LINE, 'collapsed')
   assert.equal(RIBBON_TYPE.CLASSIC, 'grid')
 })
