@@ -34,6 +34,8 @@ jobs:
       - name: Install web dependencies
         run: npm install --no-audit --no-fund
       - name: Build web application
+        env:
+          NODE_OPTIONS: --max-old-space-size=5120
         run: npm run build
       - name: Install Capacitor Android tooling
         run: npm install --no-save @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/assets
