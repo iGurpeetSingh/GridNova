@@ -90,27 +90,24 @@ export const HOME_EDITING_COMMAND_IDS = Object.freeze([
 ])
 
 export function buildHomeRibbonMenuConfig(iconPrefix = 'gridnova-icon-') {
-  const hiddenItems = Object.fromEntries(
-    HOME_HIDDEN_MENU_ITEM_IDS.map((menuId) => [menuId, { hidden: true }]),
-  )
-  const visibleItems = Object.fromEntries(
-    HOME_VISIBLE_MENU_ITEM_IDS.map((menuId) => [menuId, { hidden: false }]),
-  )
-  const icons = Object.fromEntries(
-    Object.entries(HOME_RIBBON_ICON_OVERRIDES).map(([commandId, [iconName, tooltip]]) => [
-      commandId,
-      { icon: iconPrefix + iconName, tooltip },
-    ]),
-  )
-  const ordered = Object.fromEntries(
-    Object.entries(HOME_MENU_ORDER_OVERRIDES).map(([menuId, order]) => [menuId, { order }]),
-  )
+  const config = { ...HOME_RIBBON_GROUP_CONFIG }
 
-  return {
-    ...HOME_RIBBON_GROUP_CONFIG,
-    ...hiddenItems,
-    ...visibleItems,
-    ...icons,
-    ...ordered,
-  }
+  HOME_HIDDEN_MENU_ITEM_IDS.forEach((menuId) => {
+    config[menuId] = { ...config[menuId], hidden: true }
+  })
+  HOME_VISIBLE_MENU_ITEM_IDS.forEach((menuId) => {
+    config[menuId] = { ...config[menuId], hidden: false }
+  })
+  Object.entries(HOME_RIBBON_ICON_OVERRIDES).forEach(([menuId, [iconName, tooltip]]) => {
+    config[menuId] = {
+      ...config[menuId],
+      icon: iconPrefix + iconName,
+      tooltip,
+    }
+  })
+  Object.entries(HOME_MENU_ORDER_OVERRIDES).forEach(([menuId, order]) => {
+    config[menuId] = { ...config[menuId], order }
+  })
+
+  return config
 }
