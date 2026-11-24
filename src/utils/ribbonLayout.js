@@ -1,16 +1,16 @@
 /**
  * Prepare the same ribbon commands for both GridNova layouts.
  *
- * Univer's "classic" layout renders a single horizontal toolbar and calculates
- * overflow from the real button widths. Grid coordinates must therefore be
- * omitted in this mode; retaining row 1/2 coordinates can hide or mis-order
- * commands in the one-line toolbar.
+ * Univer's "collapsed" layout places ribbon groups and their commands on one
+ * compact horizontal row. Grid coordinates only apply to the "grid" layout,
+ * so omit them in Single Line mode to keep the native compact placement and
+ * responsive overflow behavior.
  *
  * Univer's "grid" layout uses a two-row command grid, so every item receives
  * an explicit row/column and a visible caption.
  */
 export function withRibbonGridLayouts(items = [], ribbonType = 'grid') {
-  if (ribbonType === 'classic') {
+  if (ribbonType === 'collapsed') {
     return items.map(({ gridLayout, ...item }) => item)
   }
 
