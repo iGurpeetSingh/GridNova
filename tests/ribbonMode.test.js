@@ -10,10 +10,10 @@ import {
 
 test('Single Line keeps the tab strip visible with Univer classic toolbar', () => {
   assert.equal(RIBBON_TYPE.SINGLE_LINE, 'classic')
-  assert.equal(normalizeRibbonType(null), RIBBON_TYPE.SINGLE_LINE)
+  assert.equal(normalizeRibbonType(null), RIBBON_TYPE.CLASSIC)
   assert.equal(normalizeRibbonType('classic'), RIBBON_TYPE.SINGLE_LINE)
-  assert.equal(normalizeRibbonType('collapsed'), RIBBON_TYPE.SINGLE_LINE)
-  assert.equal(normalizeRibbonType('unknown'), RIBBON_TYPE.SINGLE_LINE)
+  assert.equal(normalizeRibbonType('collapsed'), RIBBON_TYPE.CLASSIC)
+  assert.equal(normalizeRibbonType('unknown'), RIBBON_TYPE.CLASSIC)
 })
 
 test('Classic uses Univer grid two-row expanded ribbon', () => {
@@ -29,7 +29,7 @@ test('Only the two supported GridNova ribbon modes can be selected', () => {
 })
 
 test('Ribbon preference key is workbook-scoped and versioned', () => {
-  assert.match(RIBBON_MODE_STORAGE_PREFIX, /^gridnova:ribbon-mode-v7:$/)
+  assert.match(RIBBON_MODE_STORAGE_PREFIX, /^gridnova:ribbon-mode-v8:$/)
 })
 
 
