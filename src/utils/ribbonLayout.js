@@ -1,16 +1,16 @@
 /**
  * Prepare the same ribbon commands for both GridNova layouts.
  *
- * Univer's "collapsed" layout places ribbon groups and their commands on one
- * compact horizontal row. Grid coordinates only apply to the "grid" layout,
- * so omit them in Single Line mode to keep the native compact placement and
- * responsive overflow behavior.
+ * In the pinned Univer 1.5.2 package, "classic" keeps the complete tab strip
+ * visible and renders the selected tab's commands as a single horizontal
+ * toolbar row. Grid coordinates must be omitted in this mode so native
+ * toolbar ordering and width-based overflow remain in control.
  *
- * Univer's "grid" layout uses a two-row command grid, so every item receives
- * an explicit row/column and a visible caption.
+ * "grid" is GridNova's expanded two-row Ribbon, so every item receives an
+ * explicit row/column and a visible caption.
  */
 export function withRibbonGridLayouts(items = [], ribbonType = 'grid') {
-  if (ribbonType === 'collapsed') {
+  if (ribbonType === 'classic') {
     return items.map(({ gridLayout, ...item }) => item)
   }
 
