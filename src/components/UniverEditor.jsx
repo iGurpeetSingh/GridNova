@@ -2230,6 +2230,15 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
     let univerInstance
     let ribbonDisposables = []
     let disposed = false
+    const preserveGridSelection = (event) => {
+      const target = event.target instanceof Element ? event.target : null
+      if (!target) return
+      const ribbonTrigger = target.closest(
+        '[data-u-comp="ribbon-grid-menu"] button, [data-u-comp="ribbon-header-menu"] [role="tab"]',
+      )
+      if (ribbonTrigger) event.preventDefault()
+    }
+    containerRef.current.addEventListener('mousedown', preserveGridSelection, true)
 
     try {
       const config = initialConfigRef.current
@@ -2514,6 +2523,7 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
 
     return () => {
       disposed = true
+      containerRef.current?.removeEventListener('mousedown', preserveGridSelection, true)
       onReadyRef.current?.(null)
       try {
         ribbonDisposables?.forEach((item) => item?.dispose?.())
