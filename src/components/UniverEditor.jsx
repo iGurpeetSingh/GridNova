@@ -2163,6 +2163,23 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
   return [...icons, ...drawingComponents, ...menus, ...nativeTabGroupMenus]
 }
 
+function updateReviewRibbonState(univerAPI) {
+  const workbook = univerAPI.getActiveWorkbook?.()
+  const sheet = workbook?.getActiveSheet?.()
+  const comments = (sheet?.getComments?.() || []).filter((comment) => comment.getIsRoot?.())
+  const hasComments = comments.length > 0
+  const sheetProtected = !!sheet?.getWorksheetPermission?.()?.isProtected?.()
+  const workbookPermission = workbook?.getWorkbookPermission?.()
+  const workbookProtected = !!workbookPermission?.isProtected?.()
+  univerAPI.updateMenuConfig({
+    'gridnova.ribbon.commands.review.delete-comment': { disabled: !hasComments },
+    'gridnova.ribbon.commands.review.previous-comment': { disabled: !hasComments },
+    'gridnova.ribbon.commands.review.next-comment': { disabled: !hasComments },
+    'gridnova.ribbon.commands.review.protect-sheet': { title: sheetProtected ? 'Unprotect Sheet' : 'Protect Sheet' },
+    'gridnova.ribbon.commands.review.protect-workbook': { title: workbookProtected ? 'Unprotect Workbook' : 'Protect Workbook' },
+  })
+}
+
 function addColumnHeaderDeleteAction(univerAPI) {
   // The core preset already provides Insert Before/After, Hide/Show, Width
   // and Autofit on the column-header context menu. Its public menu list does
@@ -2359,9 +2376,42 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
         univerAPI.setRibbonType(config.ribbonType)
       }
 
+      updateReviewRibbonState(univerAPI)
       const editorApi = {
+        getUniverApi() {
+          return univerAPI
+        },
         getSnapshot() {
           return univerAPI.getActiveWorkbook()?.save() || null
+        },
+        selectCell(address, sheetId) {
+          const activeWorkbook = univerAPI.getActiveWorkbook()
+          const targetSheet = sheetId
+            ? activeWorkbook?.getSheets?.().find((item) => item.getSheetId?.() === sheetId)
+            : activeWorkbook?.getActiveSheet?.()
+          if (!targetSheet || !address) return false
+          targetSheet.activate?.()
+          targetSheet.getRange(address).activateAsCurrentCell()
+          return true
+        },
+        updateReviewCommandState(action, title, disabled) {
+          const ids = {
+            'delete-comment': 'gridnova.ribbon.commands.review.delete-comment',
+            'previous-comment': 'gridnova.ribbon.commands.review.previous-comment',
+            'next-comment': 'gridnova.ribbon.commands.review.next-comment',
+            'protect-sheet': 'gridnova.ribbon.commands.review.protect-sheet',
+            'protect-workbook': 'gridnova.ribbon.commands.review.protect-workbook',
+          }
+          const id = ids[action]
+          if (!id) return false
+          const config = {}
+          if (title) config.title = title
+          if (typeof disabled === 'boolean') config.disabled = disabled
+          univerAPI.updateMenuConfig({ [id]: config })
+          return true
+        },
+        refreshReviewRibbonState() {
+          updateReviewRibbonState(univerAPI)
         },
         getActiveWorkbook() {
           return univerAPI.getActiveWorkbook()
