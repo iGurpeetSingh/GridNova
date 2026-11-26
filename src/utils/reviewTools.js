@@ -459,6 +459,7 @@ export function diffWorkbookSnapshots(previous, next, commandId = 'Workbook chan
           action: commandId,
           oldValue,
           newValue,
+          canRevert: true,
           description: oldValue ? 'Changed from ' + oldValue + ' to ' + newValue : 'Entered ' + newValue,
           createdAt: Date.now(),
         });
