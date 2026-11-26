@@ -11,7 +11,14 @@
  */
 export function withRibbonGridLayouts(items = [], ribbonType = 'grid') {
   if (ribbonType === 'classic') {
-    return items.map(({ gridLayout, ...item }) => item)
+    return items.map((item) => {
+      if (item.keepGridLayoutInClassic) {
+        const { keepGridLayoutInClassic, ...preserved } = item
+        return preserved
+      }
+      const { gridLayout, ...nativeItem } = item
+      return nativeItem
+    })
   }
 
   return items.map((item, index) => {

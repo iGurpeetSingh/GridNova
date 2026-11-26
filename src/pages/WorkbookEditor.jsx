@@ -10,6 +10,7 @@ import PdfExportDialog from '../components/PdfExportDialog.jsx'
 import { downloadCsvFile, exportPdfFile } from '../services/dataFileService.js'
 import { exportExcelFile, importExcelFile } from '../services/excelFileService.js'
 import { getWorkbook, saveWorkbook } from '../services/workbookStorage.js'
+import { clearWorkbookChanges, createReviewChange, loadWorkbookChanges, recordWorkbookChanges } from '../utils/change-history.js'
 
 function safeFileName(value) {
   return String(value || 'GridNova Workbook').replace(/[\\/:*?"<>|]/g, '-').trim() || 'GridNova Workbook'
@@ -62,6 +63,7 @@ export default function WorkbookEditor() {
   const fileInputRef = useRef(null)
   const lastSavedRef = useRef('')
   const saveInFlightRef = useRef(null)
+  const lastSnapshotRef = useRef(null)
   const [title, setTitle] = useState(searchParams.get('title')?.trim() || 'Untitled workbook')
   const [isReadOnly, setIsReadOnly] = useState(() => {
     try { return window.localStorage.getItem('gridnova:editing-mode:' + workbookId) === 'view' } catch { return false }
@@ -80,6 +82,7 @@ export default function WorkbookEditor() {
   const [pdfExportBusy, setPdfExportBusy] = useState(false)
   const importAnchorRef = useRef({ row: 0, column: 0 })
   const [reviewPanelMode, setReviewPanelMode] = useState(null)
+  const [changes, setChanges] = useState(() => loadWorkbookChanges(workbookId))
   const [activity, setActivity] = useState(() => {
     try {
       const stored = JSON.parse(window.localStorage.getItem('gridnova:activity:' + workbookId) || '[]')
@@ -97,6 +100,8 @@ export default function WorkbookEditor() {
       setActivity([])
     }
     setReviewPanelMode(null)
+    setChanges(loadWorkbookChanges(workbookId))
+    lastSnapshotRef.current = null
     try { setIsReadOnly(window.localStorage.getItem('gridnova:editing-mode:' + workbookId) === 'view') } catch { setIsReadOnly(false) }
     try { setFormulaBarVisible(window.localStorage.getItem('gridnova:formula-bar:' + workbookId) !== 'false') } catch { setFormulaBarVisible(true) }
   }, [workbookId])
@@ -105,6 +110,12 @@ export default function WorkbookEditor() {
     if (!editorApi?.setFormulaBarVisible) return
     editorApi.setFormulaBarVisible(formulaBarVisible)
   }, [editorApi, formulaBarVisible])
+
+  useEffect(() => {
+    if (!editorApi?.updateReviewCommandState) return
+    editorApi.updateReviewCommandState('show-comments', reviewPanelMode === 'comments' ? 'Hide Comments' : 'Show Comments')
+    editorApi.updateReviewCommandState('show-changes', reviewPanelMode === 'changes' ? 'Hide Changes' : 'Show Changes')
+  }, [editorApi, reviewPanelMode])
 
   useEffect(() => {
     let mounted = true
@@ -197,6 +208,7 @@ export default function WorkbookEditor() {
     if (!editorApi?.onCommandExecuted) return undefined
     const subscription = editorApi.onCommandExecuted((event) => {
       const activeRange = editorApi.getActiveSheet()?.getActiveRange?.()
+      const activeSheet = editorApi.getActiveSheet?.()
       const command = String(event?.id || 'Workbook action')
       const entry = {
         id: globalThis.crypto?.randomUUID?.() || String(Date.now()),
@@ -211,6 +223,17 @@ export default function WorkbookEditor() {
         try { window.localStorage.setItem('gridnova:activity:' + workbookId, JSON.stringify(next)) } catch { /* activity history is best-effort */ }
         return next
       })
+      const snapshot = editorApi.getSnapshot?.()
+      if (snapshot && lastSnapshotRef.current) {
+        const detected = recordWorkbookChanges(workbookId, lastSnapshotRef.current, snapshot, command)
+        if (detected.length) setChanges((previous) => [...detected, ...previous].slice(0, 500))
+      }
+      if (snapshot) lastSnapshotRef.current = JSON.parse(JSON.stringify(snapshot))
+      editorApi.refreshReviewRibbonState?.()
+      if (activeSheet) {
+        const protectedNow = !!activeSheet.getWorksheetPermission?.()?.isProtected?.()
+        editorApi.updateReviewCommandState?.('protect-sheet', protectedNow ? 'Unprotect Sheet' : 'Protect Sheet')
+      }
     })
     return () => subscription?.dispose?.()
   }, [editorApi, workbookId])
@@ -383,6 +406,8 @@ export default function WorkbookEditor() {
 
   function handleEditorReady(api) {
     setEditorApi(api)
+    lastSnapshotRef.current = api?.getSnapshot?.() ? JSON.parse(JSON.stringify(api.getSnapshot())) : null
+    api?.refreshReviewRibbonState?.()
   }
 
   async function handleQuickAccessCommand(commandId) {
@@ -401,6 +426,74 @@ export default function WorkbookEditor() {
       if (result === false) setReviewPanelMode(fallbackMode)
     } catch {
       setReviewPanelMode(fallbackMode)
+    }
+  }
+
+  function recordReviewChange(fields) {
+    const entry = createReviewChange(workbookId, fields)
+    setChanges((previous) => [entry, ...previous].slice(0, 500))
+    return entry
+  }
+
+  function commentEntriesForActiveSheet() {
+    const sheet = editorApi?.getActiveSheet?.()
+    const entries = (sheet?.getComments?.() || [])
+      .filter((comment) => comment.getIsRoot?.())
+      .map((comment) => ({
+        comment,
+        address: comment.getRange?.()?.getA1Notation?.() || '',
+        data: comment.getCommentData?.() || {},
+      }))
+      .filter((item) => item.address)
+    const coordinate = (address) => {
+      const match = String(address).toUpperCase().match(/^([A-Z]+)(\\d+)$/)
+      if (!match) return { row: 0, column: 0 }
+      let column = 0
+      for (const character of match[1]) column = column * 26 + character.charCodeAt(0) - 64
+      return { row: Number(match[2]), column }
+    }
+    return entries.sort((a, b) => {
+      const first = coordinate(a.address), second = coordinate(b.address)
+      return first.row - second.row || first.column - second.column
+    })
+  }
+
+  function navigateComment(direction) {
+    const entries = commentEntriesForActiveSheet()
+    if (!entries.length) {
+      setNoticeType('info')
+      setNotice('There are no comments on this worksheet.')
+      editorApi?.refreshReviewRibbonState?.()
+      return
+    }
+    const current = editorApi?.getActiveSheet?.()?.getActiveRange?.()?.getA1Notation?.() || ''
+    let index = entries.findIndex((item) => item.address === current)
+    if (index < 0) index = direction > 0 ? -1 : 0
+    const nextIndex = (index + direction + entries.length) % entries.length
+    editorApi?.selectCell?.(entries[nextIndex].address)
+  }
+
+  async function deleteActiveComment() {
+    const sheet = editorApi?.getActiveSheet?.()
+    const address = sheet?.getActiveRange?.()?.getA1Notation?.()
+    const item = commentEntriesForActiveSheet().find((entry) => entry.address === address)
+    if (!item) {
+      setNoticeType('info')
+      setNotice('The active cell does not have a comment thread.')
+      return
+    }
+    try {
+      const data = item.comment.getCommentData?.() || {}
+      const comment = sheet.getCommentById?.(data.id || data.commentId || data.threadId)
+      const target = comment || item.comment
+      if (!await target.deleteAsync()) throw new Error('The comment could not be deleted.')
+      recordReviewChange({ action: 'Delete comment', sheetName: sheet.getSheetName(), cell: address, description: 'Deleted comment thread from ' + address })
+      editorApi?.refreshReviewRibbonState?.()
+      setNoticeType('success')
+      setNotice('Comment thread deleted from ' + address + '.')
+    } catch (error) {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'Could not delete the active comment.')
     }
   }
 
@@ -445,19 +538,76 @@ export default function WorkbookEditor() {
 
   async function handleRibbonAction(action) {
     if (action === 'insert-tools') {
+      setReviewPanelMode(null)
       setToolsOpen(true)
       return
     }
     if (action === 'open-comments') {
-      await handleTopBarCommand('sheet.operation.toggle-comment-panel', 'comments')
+      setReviewPanelMode('comments')
+      editorApi?.refreshReviewRibbonState?.()
       return
     }
     if (action === 'open-note') {
-      await handleTopBarCommand('sheet.operation.add-note-popup', 'comments')
+      setReviewPanelMode('notes')
       return
     }
     if (action === 'open-catch-up') {
-      setReviewPanelMode('activity')
+      setReviewPanelMode('changes')
+      return
+    }
+    if (action === 'review-spelling') {
+      setReviewPanelMode('spelling')
+      return
+    }
+    if (action === 'review-statistics') {
+      setReviewPanelMode('statistics')
+      return
+    }
+    if (action === 'review-accessibility') {
+      setReviewPanelMode('accessibility')
+      return
+    }
+    if (action === 'review-new-comment') {
+      setReviewPanelMode('comments')
+      editorApi?.refreshReviewRibbonState?.()
+      return
+    }
+    if (action === 'review-delete-comment') {
+      await deleteActiveComment()
+      return
+    }
+    if (action === 'review-previous-comment') {
+      navigateComment(-1)
+      return
+    }
+    if (action === 'review-next-comment') {
+      navigateComment(1)
+      return
+    }
+    if (action === 'review-show-comments') {
+      setReviewPanelMode((current) => current === 'comments' ? null : 'comments')
+      editorApi?.refreshReviewRibbonState?.()
+      return
+    }
+    if (action === 'review-notes-menu') {
+      setReviewPanelMode('notes')
+      return
+    }
+    if (action === 'review-protect-sheet') {
+      setReviewPanelMode('protect-sheet')
+      return
+    }
+    if (action === 'review-allow-edit-ranges') {
+      setReviewPanelMode('allow-ranges')
+      return
+    }
+    if (action === 'review-protect-workbook') {
+      setReviewPanelMode('protect-workbook')
+      return
+    }
+    if (action === 'review-show-changes') {
+      setChanges(loadWorkbookChanges(workbookId))
+      setReviewPanelMode('changes')
       return
     }
     if (action === 'toggle-formula-bar') {
@@ -619,13 +769,33 @@ export default function WorkbookEditor() {
     }
   }
 
+  function getSelectedRangeForReview() {
+    const range = editorApi?.getActiveSheet?.()?.getActiveRange?.()
+    if (!range) return null
+    const startRow = Number(range.getRow?.() ?? 0)
+    const startColumn = Number(range.getColumn?.() ?? 0)
+    const rowCount = Math.max(1, Number((range.getLastRow?.() ?? startRow) - startRow + 1))
+    const columnCount = Math.max(1, Number((range.getLastColumn?.() ?? startColumn) - startColumn + 1))
+    return {
+      startRow,
+      endRow: startRow + rowCount - 1,
+      startColumn,
+      endColumn: startColumn + columnCount - 1,
+    }
+  }
+
+  function clearReviewChanges() {
+    clearWorkbookChanges(workbookId)
+    setChanges([])
+  }
+
   async function handleBackToDashboard() {
     await saveNow({ force: true })
     navigate('/')
   }
 
   return (
-    <main className="editor-page">
+    <main className={'editor-page' + (reviewPanelMode ? ' review-pane-open' : '')}>
       <header className="editor-appbar">
         <button className="editor-brand" onClick={handleBackToDashboard} type="button" aria-label="Back to GridNova dashboard">
           <span className="brand-mark small">G</span>
@@ -648,8 +818,8 @@ export default function WorkbookEditor() {
         </div>
         <div className="editor-appbar-spacer" />
         <div className="editor-cloud-actions">
-          <button type="button" onClick={() => handleTopBarCommand('sheet.operation.toggle-comment-panel', 'comments')}><CommentRegular /> <span>Comments</span></button>
-          <button type="button" onClick={() => setReviewPanelMode('activity')}><BookOpenRegular /> <span>Catch up</span></button>
+          <button type="button" onClick={() => setReviewPanelMode((current) => current === 'comments' ? null : 'comments')}><CommentRegular /> <span>Comments</span></button>
+          <button type="button" onClick={() => setReviewPanelMode('changes')}><BookOpenRegular /> <span>Catch up</span></button>
           <button type="button" className="editor-mode-indicator" onClick={handleToggleEditingMode} aria-pressed={isReadOnly} title="Switch between editing and viewing">{isReadOnly ? 'Viewing' : 'Editing'} ▾</button>
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
@@ -707,7 +877,19 @@ export default function WorkbookEditor() {
           onExport={handleExportPdf}
         />
       )}
-      {reviewPanelMode && <ReviewPanel workbookId={workbookId} api={editorApi} mode={reviewPanelMode} activity={activity} onClose={() => setReviewPanelMode(null)} />}
+      {reviewPanelMode && <ReviewPanel
+        workbookId={workbookId}
+        api={editorApi}
+        mode={reviewPanelMode === 'activity' ? 'changes' : reviewPanelMode}
+        activity={activity}
+        changes={changes}
+        selectedRange={getSelectedRangeForReview()}
+        isReadOnly={isReadOnly}
+        onNotice={(message, type = 'success') => { setNoticeType(type); setNotice(message) }}
+        onRecordChange={recordReviewChange}
+        onClearChanges={clearReviewChanges}
+        onClose={() => setReviewPanelMode(null)}
+      />}
     </main>
   )
 }
