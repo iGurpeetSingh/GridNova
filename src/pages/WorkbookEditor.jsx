@@ -112,6 +112,12 @@ export default function WorkbookEditor() {
   }, [editorApi, formulaBarVisible])
 
   useEffect(() => {
+    if (!editorApi?.updateReviewCommandState) return
+    editorApi.updateReviewCommandState('show-comments', reviewPanelMode === 'comments' ? 'Hide Comments' : 'Show Comments')
+    editorApi.updateReviewCommandState('show-changes', reviewPanelMode === 'changes' ? 'Hide Changes' : 'Show Changes')
+  }, [editorApi, reviewPanelMode])
+
+  useEffect(() => {
     let mounted = true
     getWorkbook(workbookId)
       .then((record) => {
