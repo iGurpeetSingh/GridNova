@@ -494,7 +494,7 @@ export default function ReviewPanel({
   }
 
   async function revertChange(item) {
-    if (isReadOnly || !item.cell) return
+    if (isReadOnly || !item.cell || !item.canRevert) return
     try {
       const target = workbook?.getSheets?.().find((candidate) => candidate.getSheetId?.() === item.sheetId)
       if (!target) throw new Error('The worksheet for this change is no longer available.')
@@ -586,7 +586,7 @@ export default function ReviewPanel({
 
         {panelMode === 'changes' && <>
           <div className="review-changes-filters"><select value={changeFilter} onChange={(e) => setChangeFilter(e.target.value)} aria-label="Change filter"><option>All Changes</option><option>Selected Range Only</option></select><select value={sheetFilter} onChange={(e) => setSheetFilter(e.target.value)} aria-label="Sheet filter"><option>All</option>{sheetNames.map((name) => <option key={name}>{name}</option>)}</select></div>
-          <div className="review-change-list">{visibleChanges.length ? visibleChanges.map((item) => <article className="review-change-card" key={item.id}><div className="review-change-meta"><strong>{item.sheetName}{item.cell ? ' · ' + item.cell : ''}</strong><time>{timeLabel(item.createdAt)}</time></div><p>{item.description || item.action}</p>{item.cell && <div className="review-change-values"><span>{item.oldValue || '(blank)'}</span><ArrowRightRegular /><strong>{item.newValue || '(blank)'}</strong></div>}<div className="review-change-actions"><button type="button" disabled={!item.cell} onClick={() => jumpToCell(item.cell, item.sheetId)}>Go to cell</button>{item.cell && <button type="button" disabled={isReadOnly} onClick={() => revertChange(item)}>Revert this cell</button>}</div></article>) : <p className="review-empty">No changes match the selected filters.</p>}</div>
+          <div className="review-change-list">{visibleChanges.length ? visibleChanges.map((item) => <article className="review-change-card" key={item.id}><div className="review-change-meta"><strong>{item.sheetName}{item.cell ? ' · ' + item.cell : ''}</strong><time>{timeLabel(item.createdAt)}</time></div><p>{item.description || item.action}</p>{item.cell && <div className="review-change-values"><span>{item.oldValue || '(blank)'}</span><ArrowRightRegular /><strong>{item.newValue || '(blank)'}</strong></div>}<div className="review-change-actions"><button type="button" disabled={!item.cell} onClick={() => jumpToCell(item.cell, item.sheetId)}>Go to cell</button>{item.canRevert && <button type="button" disabled={isReadOnly} onClick={() => revertChange(item)}>Revert this cell</button>}</div></article>) : <p className="review-empty">No changes match the selected filters.</p>}</div>
           <div className="review-pane-footer"><span>{visibleChanges.length} change(s)</span><button type="button" className="review-quiet-button danger" onClick={() => { onClearChanges?.(); notice('Change log cleared.') }}>Clear Log</button></div>
         </>}
 
