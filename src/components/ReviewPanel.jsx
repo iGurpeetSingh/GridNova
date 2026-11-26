@@ -114,6 +114,7 @@ export default function ReviewPanel({
   const [protectPassword, setProtectPassword] = useState('')
   const [permissions, setPermissions] = useState({ selectLocked: true, selectUnlocked: true, formatCells: false, insertDeleteRowsColumns: false, sort: true, useAutoFilter: true })
   const [workbookPassword, setWorkbookPassword] = useState('')
+  const [workbookProtected, setWorkbookProtected] = useState(() => readLocal(localKey(workbookId, 'workbook-protected'), false))
 
   const sheet = api?.getActiveSheet?.()
   const workbook = api?.getActiveWorkbook?.()
@@ -143,6 +144,7 @@ export default function ReviewPanel({
     if (panelMode === 'statistics') setStatistics(calculateWorkbookStatistics(api?.getActiveWorkbook?.(), api?.getSnapshot?.()))
     if (panelMode === 'accessibility') setAccessibilityIssues(inspectWorkbookAccessibility(api?.getActiveWorkbook?.(), api?.getSnapshot?.(), workbookId))
     if (panelMode === 'protect-sheet') setRangeAddress(activeCell)
+    if (panelMode === 'protect-workbook') setWorkbookProtected(readLocal(localKey(workbookId, 'workbook-protected'), false))
   }, [panelMode, workbookId, api, activeCell])
 
   const filteredThreads = useMemo(() => threads.filter((item) => {
@@ -451,6 +453,7 @@ export default function ReviewPanel({
       const hash = workbookPassword ? await digestPassword(workbookPassword, salt) : ''
       writeLocal(localKey(workbookId, 'workbook-password'), { salt, hash })
       writeLocal(localKey(workbookId, 'workbook-protected'), true)
+      setWorkbookProtected(true)
       for (const key of ['CreateSheet', 'DeleteSheet', 'RenameSheet', 'MoveSheet', 'CopySheet']) {
         if (points[key] !== undefined) await permission.setPoint(points[key], false)
       }
@@ -476,6 +479,7 @@ export default function ReviewPanel({
       for (const key of ['CreateSheet', 'DeleteSheet', 'RenameSheet', 'MoveSheet', 'CopySheet']) if (points[key] !== undefined) await permission?.setPoint?.(points[key], true)
       writeLocal(localKey(workbookId, 'workbook-password'), null)
       writeLocal(localKey(workbookId, 'workbook-protected'), false)
+      setWorkbookProtected(false)
       notice('Workbook structure protection removed.')
       onRecordChange?.({ action: 'Unprotect workbook', description: 'Removed workbook structure protection' })
       api?.updateReviewCommandState?.('protect-workbook', 'Protect Workbook')
@@ -601,8 +605,9 @@ export default function ReviewPanel({
           <p className="review-protect-copy">Workbook structure protection prevents adding, deleting, renaming, moving, and duplicating worksheets. Cell editing remains available unless a sheet is separately protected.</p>
           <label className="review-field-label">Optional passcode<input type="password" value={workbookPassword} onChange={(e) => setWorkbookPassword(e.target.value)} autoComplete="new-password" placeholder="Leave blank for no passcode" /></label>
           <div className="review-permission-list"><label><input type="checkbox" checked disabled /> Prevent adding sheets</label><label><input type="checkbox" checked disabled /> Prevent deleting sheets</label><label><input type="checkbox" checked disabled /> Prevent renaming sheets</label><label><input type="checkbox" checked disabled /> Prevent moving / duplicating sheets</label></div>
-          <button type="button" className="panel-primary review-full-button" disabled={busy || isReadOnly} onClick={protectWorkbookStructure}><LockClosedRegular /> Protect Workbook</button>
-          <button type="button" className="panel-secondary review-full-button" disabled={busy || isReadOnly} onClick={unprotectWorkbookStructure}><LockOpenRegular /> Unprotect Workbook</button>
+          {workbookProtected
+            ? <button type="button" className="panel-primary review-full-button" disabled={busy || isReadOnly} onClick={unprotectWorkbookStructure}><LockOpenRegular /> Unprotect Workbook</button>
+            : <button type="button" className="panel-primary review-full-button" disabled={busy || isReadOnly} onClick={protectWorkbookStructure}><LockClosedRegular /> Protect Workbook</button>}
         </div>}
       </aside>
     </div>,
