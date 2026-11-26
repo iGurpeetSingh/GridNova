@@ -532,6 +532,7 @@ export default function WorkbookEditor() {
 
   async function handleRibbonAction(action) {
     if (action === 'insert-tools') {
+      setReviewPanelMode(null)
       setToolsOpen(true)
       return
     }
@@ -767,8 +768,8 @@ export default function WorkbookEditor() {
     if (!range) return null
     const startRow = Number(range.getRow?.() ?? 0)
     const startColumn = Number(range.getColumn?.() ?? 0)
-    const rowCount = Math.max(1, Number(range.getNumRows?.() ?? 1))
-    const columnCount = Math.max(1, Number(range.getNumColumns?.() ?? 1))
+    const rowCount = Math.max(1, Number((range.getLastRow?.() ?? startRow) - startRow + 1))
+    const columnCount = Math.max(1, Number((range.getLastColumn?.() ?? startColumn) - startColumn + 1))
     return {
       startRow,
       endRow: startRow + rowCount - 1,
