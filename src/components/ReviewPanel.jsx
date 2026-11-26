@@ -128,6 +128,10 @@ export default function ReviewPanel({
       .map((comment, index) => mapThread(comment, index))
       .sort((a, b) => b.createdAt - a.createdAt)
     setThreads(list)
+    api?.updateReviewCommandState?.('delete-comment', 'Delete', list.length === 0)
+    api?.updateReviewCommandState?.('previous-comment', 'Previous', list.length === 0)
+    api?.updateReviewCommandState?.('next-comment', 'Next', list.length === 0)
+    api?.refreshReviewRibbonState?.()
     return list
   }
   function openComments() { setPanelMode('comments'); refreshThreads() }
@@ -446,6 +450,7 @@ export default function ReviewPanel({
       const salt = randomSalt()
       const hash = workbookPassword ? await digestPassword(workbookPassword, salt) : ''
       writeLocal(localKey(workbookId, 'workbook-password'), { salt, hash })
+      writeLocal(localKey(workbookId, 'workbook-protected'), true)
       for (const key of ['CreateSheet', 'DeleteSheet', 'RenameSheet', 'MoveSheet', 'CopySheet']) {
         if (points[key] !== undefined) await permission.setPoint(points[key], false)
       }
@@ -470,6 +475,7 @@ export default function ReviewPanel({
       const points = univerApi?.Enum?.WorkbookPermissionPoint || {}
       for (const key of ['CreateSheet', 'DeleteSheet', 'RenameSheet', 'MoveSheet', 'CopySheet']) if (points[key] !== undefined) await permission?.setPoint?.(points[key], true)
       writeLocal(localKey(workbookId, 'workbook-password'), null)
+      writeLocal(localKey(workbookId, 'workbook-protected'), false)
       notice('Workbook structure protection removed.')
       onRecordChange?.({ action: 'Unprotect workbook', description: 'Removed workbook structure protection' })
       api?.updateReviewCommandState?.('protect-workbook', 'Protect Workbook')
