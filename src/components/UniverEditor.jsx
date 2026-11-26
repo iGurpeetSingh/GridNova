@@ -2418,6 +2418,8 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
             'next-comment': 'gridnova.ribbon.commands.review.next-comment',
             'protect-sheet': 'gridnova.ribbon.commands.review.protect-sheet',
             'protect-workbook': 'gridnova.ribbon.commands.review.protect-workbook',
+            'show-comments': 'gridnova.ribbon.commands.review.show-comments',
+            'show-changes': 'gridnova.ribbon.commands.review.show-changes',
           }
           const id = ids[action]
           if (!id) return false
