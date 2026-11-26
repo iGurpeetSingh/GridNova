@@ -208,6 +208,7 @@ export default function ReviewPanel({
       const rich = univerApi.newRichText().insertText(text.trim())
       if (!await item.comment.updateAsync(rich)) throw new Error('The comment could not be updated.')
       setEditingId(null); setEditingText(''); refreshThreads()
+      onRecordChange?.({ action: 'Edit comment', sheetName: sheet.getSheetName(), cell: item.comment?.getRange?.()?.getA1Notation?.() || '', description: 'Edited a threaded comment' })
     } catch (error) { notice(error instanceof Error ? error.message : 'Could not update comment.', 'error') }
   }
 
@@ -216,6 +217,7 @@ export default function ReviewPanel({
     try {
       if (!await item.comment.deleteAsync()) throw new Error('The comment could not be deleted.')
       refreshThreads(); notice('Comment deleted.')
+      onRecordChange?.({ action: 'Delete comment reply', sheetName: sheet.getSheetName(), cell: item.comment?.getRange?.()?.getA1Notation?.() || '', description: 'Deleted a comment or reply' })
     } catch (error) { notice(error instanceof Error ? error.message : 'Could not delete comment.', 'error') }
   }
 
@@ -225,6 +227,7 @@ export default function ReviewPanel({
       const result = await sheet.getCommentById(thread.id)?.resolveAsync(resolved)
       if (result === false) throw new Error('Thread status was not changed.')
       refreshThreads()
+      onRecordChange?.({ action: resolved ? 'Resolve comment thread' : 'Reopen comment thread', sheetName: sheet.getSheetName(), cell: thread.address, description: resolved ? 'Resolved comment thread' : 'Reopened comment thread' })
     } catch (error) { notice(error instanceof Error ? error.message : 'Could not update thread status.', 'error') }
   }
 
@@ -233,6 +236,7 @@ export default function ReviewPanel({
     try {
       if (!await sheet.getCommentById(thread.id)?.deleteAsync()) throw new Error('The thread could not be deleted.')
       refreshThreads(); notice('Comment thread deleted.')
+      onRecordChange?.({ action: 'Delete comment thread', sheetName: sheet.getSheetName(), cell: thread.address, description: 'Deleted comment thread from ' + thread.address })
     } catch (error) { notice(error instanceof Error ? error.message : 'Could not delete thread.', 'error') }
   }
 
@@ -304,6 +308,7 @@ export default function ReviewPanel({
   function deleteNote() {
     if (isReadOnly) return notice('Switch to Editing mode before changing notes.', 'error')
     sheet.getRange(activeCell).deleteNote(); setNoteText(''); notice('Note deleted.')
+    onRecordChange?.({ action: 'Delete note', sheetName: sheet.getSheetName(), cell: activeCell, description: 'Deleted note from ' + activeCell })
   }
   function toggleCurrentNote() {
     const note = sheet.getRange(activeCell).getNote()
@@ -320,6 +325,7 @@ export default function ReviewPanel({
     writeLocal(localKey(workbookId, 'pinned-notes'), next)
     sheet.getRange(activeCell).createOrUpdateNote({ note: note.note || '', width: note.width || 210, height: note.height || 130, show: !isPinned })
     notice(isPinned ? 'Note unpinned.' : 'Note pinned.')
+    onRecordChange?.({ action: isPinned ? 'Unpin note' : 'Pin note', sheetName: sheet.getSheetName(), cell: activeCell, description: (isPinned ? 'Unpinned' : 'Pinned') + ' note in ' + activeCell })
   }
   function toggleAllNotes() {
     const notes = sheet.getNotes?.() || []
