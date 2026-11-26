@@ -10,6 +10,7 @@ import PdfExportDialog from '../components/PdfExportDialog.jsx'
 import { downloadCsvFile, exportPdfFile } from '../services/dataFileService.js'
 import { exportExcelFile, importExcelFile } from '../services/excelFileService.js'
 import { getWorkbook, saveWorkbook } from '../services/workbookStorage.js'
+import { clearWorkbookChanges, createReviewChange, loadWorkbookChanges, recordWorkbookChanges } from '../utils/change-history.js'
 
 function safeFileName(value) {
   return String(value || 'GridNova Workbook').replace(/[\\/:*?"<>|]/g, '-').trim() || 'GridNova Workbook'
@@ -62,6 +63,7 @@ export default function WorkbookEditor() {
   const fileInputRef = useRef(null)
   const lastSavedRef = useRef('')
   const saveInFlightRef = useRef(null)
+  const lastSnapshotRef = useRef(null)
   const [title, setTitle] = useState(searchParams.get('title')?.trim() || 'Untitled workbook')
   const [isReadOnly, setIsReadOnly] = useState(() => {
     try { return window.localStorage.getItem('gridnova:editing-mode:' + workbookId) === 'view' } catch { return false }
@@ -80,6 +82,7 @@ export default function WorkbookEditor() {
   const [pdfExportBusy, setPdfExportBusy] = useState(false)
   const importAnchorRef = useRef({ row: 0, column: 0 })
   const [reviewPanelMode, setReviewPanelMode] = useState(null)
+  const [changes, setChanges] = useState(() => loadWorkbookChanges(workbookId))
   const [activity, setActivity] = useState(() => {
     try {
       const stored = JSON.parse(window.localStorage.getItem('gridnova:activity:' + workbookId) || '[]')
@@ -97,6 +100,8 @@ export default function WorkbookEditor() {
       setActivity([])
     }
     setReviewPanelMode(null)
+    setChanges(loadWorkbookChanges(workbookId))
+    lastSnapshotRef.current = null
     try { setIsReadOnly(window.localStorage.getItem('gridnova:editing-mode:' + workbookId) === 'view') } catch { setIsReadOnly(false) }
     try { setFormulaBarVisible(window.localStorage.getItem('gridnova:formula-bar:' + workbookId) !== 'false') } catch { setFormulaBarVisible(true) }
   }, [workbookId])
@@ -197,6 +202,7 @@ export default function WorkbookEditor() {
     if (!editorApi?.onCommandExecuted) return undefined
     const subscription = editorApi.onCommandExecuted((event) => {
       const activeRange = editorApi.getActiveSheet()?.getActiveRange?.()
+      const activeSheet = editorApi.getActiveSheet?.()
       const command = String(event?.id || 'Workbook action')
       const entry = {
         id: globalThis.crypto?.randomUUID?.() || String(Date.now()),
@@ -211,6 +217,17 @@ export default function WorkbookEditor() {
         try { window.localStorage.setItem('gridnova:activity:' + workbookId, JSON.stringify(next)) } catch { /* activity history is best-effort */ }
         return next
       })
+      const snapshot = editorApi.getSnapshot?.()
+      if (snapshot && lastSnapshotRef.current) {
+        const detected = recordWorkbookChanges(workbookId, lastSnapshotRef.current, snapshot, command)
+        if (detected.length) setChanges((previous) => [...detected, ...previous].slice(0, 500))
+      }
+      if (snapshot) lastSnapshotRef.current = JSON.parse(JSON.stringify(snapshot))
+      editorApi.refreshReviewRibbonState?.()
+      if (activeSheet) {
+        const protectedNow = !!activeSheet.getWorksheetPermission?.()?.isProtected?.()
+        editorApi.updateReviewCommandState?.('protect-sheet', protectedNow ? 'Unprotect Sheet' : 'Protect Sheet')
+      }
     })
     return () => subscription?.dispose?.()
   }, [editorApi, workbookId])
@@ -383,6 +400,8 @@ export default function WorkbookEditor() {
 
   function handleEditorReady(api) {
     setEditorApi(api)
+    lastSnapshotRef.current = api?.getSnapshot?.() ? JSON.parse(JSON.stringify(api.getSnapshot())) : null
+    api?.refreshReviewRibbonState?.()
   }
 
   async function handleQuickAccessCommand(commandId) {
