@@ -762,13 +762,33 @@ export default function WorkbookEditor() {
     }
   }
 
+  function getSelectedRangeForReview() {
+    const range = editorApi?.getActiveSheet?.()?.getActiveRange?.()
+    if (!range) return null
+    const startRow = Number(range.getRow?.() ?? 0)
+    const startColumn = Number(range.getColumn?.() ?? 0)
+    const rowCount = Math.max(1, Number(range.getNumRows?.() ?? 1))
+    const columnCount = Math.max(1, Number(range.getNumColumns?.() ?? 1))
+    return {
+      startRow,
+      endRow: startRow + rowCount - 1,
+      startColumn,
+      endColumn: startColumn + columnCount - 1,
+    }
+  }
+
+  function clearReviewChanges() {
+    clearWorkbookChanges(workbookId)
+    setChanges([])
+  }
+
   async function handleBackToDashboard() {
     await saveNow({ force: true })
     navigate('/')
   }
 
   return (
-    <main className="editor-page">
+    <main className={'editor-page' + (reviewPanelMode ? ' review-pane-open' : '')}>
       <header className="editor-appbar">
         <button className="editor-brand" onClick={handleBackToDashboard} type="button" aria-label="Back to GridNova dashboard">
           <span className="brand-mark small">G</span>
@@ -791,8 +811,8 @@ export default function WorkbookEditor() {
         </div>
         <div className="editor-appbar-spacer" />
         <div className="editor-cloud-actions">
-          <button type="button" onClick={() => handleTopBarCommand('sheet.operation.toggle-comment-panel', 'comments')}><CommentRegular /> <span>Comments</span></button>
-          <button type="button" onClick={() => setReviewPanelMode('activity')}><BookOpenRegular /> <span>Catch up</span></button>
+          <button type="button" onClick={() => setReviewPanelMode((current) => current === 'comments' ? null : 'comments')}><CommentRegular /> <span>Comments</span></button>
+          <button type="button" onClick={() => setReviewPanelMode('changes')}><BookOpenRegular /> <span>Catch up</span></button>
           <button type="button" className="editor-mode-indicator" onClick={handleToggleEditingMode} aria-pressed={isReadOnly} title="Switch between editing and viewing">{isReadOnly ? 'Viewing' : 'Editing'} ▾</button>
           <button className="share-action" type="button" onClick={handleShareWorkbook}><ShareRegular /> <span>Share</span></button>
         </div>
@@ -850,7 +870,19 @@ export default function WorkbookEditor() {
           onExport={handleExportPdf}
         />
       )}
-      {reviewPanelMode && <ReviewPanel workbookId={workbookId} api={editorApi} mode={reviewPanelMode} activity={activity} onClose={() => setReviewPanelMode(null)} />}
+      {reviewPanelMode && <ReviewPanel
+        workbookId={workbookId}
+        api={editorApi}
+        mode={reviewPanelMode === 'activity' ? 'changes' : reviewPanelMode}
+        activity={activity}
+        changes={changes}
+        selectedRange={getSelectedRangeForReview()}
+        isReadOnly={isReadOnly}
+        onNotice={(message, type = 'success') => { setNoticeType(type); setNotice(message) }}
+        onRecordChange={recordReviewChange}
+        onClearChanges={clearReviewChanges}
+        onClose={() => setReviewPanelMode(null)}
+      />}
     </main>
   )
 }
