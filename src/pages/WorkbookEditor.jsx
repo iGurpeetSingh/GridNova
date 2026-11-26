@@ -423,6 +423,74 @@ export default function WorkbookEditor() {
     }
   }
 
+  function recordReviewChange(fields) {
+    const entry = createReviewChange(workbookId, fields)
+    setChanges((previous) => [entry, ...previous].slice(0, 500))
+    return entry
+  }
+
+  function commentEntriesForActiveSheet() {
+    const sheet = editorApi?.getActiveSheet?.()
+    const entries = (sheet?.getComments?.() || [])
+      .filter((comment) => comment.getIsRoot?.())
+      .map((comment) => ({
+        comment,
+        address: comment.getRange?.()?.getA1Notation?.() || '',
+        data: comment.getCommentData?.() || {},
+      }))
+      .filter((item) => item.address)
+    const coordinate = (address) => {
+      const match = String(address).toUpperCase().match(/^([A-Z]+)(\\d+)$/)
+      if (!match) return { row: 0, column: 0 }
+      let column = 0
+      for (const character of match[1]) column = column * 26 + character.charCodeAt(0) - 64
+      return { row: Number(match[2]), column }
+    }
+    return entries.sort((a, b) => {
+      const first = coordinate(a.address), second = coordinate(b.address)
+      return first.row - second.row || first.column - second.column
+    })
+  }
+
+  function navigateComment(direction) {
+    const entries = commentEntriesForActiveSheet()
+    if (!entries.length) {
+      setNoticeType('info')
+      setNotice('There are no comments on this worksheet.')
+      editorApi?.refreshReviewRibbonState?.()
+      return
+    }
+    const current = editorApi?.getActiveSheet?.()?.getActiveRange?.()?.getA1Notation?.() || ''
+    let index = entries.findIndex((item) => item.address === current)
+    if (index < 0) index = direction > 0 ? -1 : 0
+    const nextIndex = (index + direction + entries.length) % entries.length
+    editorApi?.selectCell?.(entries[nextIndex].address)
+  }
+
+  async function deleteActiveComment() {
+    const sheet = editorApi?.getActiveSheet?.()
+    const address = sheet?.getActiveRange?.()?.getA1Notation?.()
+    const item = commentEntriesForActiveSheet().find((entry) => entry.address === address)
+    if (!item) {
+      setNoticeType('info')
+      setNotice('The active cell does not have a comment thread.')
+      return
+    }
+    try {
+      const data = item.comment.getCommentData?.() || {}
+      const comment = sheet.getCommentById?.(data.id || data.commentId || data.threadId)
+      const target = comment || item.comment
+      if (!await target.deleteAsync()) throw new Error('The comment could not be deleted.')
+      recordReviewChange({ action: 'Delete comment', sheetName: sheet.getSheetName(), cell: address, description: 'Deleted comment thread from ' + address })
+      editorApi?.refreshReviewRibbonState?.()
+      setNoticeType('success')
+      setNotice('Comment thread deleted from ' + address + '.')
+    } catch (error) {
+      setNoticeType('error')
+      setNotice(error instanceof Error ? error.message : 'Could not delete the active comment.')
+    }
+  }
+
   async function handleToggleEditingMode() {
     const sheets = editorApi?.getWorkbook(workbookId)?.getSheets?.() || [editorApi?.getActiveSheet()].filter(Boolean)
     if (!sheets.length) return
@@ -468,15 +536,71 @@ export default function WorkbookEditor() {
       return
     }
     if (action === 'open-comments') {
-      await handleTopBarCommand('sheet.operation.toggle-comment-panel', 'comments')
+      setReviewPanelMode('comments')
+      editorApi?.refreshReviewRibbonState?.()
       return
     }
     if (action === 'open-note') {
-      await handleTopBarCommand('sheet.operation.add-note-popup', 'comments')
+      setReviewPanelMode('notes')
       return
     }
     if (action === 'open-catch-up') {
-      setReviewPanelMode('activity')
+      setReviewPanelMode('changes')
+      return
+    }
+    if (action === 'review-spelling') {
+      setReviewPanelMode('spelling')
+      return
+    }
+    if (action === 'review-statistics') {
+      setReviewPanelMode('statistics')
+      return
+    }
+    if (action === 'review-accessibility') {
+      setReviewPanelMode('accessibility')
+      return
+    }
+    if (action === 'review-new-comment') {
+      setReviewPanelMode('comments')
+      editorApi?.refreshReviewRibbonState?.()
+      return
+    }
+    if (action === 'review-delete-comment') {
+      await deleteActiveComment()
+      return
+    }
+    if (action === 'review-previous-comment') {
+      navigateComment(-1)
+      return
+    }
+    if (action === 'review-next-comment') {
+      navigateComment(1)
+      return
+    }
+    if (action === 'review-show-comments') {
+      setReviewPanelMode((current) => current === 'comments' ? null : 'comments')
+      editorApi?.refreshReviewRibbonState?.()
+      return
+    }
+    if (action === 'review-notes-menu') {
+      setReviewPanelMode('notes')
+      return
+    }
+    if (action === 'review-protect-sheet') {
+      setReviewPanelMode('protect-sheet')
+      return
+    }
+    if (action === 'review-allow-edit-ranges') {
+      setReviewPanelMode('allow-ranges')
+      return
+    }
+    if (action === 'review-protect-workbook') {
+      setReviewPanelMode('protect-workbook')
+      return
+    }
+    if (action === 'review-show-changes') {
+      setChanges(loadWorkbookChanges(workbookId))
+      setReviewPanelMode('changes')
       return
     }
     if (action === 'toggle-formula-bar') {
