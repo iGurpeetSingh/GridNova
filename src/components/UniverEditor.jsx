@@ -2169,8 +2169,13 @@ function updateReviewRibbonState(univerAPI) {
   const comments = (sheet?.getComments?.() || []).filter((comment) => comment.getIsRoot?.())
   const hasComments = comments.length > 0
   const sheetProtected = !!sheet?.getWorksheetPermission?.()?.isProtected?.()
-  const workbookPermission = workbook?.getWorkbookPermission?.()
-  const workbookProtected = !!workbookPermission?.isProtected?.()
+  const workbookProtected = (() => {
+    try {
+      return window.localStorage.getItem('gridnova:review:' + workbook?.getId?.() + ':workbook-protected') === 'true'
+    } catch {
+      return false
+    }
+  })()
   univerAPI.updateMenuConfig({
     'gridnova.ribbon.commands.review.delete-comment': { disabled: !hasComments },
     'gridnova.ribbon.commands.review.previous-comment': { disabled: !hasComments },
