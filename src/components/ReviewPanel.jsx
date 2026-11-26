@@ -9,7 +9,7 @@ import {
 } from '@fluentui/react-icons'
 import {
   addCustomDictionaryWord, calculateWorkbookStatistics, getCustomDictionary,
-  getIgnoredWords, readAltText, saveIgnoredWords, scanSheetForSpelling, writeAltText,
+  getIgnoredWords, inspectWorkbookAccessibility, readAltText, saveIgnoredWords, scanSheetForSpelling, writeAltText,
 } from '../utils/reviewTools.js'
 
 function localKey(workbookId, suffix) { return 'gridnova:review:' + workbookId + ':' + suffix }
@@ -97,6 +97,7 @@ export default function ReviewPanel({
   const [busy, setBusy] = useState(false)
   const [noteText, setNoteText] = useState('')
   const [showAllNotes, setShowAllNotes] = useState(false)
+  const [pinnedNotes, setPinnedNotes] = useState(() => readLocal(localKey(workbookId, 'pinned-notes'), []))
   const [spellingIssues, setSpellingIssues] = useState([])
   const [spellingIndex, setSpellingIndex] = useState(0)
   const [ignoredOnce, setIgnoredOnce] = useState([])
@@ -136,7 +137,7 @@ export default function ReviewPanel({
     if (panelMode === 'comments') refreshThreads()
     if (panelMode === 'notes') setNoteText(api?.getActiveSheet?.()?.getRange?.(activeCell)?.getNote?.()?.note || '')
     if (panelMode === 'statistics') setStatistics(calculateWorkbookStatistics(api?.getActiveWorkbook?.(), api?.getSnapshot?.()))
-    if (panelMode === 'accessibility') setAccessibilityIssues(api?.inspectAccessibility?.() || [])
+    if (panelMode === 'accessibility') setAccessibilityIssues(inspectWorkbookAccessibility(api?.getActiveWorkbook?.(), api?.getSnapshot?.(), workbookId))
     if (panelMode === 'protect-sheet') setRangeAddress(activeCell)
   }, [panelMode, workbookId, api, activeCell])
 
@@ -304,6 +305,16 @@ export default function ReviewPanel({
     sheet.getRange(activeCell).createOrUpdateNote({ note: note.note || '', width: note.width || 210, height: note.height || 130, show: note.show === false })
     notice(note.show === false ? 'Note shown.' : 'Note hidden.')
   }
+  function togglePinnedNote() {
+    const note = sheet.getRange(activeCell).getNote()
+    if (!note) return notice('There is no note in ' + activeCell + '.', 'error')
+    const isPinned = pinnedNotes.includes(activeCell)
+    const next = isPinned ? pinnedNotes.filter((address) => address !== activeCell) : [...pinnedNotes, activeCell]
+    setPinnedNotes(next)
+    writeLocal(localKey(workbookId, 'pinned-notes'), next)
+    sheet.getRange(activeCell).createOrUpdateNote({ note: note.note || '', width: note.width || 210, height: note.height || 130, show: !isPinned })
+    notice(isPinned ? 'Note unpinned.' : 'Note pinned.')
+  }
   function toggleAllNotes() {
     const notes = sheet.getNotes?.() || []
     const nextShow = !showAllNotes
@@ -327,7 +338,7 @@ export default function ReviewPanel({
     finally { setBusy(false) }
   }
 
-  function recheckAccessibility() { setAccessibilityIssues(api?.inspectAccessibility?.() || []) }
+  function recheckAccessibility() { setAccessibilityIssues(inspectWorkbookAccessibility(api?.getActiveWorkbook?.(), api?.getSnapshot?.(), workbookId)) }
   async function addAltText(issue) {
     const text = String(altDrafts[issue.id] || '').trim()
     if (!text) return
@@ -523,6 +534,7 @@ export default function ReviewPanel({
             <button type="button" onClick={() => setNoteText(sheet.getRange(activeCell).getNote()?.note || '')}><EditRegular /> New Note / Edit Note <span>{activeCell}</span></button>
             <button type="button" disabled={isReadOnly} onClick={deleteNote}><DeleteRegular /> Delete Note</button>
             <button type="button" onClick={toggleCurrentNote}><EyeRegular /> Show / Hide Note</button>
+            <button type="button" onClick={togglePinnedNote}><NoteRegular /> {pinnedNotes.includes(activeCell) ? 'Unpin Note' : 'Pin Note'}</button>
             <button type="button" onClick={toggleAllNotes}><NoteRegular /> {showAllNotes ? 'Hide All Notes' : 'Show All Notes'}</button>
             <button type="button" disabled={isReadOnly || !(sheet?.getNotes?.() || []).length} onClick={convertNotesToComments}><CommentRegular /> Convert to Comments</button>
           </div>
@@ -546,7 +558,7 @@ export default function ReviewPanel({
         </div>}
 
         {panelMode === 'accessibility' && <div className="review-pane-scroll">
-          <div className="review-accessibility-summary"><AccessibilityRegular /><div><strong>{accessibilityIssues.length ? accessibilityIssues.length + ' issue(s) found' : 'No accessibility issues found'}</strong><span>Workbook scan · WCAG AA 4.5:1 target</span></div><button type="button" onClick={() => setAccessibilityIssues(api?.inspectAccessibility?.() || [])} aria-label="Re-check"><SearchRegular /></button></div>
+          <div className="review-accessibility-summary"><AccessibilityRegular /><div><strong>{accessibilityIssues.length ? accessibilityIssues.length + ' issue(s) found' : 'No accessibility issues found'}</strong><span>Workbook scan · WCAG AA 4.5:1 target</span></div><button type="button" onClick={recheckAccessibility} aria-label="Re-check"><SearchRegular /></button></div>
           {accessibilityIssues.length ? accessibilityIssues.map((issue) => <article className="review-issue-card" key={issue.id}>
             <div className="review-issue-header"><span>{issue.category}</span><button type="button" onClick={() => jumpToCell(issue.address, issue.sheetId)}>{issue.address || 'Go to item'} <ArrowRightRegular /></button></div><strong>{issue.title}</strong><p>{issue.description}</p>
             {issue.action === 'alt-text' && <div className="review-inline-field"><input value={altDrafts[issue.id] || ''} onChange={(e) => setAltDrafts((current) => ({ ...current, [issue.id]: e.target.value }))} placeholder="Describe this object…" /><button type="button" disabled={!String(altDrafts[issue.id] || '').trim()} onClick={() => addAltText(issue)}>Save Alt Text</button></div>}
