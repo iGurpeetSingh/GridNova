@@ -97,6 +97,96 @@ function ensureMinimumColumnCount(snapshot) {
 }
 
 
+const ReviewSpellingIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3.5 5.5h12.8v9.2H3.5z" stroke="#0F6CBD" />
+    <path d="M6 8.2h7.6M6 10.7h5.5" stroke="#0F6CBD" />
+    <path d="m8 19.1 2.1 1.9 4.2-4.6" stroke="#107C41" strokeWidth="2" />
+    <path d="M17.3 7.4h3.2M17.3 10h3.2" stroke="#107C41" />
+  </svg>
+)
+const ReviewStatisticsIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 3.8h12l4 4v12.4H4z" stroke="#0F6CBD" />
+    <path d="M16 3.8v4h4M7.3 16.9v-3.4M11.3 16.9V10M15.3 16.9v-5" stroke="#0F6CBD" />
+    <path d="M6.3 19h10.2" stroke="#107C41" />
+  </svg>
+)
+const ReviewAccessibilityIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9.1" stroke="#0F6CBD" />
+    <circle cx="12" cy="8" r="1.6" fill="#0F6CBD" stroke="none" />
+    <path d="M7.5 11h9M12 10.2v8M12 13l-3.2 4M12 13l3.2 4" stroke="#0F6CBD" />
+  </svg>
+)
+const ReviewNewCommentIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 5.2h15.8v11.2H11l-4.5 3v-3H4z" stroke="#7719AA" />
+    <path d="M12 8.3v5.2M9.4 10.9h5.2" stroke="#107C41" strokeWidth="1.8" />
+  </svg>
+)
+const ReviewDeleteCommentIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 5.2h15.8v11.2H11l-4.5 3v-3H4z" stroke="#7719AA" />
+    <path d="m10 8.3 4 4m0-4-4 4" stroke="#D13438" />
+  </svg>
+)
+const ReviewPreviousIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18.5 6.5H8a5 5 0 0 0 0 10h2" stroke="#7719AA" />
+    <path d="m10.5 13.5-3 3 3 3M7 6.5l3-3" stroke="#0F6CBD" />
+  </svg>
+)
+const ReviewNextIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5.5 6.5H16a5 5 0 0 1 0 10h-2" stroke="#7719AA" />
+    <path d="m13.5 13.5 3 3-3 3M17 6.5l-3-3" stroke="#0F6CBD" />
+  </svg>
+)
+const ReviewShowCommentsIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2.7 4.2h13.4v9.5H8.5l-3.4 2.4v-2.4H2.7z" stroke="#7719AA" />
+    <path d="M9.2 9.6h12v9h-3.4l-3 2v-2h-5.6" stroke="#A855C7" />
+  </svg>
+)
+const ReviewNotesIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 3.5h14v17H5z" stroke="#D79B16" />
+    <path d="M8 8h8M8 11h8M8 14h5" stroke="#D79B16" />
+    <path d="m16.8 17.5 2.1 2.1 2.1-2.1" stroke="#A66A00" />
+  </svg>
+)
+const ReviewProtectSheetIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3.5 3.5h11l5 5v12H3.5z" stroke="#0F6CBD" />
+    <path d="M14.5 3.5v5h5" stroke="#0F6CBD" />
+    <rect x="8" y="13" width="8.5" height="6.2" rx="1" stroke="#D79B16" />
+    <path d="M10 13v-1.4a2.2 2.2 0 0 1 4.4 0V13" stroke="#D79B16" />
+  </svg>
+)
+const ReviewAllowRangeIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3.5" y="3.5" width="17" height="17" rx="1" stroke="#0F6CBD" />
+    <path d="M9 3.5v17M14.5 3.5v17M3.5 9h17M3.5 14.5h17" stroke="#0F6CBD" opacity=".65" />
+    <path d="M12 8.5v-1a2.2 2.2 0 0 1 4.4 0v1M11 8.5h6v5h-6z" stroke="#107C41" />
+  </svg>
+)
+const ReviewProtectWorkbookIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 5h8v14H3zM11 5h10v14H11" stroke="#0F6CBD" />
+    <path d="M6 8h2M14 8h4" stroke="#0F6CBD" />
+    <rect x="13" y="12" width="6.5" height="5.4" rx="1" stroke="#D79B16" />
+    <path d="M14.6 12v-1a1.7 1.7 0 0 1 3.4 0v1" stroke="#D79B16" />
+  </svg>
+)
+const ReviewChangesIcon = ({ style = {}, ...props }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" style={style} {...props} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 5h12v12H4zM7 8h6M7 11h5" stroke="#0F6CBD" />
+    <path d="M17.8 8.2A6.2 6.2 0 1 1 16 20" stroke="#107C41" />
+    <path d="M17.8 4.5v3.7h-3.7" stroke="#107C41" />
+  </svg>
+)
+
 const RIBBON_ICONS = {
   save: SaveRegular,
   import: ArrowUploadRegular,
@@ -152,6 +242,19 @@ const RIBBON_ICONS = {
   insertColumn: TableRegular,
   deleteRow: CutRegular,
   deleteColumn: CutRegular,
+  reviewSpelling: ReviewSpellingIcon,
+  reviewStatistics: ReviewStatisticsIcon,
+  reviewAccessibility: ReviewAccessibilityIcon,
+  reviewNewComment: ReviewNewCommentIcon,
+  reviewDeleteComment: ReviewDeleteCommentIcon,
+  reviewPrevious: ReviewPreviousIcon,
+  reviewNext: ReviewNextIcon,
+  reviewShowComments: ReviewShowCommentsIcon,
+  reviewNotes: ReviewNotesIcon,
+  reviewProtectSheet: ReviewProtectSheetIcon,
+  reviewAllowRange: ReviewAllowRangeIcon,
+  reviewProtectWorkbook: ReviewProtectWorkbookIcon,
+  reviewChanges: ReviewChangesIcon,
 }
 
 const RIBBON_ICON_COLORS = {
@@ -162,6 +265,11 @@ const RIBBON_ICON_COLORS = {
   cut: '#D83B01', copy: '#0078D4', border: '#64748B',
   alignLeft: '#0078D4', alignCenter: '#0078D4', alignRight: '#0078D4',
   calculator: '#0078D4', print: '#475569', layout: '#0078D4',
+  reviewSpelling: '#107C41', reviewStatistics: '#0F6CBD', reviewAccessibility: '#0F6CBD',
+  reviewNewComment: '#7719AA', reviewDeleteComment: '#7719AA', reviewPrevious: '#7719AA',
+  reviewNext: '#7719AA', reviewShowComments: '#7719AA', reviewNotes: '#D79B16',
+  reviewProtectSheet: '#0F6CBD', reviewAllowRange: '#107C41',
+  reviewProtectWorkbook: '#0F6CBD', reviewChanges: '#0F6CBD',
 }
 
 function registerRibbonIcons(univerAPI) {
@@ -1732,20 +1840,30 @@ function addMicrosoftInspiredRibbonTabs(univerAPI, onRibbonAction, ribbonType) {
     },
     {
       id: 'review', title: 'Review', order: 8, groups: [
-        { id: 'comments', title: 'Comments & Notes', items: [
-          { id: 'new-comment', title: 'New Comment', icon: 'review', command: 'sheet.operation.show-comment-modal' },
-          { id: 'new-note', title: 'New Note', action: 'open-note' },
-          { id: 'comment-panel', title: 'Comment Management', command: 'sheet.operation.toggle-comment-panel' },
-          { id: 'spelling', title: 'Spelling (Unavailable)', action: 'review-tools-unavailable' },
+        { id: 'proofing', title: 'Proofing', items: [
+          { id: 'spelling', title: 'Spelling', icon: 'reviewSpelling', action: 'review-spelling', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 1, width: 80, showLabel: true } },
+          { id: 'workbook-statistics', title: 'Workbook Statistics', icon: 'reviewStatistics', action: 'review-statistics', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 2, width: 105, showLabel: true } },
         ] },
-        { id: 'protection', title: 'Protection', items: [
-          { id: 'protect-range', title: 'Protect Selected Range', command: 'sheet.command.add-range-protection-from-toolbar' },
-          { id: 'sheet-permissions', title: 'Sheet Permission Settings', command: 'sheet-permission.operation.openDialog' },
-          { id: 'protect-workbook-unavailable', title: 'Protect Workbook (Unavailable)', action: 'sheet-protection-unavailable' },
-          { id: 'show-changes', title: 'Show Changes (Unavailable)', action: 'review-tools-unavailable' },
+        { id: 'accessibility', title: 'Accessibility', items: [
+          { id: 'check-accessibility', title: 'Check Accessibility', icon: 'reviewAccessibility', action: 'review-accessibility', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 1, width: 105, showLabel: true } },
         ] },
-        { id: 'history', title: 'History', items: [
-          { id: 'edit-history', title: 'Local Activity Feed', action: 'open-catch-up' },
+        { id: 'comments', title: 'Comments', items: [
+          { id: 'new-comment', title: 'New Comment', icon: 'reviewNewComment', action: 'review-new-comment', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 1, width: 82, showLabel: true } },
+          { id: 'delete-comment', title: 'Delete', icon: 'reviewDeleteComment', action: 'review-delete-comment', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 2, width: 60, showLabel: true } },
+          { id: 'previous-comment', title: 'Previous', icon: 'reviewPrevious', action: 'review-previous-comment', keepGridLayoutInClassic: true, gridLayout: { row: 2, column: 2, width: 60, showLabel: true } },
+          { id: 'next-comment', title: 'Next', icon: 'reviewNext', action: 'review-next-comment', keepGridLayoutInClassic: true, gridLayout: { row: 3, column: 2, width: 60, showLabel: true } },
+          { id: 'show-comments', title: 'Show Comments', icon: 'reviewShowComments', action: 'review-show-comments', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 3, width: 92, showLabel: true } },
+        ] },
+        { id: 'notes', title: 'Notes', items: [
+          { id: 'notes-menu', title: 'Notes ⌄', icon: 'reviewNotes', action: 'review-notes-menu', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 1, width: 75, showLabel: true } },
+        ] },
+        { id: 'protection', title: 'Protect', items: [
+          { id: 'protect-sheet', title: 'Protect Sheet', icon: 'reviewProtectSheet', action: 'review-protect-sheet', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 1, width: 85, showLabel: true } },
+          { id: 'allow-edit-ranges', title: 'Allow Edit Ranges', icon: 'reviewAllowRange', action: 'review-allow-edit-ranges', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 2, width: 92, showLabel: true } },
+          { id: 'protect-workbook', title: 'Protect Workbook', icon: 'reviewProtectWorkbook', action: 'review-protect-workbook', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 3, width: 90, showLabel: true } },
+        ] },
+        { id: 'changes', title: 'Changes', items: [
+          { id: 'show-changes', title: 'Show Changes', icon: 'reviewChanges', action: 'review-show-changes', keepGridLayoutInClassic: true, gridLayout: { row: 1, column: 1, width: 88, showLabel: true } },
         ] },
       ],
     },
