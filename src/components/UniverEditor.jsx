@@ -2285,9 +2285,12 @@ export default function UniverEditor({ workbookId, title, initialSnapshot, ribbo
                       'sheet-background': 'Sheet Background',
                     },
                     review: {
-                      comments: 'Comments & Notes',
-                      protection: 'Protection',
-                      history: 'History',
+                      proofing: 'Proofing',
+                      accessibility: 'Accessibility',
+                      comments: 'Comments',
+                      notes: 'Notes',
+                      protection: 'Protect',
+                      changes: 'Changes',
                     },
                     help: {
                       support: 'Help & Support',
